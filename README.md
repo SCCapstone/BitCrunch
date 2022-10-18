@@ -1,0 +1,15 @@
+# research-milestone-Twofishsticks CHANGE THIS OBV!!!!
+research-milestone-Twofishsticks created by GitHub Classroom
+
+Link to YouTube video explanation: https://youtu.be/UYUT9tVQWQc 
+
+link to original repo: https://github.com/Twofishsticks/Twofishsticks.github.io 
+
+This program is designed to create a server and webpage for my collections of created programs. 
+
+Created in Go, using gin framework, with the help of some classic html. 
+
+If you would like to re-build, use go build -o "application name". app.exe has been provided for ease of access
+
+To run, execute the built go file on your machine, and navigate to localhost 8080 in your browser. 
+
