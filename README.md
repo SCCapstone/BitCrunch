@@ -1,13 +1,6 @@
 # GoMap
-This first paragraph should be a short description of the app. You can add links
-to your wiki pages that have more detailed descriptions.
 
-Your audience for the Readme.md are other developers who are joining your team.
-Specifically, the file should contain detailed instructions that any developer
-can follow to install, compile, run, and test your project. These are not only
-useful to new developers, but also to you when you have to re-install everything
-because your old laptop crashed. Also, the teachers of this class will be
-following your instructions.
+GoMap is an IT assistance app which allows users to interact with devices using a graphical user interface (GUI). When the app is first started, users are greeted with a sign in page, where they can choose to sign in with an existing account, or create a new account. After signing in, the user comes to the map page, the main page of the app. On the left-hand side is a navigation bar which lists map layers and their respective devices. To the right a map layer is displayed. Each map layer is an image uploaded by the user, which contains positionally placed circles which represent devices. The user can CRUD (create, read, update, and delete) devices and map layers. Devices will contain information like device name, IP, and possible interaction. Below the navigation bar is a logout button which can be accessed at any point.
 
 ## External Requirements
 
