@@ -27,12 +27,15 @@ You only need to add instructions for the OS you are using.
 ## Setup
 
 go mod init project-name
+
 go get -u github.com/gin-gonic/gin
 
 ## Running
 
 go run main.go OR
+
 go build -o app
+
 ./app
 
 # Deployment
@@ -59,8 +62,13 @@ Go compiler has built-in test functionality
 
 ## Running Tests
 go test <- to run all tests
+
 go test -v -run test_name <- to run individual test
+
 go test file_name.go <- to run tests in a specific file
 
 # Authors
 Ethan Speer: jespeer@email.sc.edu
+Trey Sturman:
+Dan Rochester:
+Wilson Green:
