@@ -11,18 +11,10 @@ following your instructions.
 
 ## External Requirements
 
-List all the stuff the reader will need to install in order to get you app to 
-run in their laptop. For example:
-
 In order to build this project you first have to install:
+
 * [Go Programming Language] (https://go.dev/dl/)
-* [Gin Web Framework] (Install on command line, github.com/gin-gonic/gin)
-
-
-If possible, list the actual commands you used to install these, so the reader
-can just cut-n-paste the commands and get everything setup.
-
-You only need to add instructions for the OS you are using.
+* [Gin Web Framework] (go get -u github.com/gin-gonic/gin, github.com/gin-gonic/gin)
 
 ## Setup
 
@@ -69,6 +61,9 @@ go test file_name.go <- to run tests in a specific file
 
 # Authors
 Ethan Speer: jespeer@email.sc.edu
-Trey Sturman:
-Dan Rochester:
-Wilson Green:
+
+Trey Sturman: rsturman@email.sc.edu
+
+Dan Rochester: rochesw@email.sc.edu
+
+Wilson Green: wtgreen@email.sc.edu
