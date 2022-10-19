@@ -40,7 +40,7 @@ section that explains how to run them.
 
 The unit tests are in `/test/unit`.
 
-The behavioral tests are in `/test/casper/`.
+The behavioral tests are in `/test/automation/`. (Cypress)
 
 ## Testing Technology
 Go compiler has built-in test functionality
