@@ -24,7 +24,7 @@ go get -u github.com/gin-gonic/gin
 
 ## Running
 
-go run main.go OR
+go run . OR
 
 go build -o app
 
