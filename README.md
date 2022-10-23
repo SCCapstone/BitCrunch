@@ -25,13 +25,7 @@ go build -o app
 
 # Deployment
 
-Webapps need a deployment section that explains how to get it deployed on the 
-Internet. These should be detailed enough so anyone can re-deploy if needed
-. Note that you **do not put passwords in git**. 
-
-Mobile apps will also sometimes need some instructions on how to build a
-"release" version, maybe how to sign it, and how to run that binary in an
-emulator or in a physical phone.
+Deployment will be done with AWS Hosting. After deploying to AWS, visiting the URL where the app is being hosted will reflect the deployment. 
 
 # Testing
 
