@@ -59,4 +59,4 @@ Trey Sturman: rsturman@email.sc.edu
 
 Dan Rochester: rochesw@email.sc.edu
 
-Wilson Green: wtgreen@email.sc.edu
+Wilson Green: wtgreen@email.sc.edu (account email wilsontgreen@gmail.com)
