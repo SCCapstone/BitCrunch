@@ -26,7 +26,7 @@ func TestShowIndexPageUnauthenticated(t *testing.T) {
 		// You can carry out a lot more detailed tests using libraries that can
 		// parse and process HTML pages
 		p, err := ioutil.ReadAll(w.Body)
-		pageOK := err == nil && strings.Index(string(p), "<title>Changing this</title>") > 0
+		pageOK := err == nil && strings.Index(string(p), "<title>Title</title>") > 0
 
 		return statusOK && pageOK
 	})
