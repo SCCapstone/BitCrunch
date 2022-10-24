@@ -15,6 +15,6 @@ func main() { // used for setting up the server for the website
 	// Handle GET requests at /article/view/some_article_id
 	router.GET("/article/view/:article_id", getArticle)
 
-	router.Run()
+	router.Run() // this will cause merge confilct for dan src ctrl (remove later)
 
 }
