@@ -19,4 +19,4 @@ func main() { // used for setting up the server for the website
 
 }
 
-// merge item
+// merge setup
