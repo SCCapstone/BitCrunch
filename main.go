@@ -1,22 +1,38 @@
+// main.go
+
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 var router *gin.Engine
 
-func main() { // used for setting up the server for the website
-
-	// Set the router as the default one provided by Gin
-	router := gin.Default()
+func main() {
+	gin.SetMode(gin.ReleaseMode)
+	router = gin.Default()
+	router.Static("/static", "./static")
 	router.LoadHTMLGlob("templates/*")
 
-	// Handle Index
-	router.GET("/", showIndexPage)
-	// Handle GET requests at /article/view/some_article_id
-	router.GET("/article/view/:article_id", getArticle)
+	initializeRoutes()
 
 	router.Run()
 
 }
 
-// merge item change
+func render(c *gin.Context, data gin.H, templateName string) {
+
+	switch c.Request.Header.Get("Accept") {
+	case "application/json":
+		// Respond with JSON
+		c.JSON(http.StatusOK, data["payload"])
+	case "application/xml":
+		// Respond with XML
+		c.XML(http.StatusOK, data["payload"])
+	default:
+		// Respond with HTML
+		c.HTML(http.StatusOK, templateName, data)
+	}
+}

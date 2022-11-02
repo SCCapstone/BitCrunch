@@ -1,0 +1,37 @@
+<!--login.html-->
+
+<!--Embed the header.html template at this location-->
+{{ template "header.html" .}}
+
+<head>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<article class="center-page">
+
+    <h1>Sign In</h1>
+
+    <form action="/login" method="POST">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username"><br>
+        <label for="password">Password:</label><br>
+        <input type="text" id="password" name="password"><br><br>
+        <div class="absolute">
+            <input class="submit-btn" type="submit" value="Submit">
+        </div>
+      </form> 
+
+      <form action="/sign" method="GET">
+        <p>Don't have an account? <input class="signup moveup" type="submit" value="Sign-up"></p>
+      </form>
+      {{ if .ErrorTitle}}
+      <div class="error">
+        {{.ErrorTitle}}: {{.ErrorMessage}}
+        </div>
+      {{end}}
+    
+</article>
+
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.html" .}}
