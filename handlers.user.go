@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// these handle the specific pages startup (i.e. /login, /sign)
 func performLogin(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")

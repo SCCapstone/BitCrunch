@@ -8,8 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// "plots" out all routes that can be taken, sets up the functions w them
 func initializeRoutes() {
-	router.GET("/", func(c *gin.Context) {
+	router.GET("/", func(c *gin.Context) { // the / means on initial connection (welcome page)
 		c.HTML(
 			http.StatusOK,
 			"login.html",
@@ -18,9 +19,9 @@ func initializeRoutes() {
 			},
 		)
 
-	})
+	}) // basic setup
 
-	router.POST("/login", performLogin)
+	router.POST("/login", performLogin) // throw up performLogin AT (---)/login
 
-	router.GET("/sign", showSignUp)
+	router.GET("/sign", showSignUp) // throw up showSign AT (---)/sign
 }

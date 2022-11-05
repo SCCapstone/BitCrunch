@@ -94,3 +94,18 @@ body {
     transform: translate(-50%, -50%);
   }
  
+  .dragables {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    /* one workaround so items don't "float" are to affix to grid */
+    gap: 10px;
+  }
+
+  .circle {
+    height: 25px;
+    width: 25px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: move; /* for dragability */
+  }
