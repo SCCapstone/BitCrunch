@@ -18,7 +18,7 @@ func main() {
 
 	initializeRoutes()
 
-	router.Run()
+	router.Run(":80")
 
 }
 
