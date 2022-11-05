@@ -1,4 +1,4 @@
-module github.com/Twofishsticks/semaphore-demo-go-gin
+module github.com/SCCapstone/BitCrunch
 
 go 1.19
 
