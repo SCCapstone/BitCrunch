@@ -1,10 +1,18 @@
 package db
 
-import "fmt"
+import (
+	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+	hashCost = 10 // min = 4, max = 31
+)
 
 type user struct {
 	username string
-	password string
+	password []byte
 	email    string
 }
 
@@ -19,12 +27,9 @@ func New(username, password, email string) (*user, error) {
 		return nil, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
 	}
 
-	// TODO
-	// Compute hash of password and make that the password!!!!
-
 	userr := &user{
 		username: username,
-		password: password,
+		password: hash(password),
 		email:    email,
 	}
 
@@ -34,8 +39,16 @@ func New(username, password, email string) (*user, error) {
 	return userr, nil
 }
 
+func hash(password string) []byte {
+	return bcrypt.GenerateFromPassword([]byte(password), hashCost)
+}
+
+func CheckValidPassword(username, password string) bool {
+	return false // TODO
+}
+
 func checkUsername(username string) bool {
-	return true // TODO later (actually check)
+	return true // TODO later (check db)
 }
 
 func checkPassword(password string) bool {
