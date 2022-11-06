@@ -1,18 +1,17 @@
 <!--index.html-->
-<html>
-
-<head>
-  
-</head>
 
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
-<body>
-  
-</body>
+<h1>
+  Welcome to GoMap
+</h1>
 
+<form action="/u/logout" method="GET">
+  <div class="absolute">
+      <input class="submit-btn" type="submit" value="Logout">
+  </div>
+</form> 
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}
-</html>
