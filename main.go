@@ -22,6 +22,7 @@ func main() {
 
 }
 
+// this is for rendering data from specific types of files
 func render(c *gin.Context, data gin.H, templateName string) {
 
 	switch c.Request.Header.Get("Accept") {

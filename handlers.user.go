@@ -30,3 +30,7 @@ func showSignUp(c *gin.Context) {
 	render(c, gin.H{
 		"title": "Sign Up"}, "signup.html")
 }
+
+func showDraggable(c *gin.Context) { // for testing draggable objects
+	render(c, gin.H{"title": "DragTest"}, "dragables.html")
+}

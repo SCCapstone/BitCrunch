@@ -24,4 +24,6 @@ func initializeRoutes() {
 	router.POST("/login", performLogin) // throw up performLogin AT (---)/login
 
 	router.GET("/sign", showSignUp) // throw up showSign AT (---)/sign
+
+	router.GET("/dragtest", showDraggable)
 }

@@ -94,9 +94,9 @@ body {
     transform: translate(-50%, -50%);
   }
  
-  .dragables {
+  .draggable {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(10, 1fr);
     /* one workaround so items don't "float" are to affix to grid */
     gap: 10px;
   }

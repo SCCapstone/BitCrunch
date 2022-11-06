@@ -13,6 +13,7 @@ var userList = []user{
 	user{Username: "user3", Password: "pass3"},
 }
 
+// logic check for user validation
 func isUserValid(username, password string) bool {
 	for _, u := range userList {
 		if u.Username == username && u.Password == password {
