@@ -32,5 +32,6 @@ func showSignUp(c *gin.Context) {
 }
 
 func showDraggable(c *gin.Context) { // for testing draggable objects
+	handleDragPageStart(c) // testing this out
 	render(c, gin.H{"title": "DragTest"}, "dragables.html")
 }
