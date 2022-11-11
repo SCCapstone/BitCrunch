@@ -32,6 +32,12 @@ func showSignUp(c *gin.Context) {
 }
 
 func showDraggable(c *gin.Context) { // for testing draggable objects
-	handleDragPageStart(c) // testing this out
+	//handleDragPageStart(c) // testing this out
 	render(c, gin.H{"title": "DragTest"}, "dragables.html")
+}
+
+func showSettings(c *gin.Context) {
+	// cookies check would go here
+	render(c, gin.H{
+		"title": "Settings"}, "settings.html")
 }

@@ -26,4 +26,7 @@ func initializeRoutes() {
 	router.GET("/sign", showSignUp) // throw up showSign AT (---)/sign
 
 	router.GET("/dragtest", showDraggable)
+
+	router.GET("/settings", showSettings)
+
 }

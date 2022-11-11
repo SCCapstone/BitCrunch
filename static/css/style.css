@@ -109,3 +109,25 @@ body {
     display: inline-block;
     cursor: move; /* for dragability */
   }
+
+  .full-page {
+    position: absolute;
+    width: 95%;
+    height: 93%;
+  }
+
+  settings {
+    background-color: #174040;
+    padding: 1em;
+    border-style: solid;
+    border-radius: 2px;
+  }
+
+  /* place on left side, different color, clickability*/
+  .sidebar{ 
+
+  }
+  /* left side sections, border*/
+  sidesection {
+
+  }
