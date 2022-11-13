@@ -39,9 +39,6 @@ func New(username, password, email string, administrator int) (*user, error) {
 		admin:    administrator,
 	}
 
-	// TODO
-	// Add to db
-
 	return userr, nil
 }
 

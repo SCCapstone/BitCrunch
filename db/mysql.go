@@ -40,7 +40,7 @@ func (db *dbase) Open() {
 	db.sqldb.SetMaxIdleConns(20)
 	db.sqldb.SetConnMaxLifetime(time.Minute * 5)
 
-	query := "CREATE TABLE IF NOT EXISTS users(userid int primary key auto_increment, username text, password text, email text, admin int)"
+	query := "CREATE TABLE IF NOT EXISTS users(username text primary key auto_increment, password text, email text, admin int)"
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 	_, err := db.sqldb.ExecContext(ctx, query)
@@ -73,7 +73,7 @@ func (db *dbase) AddUser(username, password, email string, admin int) error {
 	if !db.opened {
 		db.Open() // will crash if this fails
 	}
-	query := "INSERT INTO users(username, password, email) VALUES (?, ?, ?, ?)"
+	query := "INSERT INTO users(username, password, email, admin) VALUES (?, ?, ?, ?)"
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 	stmt, err := db.sqldb.PrepareContext(ctx, query)
