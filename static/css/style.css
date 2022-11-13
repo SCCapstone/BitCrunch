@@ -112,6 +112,7 @@ body {
 
   .full-page {
     position: absolute;
+    z-index: -1;
     width: 95%;
     height: 93%;
   }
@@ -121,13 +122,35 @@ body {
     padding: 1em;
     border-style: solid;
     border-radius: 2px;
+    z-index: auto;
   }
 
   /* place on left side, different color, clickability*/
   .sidebar{ 
-
+    height: 100%;
+    width: 10px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding-top: 40px;
   }
-  /* left side sections, border*/
+  /* left side sections, border, used for transitions  between pages in settings*/
   sidesection {
+    z-index: 1;
+    display: block;
+    font-family: 'Inter';
+    text-align: left;
+    font-size: 24px;
+  }
 
+  settingstext {
+    right:0;
+    top:0;
+    position: absolute;
+    height: 50px;
+    font-family: 'Inter';
+    text-align: center;
+    font-size: 50px;
+    z-index: auto;
+    background-color: #2A6977;
   }
