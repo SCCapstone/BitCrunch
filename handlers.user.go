@@ -50,7 +50,13 @@ func generateSessionToken() string {
 
 func display_logout_modal(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"Modal":   "Logout Modal",
+		"LogoutModal":   "Logout Modal",
+		})
+}
+
+func display_add_layer_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"AddLayerModal":   "Add Layer Modal",
 		})
 }
 

@@ -11,13 +11,17 @@
 Navigate
 </div>
 
+<div class="nav_menu">
+Grab layers and devices from DB to display here
+</div>
+
 <form action="/u/logout_modal" method="GET">
   <div class="logout">
       <input class="logout-btn" type="submit" value="Logout">
   </div>
 </form> 
 
-{{ if .Modal}}
+{{ if .LogoutModal }}
 <div id="logout_modal" class="modal">
   <div class="modal-content">
     <h3>Are you sure you want to log out?</h3>
@@ -30,6 +34,28 @@ Navigate
   </div>
 </div>
 {{end}}
+
+<form action="/u/add_layer_modal" method="GET">
+  <input class="add_layer_button" type="submit" value="Add Layer">
+</form>
+
+{{ if .AddLayerModal }}
+<div id="add_layer_modal" class="modal">
+  <div class="modal-content">
+    <h3>Add Layer</h3>
+    <form action="/map" method="GET">
+      <input class="cancel_button" type="submit" value="Cancel">
+    </form>
+    <form action="/u/add_layer" method="GET">
+      <input class="danger_button" type="submit" value="Save">
+    </form>
+  </div>
+</div>
+{{end}}
+
+
+
+
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

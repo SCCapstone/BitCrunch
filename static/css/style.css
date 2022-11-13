@@ -100,7 +100,7 @@ body {
     left: 0;
     color: #174040;
     border: 1px solid #ccc;
-    width: 200px;
+    width: 300px;
     height: 50px;
     text-align: center;
     vertical-align: middle;
@@ -110,6 +110,7 @@ body {
 
   .logout {
     position: absolute;
+    width: 300px;
     bottom: 0;
     left: 0;
     background-color: white;
@@ -144,7 +145,7 @@ body {
     margin: auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 80%;
+    width: 44%;
   }
   .danger_button {
     background-color: #8A0700;
@@ -181,4 +182,26 @@ body {
     color: white;
   }
 
+  .nav_menu {
+    position: relative;
+    top: 30px;
+    right: 20px;
+    height: 724px;
+    width: 300px;
+    border: 1px solid #888;
+    background-color: white;
+  }
+
+  .add_layer_button {
+    background-color: white;
+    border: none;
+    color: #A8D8A6;
+    padding: 9px 40px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    float: right;
+  }
  
