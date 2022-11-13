@@ -14,9 +14,14 @@ type user struct {
 	username string
 	password []byte
 	email    string
+	admin    int
 }
 
-func New(username, password, email string) (*user, error) {
+func (u *user) IsAdmin() int {
+	return u.admin
+}
+
+func New(username, password, email string, administrator int) (*user, error) {
 	if !checkUsername(username) {
 		return nil, fmt.Errorf("Username \"%s\" is not unique. User creation failed.", username)
 	}
@@ -31,6 +36,7 @@ func New(username, password, email string) (*user, error) {
 		username: username,
 		password: hash(password),
 		email:    email,
+		admin:    administrator,
 	}
 
 	// TODO
@@ -44,6 +50,7 @@ func hash(password string) []byte {
 }
 
 func CheckValidPassword(username, password string) bool {
+	//checkHash := hash(password)
 	return false // TODO
 }
 

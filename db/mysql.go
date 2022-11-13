@@ -35,6 +35,19 @@ func (db *dbase) Open() {
 	if err != nil {
 		log.Panic("Could not open mysql!")
 	}
+
+	db.sqldb.SetMaxOpenConns(20)
+	db.sqldb.SetMaxIdleConns(20)
+	db.sqldb.SetConnMaxLifetime(time.Minute * 5)
+
+	query := "CREATE TABLE IF NOT EXISTS users(userid int primary key auto_increment, username text, password text, email text, admin int)"
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+	_, err := db.sqldb.ExecContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when creating product table", err)
+	}
+
 	db.opened = true
 }
 
@@ -48,15 +61,32 @@ func (db *dbase) CreateOrOpenDB(dbaseName string) {
 	}
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
-	res, err := db.sqldb.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+dbaseName)
+	_, err := db.sqldb.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+dbaseName)
 	if err != nil {
 		log.Printf("Error %s when creating DB\n", err)
 		return
 	}
-	no, err := res.RowsAffected()
-	if err != nil {
-		log.Printf("Error %s when fetching rows", err)
-		return
+
+}
+
+func (db *dbase) AddUser(username, password, email string, admin int) error {
+	if !db.opened {
+		db.Open() // will crash if this fails
 	}
-	log.Printf("rows affected when creating db %d\n", no)
+	query := "INSERT INTO users(username, password, email) VALUES (?, ?, ?, ?)"
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+	stmt, err := db.sqldb.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, username, password, email, admin)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
