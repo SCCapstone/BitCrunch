@@ -1,7 +1,9 @@
 package db
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -46,13 +48,33 @@ func hash(password string) []byte {
 	return bcrypt.GenerateFromPassword([]byte(password), hashCost)
 }
 
-func CheckValidPassword(username, password string) bool {
-	//checkHash := hash(password)
-	return false // TODO
+func (db *dbase) CheckValidPassword(username, password string) bool {
+	if !db.opened {
+		db.Open()
+	}
+	query := "SELECT password FROM users WHERE username = ?"
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+	stmt, err := db.sqldb.PrepareContext(ctx, query)
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+	var hash string
+	row := stmt.QueryRowContext(ctx, username)
+	if err := row.Scan(&hash); err != nil {
+		return false
+	}
+
+	err = bcrypt.CompareHashAndPassword(hash, password)
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 func checkUsername(username string) bool {
-	return true // TODO later (check db)
+	return true // TODO
 }
 
 func checkPassword(password string) bool {
