@@ -93,4 +93,92 @@ body {
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
   }
+
+  .nav_text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #174040;
+    border: 1px solid #ccc;
+    width: 200px;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 50px;
+    background-color: white;
+  }
+
+  .logout {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: white;
+  }
+
+  .logout-btn {
+    background-color: white;
+    border: none;
+    color: #A8D8A6;
+    padding: 9px 40px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+
+  .modal {
+    display: block;
+    position: fixed;
+    z-index: 1;
+    padding-top: 200px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+  } .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  .danger_button {
+    background-color: #8A0700;
+    border-radius: 4px;
+    border-color: #FEB5B1;
+    border-width: 1px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    width: 140px;
+    height: 30px;
+    cursor: pointer;
+    transition-duration: 0.4s;
+    position: relative;
+    float: right;
+    bottom: 50px;
+  } .danger_button:hover {
+    background-color: #390200;
+    color: #FF6961;
+  }
+  .cancel_button {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 4px;
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+    width: 140px;
+    height: 30px;
+    cursor: pointer;
+    transition-duration: 0.4s;
+  } .cancel_button:hover {
+    background-color: grey;
+    color: white;
+  }
+
  

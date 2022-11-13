@@ -3,15 +3,33 @@
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
-<h1>
-  Display map and navigation here
-</h1>
+<head>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 
-<form action="/u/logout" method="GET">
-  <div class="absolute">
-      <input class="submit-btn" type="submit" value="Logout">
+<div class="nav_text">
+Navigate
+</div>
+
+<form action="/u/logout_modal" method="GET">
+  <div class="logout">
+      <input class="logout-btn" type="submit" value="Logout">
   </div>
 </form> 
+
+{{ if .Modal}}
+<div id="logout_modal" class="modal">
+  <div class="modal-content">
+    <h3>Are you sure you want to log out?</h3>
+    <form action="/map" method="GET">
+      <input class="cancel_button" type="submit" value="Cancel">
+    </form>
+    <form action="/u/logout" method="GET">
+      <input class="danger_button" type="submit" value="Logout">
+    </form>
+  </div>
+</div>
+{{end}}
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

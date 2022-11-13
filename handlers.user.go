@@ -48,6 +48,12 @@ func generateSessionToken() string {
 	return strconv.FormatInt(rand.Int63(), 16)
 }
 
+func display_logout_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"Modal":   "Logout Modal",
+		})
+}
+
 func logout(c *gin.Context) {
 
 	// Clear the cookie

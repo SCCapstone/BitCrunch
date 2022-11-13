@@ -27,6 +27,8 @@ func initializeRoutes() {
 		// Ensure that the user is logged in by using the middleware
 		userRoutes.GET("/logout", ensureLoggedIn(), logout)
 
+		userRoutes.GET("/logout_modal", ensureLoggedIn(), display_logout_modal)
+
 		// Handle the GET requests at /u/register
 		// Show the registration page
 		// Ensure that the user is not logged in by using the middleware
