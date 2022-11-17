@@ -41,3 +41,9 @@ func showSettings(c *gin.Context) {
 	render(c, gin.H{
 		"title": "Settings"}, "settings.html")
 }
+
+func showMap(c *gin.Context) {
+	// cookies check would go here
+	render(c, gin.H{
+		"title": "Map"}, "map-base.html")
+}

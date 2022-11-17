@@ -1,0 +1,62 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: "Lato", sans-serif;
+}
+
+.sidenav {
+  width: 130px;
+  position: fixed;
+  z-index: 1;
+  top: 20px;
+  left: 10px;
+  background: #2A6977;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #174040;
+  display: block;
+}
+
+.sidenav a:hover {
+  color: #064579;
+}
+
+.settingstext {
+  background-color: #D9D9D9;
+  margin-top: 20px;
+  margin-left: 140px;
+  font-size: 28px; 
+  padding: 1em;
+  border-style: solid;
+  border-radius: 2px;
+}
+
+</style>
+</head>
+<body>
+<!-- reformat this for layers-->
+<div class="sidenav">
+  <a href="#sidebar1">Sidebar1</a>
+  <a href="#sidebar2">Sidebar2</a>
+  <a href="#sidebar3">Sidebar3</a>
+  <logout href="#logOut">Log Out</logout> 
+</div>
+
+<!-- reformat this for a map, integrate dragables current code into here (grid form)-->
+<div class="settingstext">
+  <h2>Settings</h2>
+  <p>Change the Wording/paragraphs using onclick with the extension labeled in draghandles.go.</p>
+  <p> It should be as easy as changing the text in a file OR (big or) make extra pages just for the settings (which we should stay away from because we need to show how to do the mapping dynamically)</p>
+  <p> Also be sure to change the a ref to the proper things (set up onclick events). Log Out is going to be different, like own color, stuff to make it more visable</p>
+</div>  
+
+</body>
+</html> 

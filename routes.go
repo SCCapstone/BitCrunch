@@ -25,8 +25,10 @@ func initializeRoutes() {
 
 	router.GET("/sign", showSignUp) // throw up showSign AT (---)/sign
 
-	router.GET("/dragtest", showDraggable)
+	router.GET("/dragtest", showDraggable) //
 
-	router.GET("/settings", showSettings)
+	router.GET("/settings", showSettings) // for settings formatting
+
+	router.GET("/map", showMap) // for map formatting
 
 }
