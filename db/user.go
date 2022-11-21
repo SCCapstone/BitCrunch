@@ -105,8 +105,28 @@ func checkPassword(password string) error {
 	if len(password) < 10 {
 		return fmt.Errorf("Password length=%d, need>=%d", len(password), 10)
 	}
-
-	return nil // TODO later
+	// password must have at least one digit
+	reg := regexp.MustCompile("\\d")
+	if !reg.Match([]byte(password)) {
+		return fmt.Errorf("Password doesn't have a digit.")
+	}
+	// password must have a symbol
+	// symbol must be one of !@#$%^&*()
+	reg = regexp.MustCompile("[!|@|#|$|$|%|^|7|*|(|)]")
+	if !reg.Match([]byte(password)) {
+		return fmt.Errorf("Password doesn't have a symbol.")
+	}
+	//password must have an uppercase character
+	reg = regexp.MustCompile("[A-Z]")
+	if !reg.Match([]byte(password)) {
+		return fmt.Errorf("Password doesn't have an uppercase letter.")
+	}
+	//password must have a lowercase char
+	reg = regexp.MustCompile("[a-z]")
+	if !reg.Match([]byte(password)) {
+		return fmt.Errorf("Password doesn't have a lowercase letter.")
+	}
+	return nil
 }
 
 /*
