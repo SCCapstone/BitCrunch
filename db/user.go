@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -48,6 +49,13 @@ func hash(password string) []byte {
 	return bcrypt.GenerateFromPassword([]byte(password), hashCost)
 }
 
+/*
+This function will check if a
+password for a user is correct.
+Returns true if the password
+is valid for the user.
+False otherwise.
+*/
 func (db *dbase) CheckValidPassword(username, password string) bool {
 	if !db.opened {
 		db.Open()
@@ -66,21 +74,51 @@ func (db *dbase) CheckValidPassword(username, password string) bool {
 		return false
 	}
 
-	err = bcrypt.CompareHashAndPassword(hash, password)
+	err = bcrypt.CompareHashAndPassword(hash, []byte(password))
 	if err != nil {
-		return false
+		return true
 	}
-	return true
+	return false
 }
 
+/*
+This function will check if
+the username is available.
+Returns true if it is.
+False otherwise.
+*/
 func checkUsername(username string) bool {
 	return true // TODO
 }
 
-func checkPassword(password string) bool {
-	return true // TODO later
+/*
+This function checks if
+a password is allowed.
+In other words, if the
+password has the right length
+and number of symbols, etc.
+Returns nil if the password
+is sufficient.
+*/
+func checkPassword(password string) error {
+	// password must be at least 10 characters
+	if len(password) < 10 {
+		return fmt.Errorf("Password length=%d, need>=%d", len(password), 10)
+	}
+
+	return nil // TODO later
 }
 
-func checkEmail(email string) bool {
-	return true // TODO later (probably will want to use regex)
+/*
+This function will check
+to see that an email is valid
+based on regex.
+Returns nil if it is good to use.
+*/
+func checkEmail(email string) error {
+	reg := regexp.MustCompile("(\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,6})")
+	if !reg.Match([]byte(email)) {
+		return fmt.Errorf("Incorrect email!")
+	}
+	return nil
 }
