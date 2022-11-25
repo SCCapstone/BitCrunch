@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"time"
 
@@ -20,18 +21,18 @@ type user struct {
 	admin    int
 }
 
-func (u *user) IsAdmin() int {
-	return u.admin
+func (u *user) IsAdmin() bool {
+	return u.admin != 0
 }
 
-func New(username, password, email string, administrator int) (*user, error) {
-	if !checkUsername(username) {
+func (db *base) New(username, password, email string, administrator int) (*user, error) {
+	if db.checkUsername(username) != nil {
 		return nil, fmt.Errorf("Username \"%s\" is not unique. User creation failed.", username)
 	}
-	if !checkPassword(password) {
+	if checkPassword(password) != nil {
 		return nil, fmt.Errorf("Password \"%s\" is not sufficient.", password)
 	}
-	if !checkEmail(email) {
+	if checkEmail(email) != nil {
 		return nil, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
 	}
 
@@ -84,11 +85,28 @@ func (db *dbase) CheckValidPassword(username, password string) bool {
 /*
 This function will check if
 the username is available.
-Returns true if it is.
-False otherwise.
+Returns nil if it is.
+An error otherwise.
 */
-func checkUsername(username string) bool {
-	return true // TODO
+func (db *dbase) checkUsername(username string) error {
+	if !db.opened {
+		db.Open() // will crash if this fails
+	}
+	query := "SELECT username FROM users"
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return err
+	}
+	defer stmt.Close()
+	var test string
+	row := stmt.QueryRowContext(ctx, username)
+	if err = row.Scan(&test); err == nil {
+		return fmt.Errorf("Username exists!")
+	}
+	return nil
 }
 
 /*
@@ -140,5 +158,34 @@ func checkEmail(email string) error {
 	if !reg.Match([]byte(email)) {
 		return fmt.Errorf("Incorrect email!")
 	}
+	return nil
+}
+
+/*
+Add a user to the user table in the DB.
+Supply the username, password, and email for the user.
+The 'admin' parameter may or may not be used
+at this point. If used, admin != 0 means
+the user IS an admin.
+*/
+func (db *dbase) AddUser(username, password, email string, admin int) error {
+	if !db.opened {
+		db.Open() // will crash if this fails
+	}
+	query := "INSERT INTO users(username, password, email, admin) VALUES (?, ?, ?, ?)"
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+	stmt, err := db.sqldb.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, username, password, email, admin)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
