@@ -11,6 +11,7 @@ Returns error if things went wrong.
 */
 func (db *dbase) AddDevice(name, ip string) error {
 	// TODO
+	return nil
 }
 
 /*
