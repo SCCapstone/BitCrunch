@@ -193,6 +193,11 @@ func (db *dbase) AddUser(username, password, email string, admin int) error {
 		return err
 	}
 
+	// checking email
+	if err = checkEmail(email); err != nil {
+		return err
+	}
+
 	_, err = stmt.ExecContext(ctx, username, password, email, admin)
 	if err != nil {
 		return err
