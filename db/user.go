@@ -169,19 +169,7 @@ at this point. If used, admin != 0 means
 the user IS an admin.
 */
 func (db *dbase) AddUser(username, password, email string, admin int) error {
-	if !db.opened {
-		db.Open() // will crash if this fails
-	}
-	query := "INSERT INTO users(username, password, email, admin) VALUES (?, ?, ?, ?)"
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	stmt, err := db.sqldb.PrepareContext(ctx, query)
-	if err != nil {
-		log.Printf("Error %s when preparing SQL statement", err)
-		return err
-	}
-	defer stmt.Close()
-
+	var err error
 	// checking supplied values
 	// checking username
 	if err = db.checkUsername(username); err != nil {
@@ -197,6 +185,19 @@ func (db *dbase) AddUser(username, password, email string, admin int) error {
 	if err = checkEmail(email); err != nil {
 		return err
 	}
+
+	if !db.opened {
+		db.Open() // will crash if this fails
+	}
+	query := "INSERT INTO users(username, password, email, admin) VALUES (?, ?, ?, ?)"
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+	stmt, err := db.sqldb.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return err
+	}
+	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, username, password, email, admin)
 	if err != nil {
