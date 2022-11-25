@@ -5,7 +5,11 @@ type device struct {
 	ip   string // static IP of the device
 }
 
-func (db *dbase) AddDevice(name, ip string) {
+/*
+Add a device to the database.
+Returns error if things went wrong.
+*/
+func (db *dbase) AddDevice(name, ip string) error {
 	// TODO
 }
 
