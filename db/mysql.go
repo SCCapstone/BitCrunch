@@ -36,16 +36,50 @@ func (db *dbase) Open() {
 		log.Panic("Could not open mysql!")
 	}
 
+	// Create main database
+	ctx, cancelfunc1 := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc1()
+	_, err := db.sqldb.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS gomap")
+	if err != nil {
+		log.Panic("Error %s when creating DB\n", err)
+	}
+
+	db.sqldb.Close()
+	db.sqldb, err = sql.Open("mysql", dsn("gomap"))
+	if err != nil {
+		log.Panic("Could not open gomap database!")
+	}
+
+	// options
 	db.sqldb.SetMaxOpenConns(20)
 	db.sqldb.SetMaxIdleConns(20)
 	db.sqldb.SetConnMaxLifetime(time.Minute * 5)
 
-	query := "CREATE TABLE IF NOT EXISTS users(username text primary key auto_increment, password text, email text, admin int)"
+	// users table creation
+	query := "CREATE TABLE IF NOT EXISTS users(username text primary key, password text, email text, admin int)"
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
-	_, err := db.sqldb.ExecContext(ctx, query)
+	_, err = db.sqldb.ExecContext(ctx, query)
 	if err != nil {
-		log.Printf("Error %s when creating product table", err)
+		log.Printf("Error %s when creating users table", err)
+	}
+
+	// floors table creation
+	query = "CREATE TABLE IF NOT EXISTS floors(name text primary key, devicelist text)"
+	ctx, cancelfunc2 := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc2()
+	_, err = db.sqldb.ExecContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when creating floors table.", err)
+	}
+
+	// devices table creation
+	query = "CREATE TABLE IF NOT EXISTS devices(name text primary key"
+	ctx, cancelfunc3 := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc3()
+	_, err = db.sqldb.ExecContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when creating devices table.", err)
 	}
 
 	db.opened = true
@@ -55,38 +89,16 @@ func dsn(dbName string) string {
 	return fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, hostname, dbName)
 }
 
-func (db *dbase) CreateOrOpenDB(dbaseName string) {
-	if !db.opened {
-		db.Open() // will crash if this fails
-	}
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	_, err := db.sqldb.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+dbaseName)
-	if err != nil {
-		log.Printf("Error %s when creating DB\n", err)
-		return
-	}
+// func (db *dbase) CreateOrOpenDB(dbaseName string) {
+// 	if !db.opened {
+// 		db.Open() // will crash if this fails
+// 	}
+// 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+// 	defer cancelfunc()
+// 	_, err := db.sqldb.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+dbaseName)
+// 	if err != nil {
+// 		log.Printf("Error %s when creating DB\n", err)
+// 		return
+// 	}
 
-}
-
-func (db *dbase) AddUser(username, password, email string, admin int) error {
-	if !db.opened {
-		db.Open() // will crash if this fails
-	}
-	query := "INSERT INTO users(username, password, email, admin) VALUES (?, ?, ?, ?)"
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	stmt, err := db.sqldb.PrepareContext(ctx, query)
-	if err != nil {
-		log.Printf("Error %s when preparing SQL statement", err)
-		return err
-	}
-	defer stmt.Close()
-
-	_, err = stmt.ExecContext(ctx, username, password, email, admin)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+// }
