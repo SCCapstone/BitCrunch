@@ -182,6 +182,11 @@ func (db *dbase) AddUser(username, password, email string, admin int) error {
 	}
 	defer stmt.Close()
 
+	// checking supplied values
+	if err = db.checkUsername(username); err != nil {
+		return fmt.Errorf("Username not available.")
+	}
+
 	_, err = stmt.ExecContext(ctx, username, password, email, admin)
 	if err != nil {
 		return err
