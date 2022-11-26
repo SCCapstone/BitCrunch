@@ -100,7 +100,7 @@ func (db *dbase) checkUsername(username string) error {
 	query := fmt.Sprintf("SELECT %s FROM users", username)
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
-	stmt, err := db.PrepareContext(ctx, query)
+	stmt, err := db.sqldb.PrepareContext(ctx, query)
 	if err != nil {
 		log.Printf("Error %s when preparing SQL statement", err)
 		return err
