@@ -97,7 +97,7 @@ func (db *dbase) checkUsername(username string) error {
 	if !db.opened {
 		db.Open() // will crash if this fails
 	}
-	query := "SELECT username FROM users"
+	query := fmt.Sprintf("SELECT %s FROM users", username)
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 	stmt, err := db.PrepareContext(ctx, query)
