@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 )
@@ -74,7 +75,24 @@ floor has not already been used.
 Returns nil if the name is good.
 */
 func (db *dbase) checkFloor(name string) error {
-	// TODO
+	if !db.opened {
+		db.Open()
+	}
+
+	query := fmt.Sprintf("SELECT %s FROM floors", name)
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+	stmt, err := db.sqldb.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return err
+	}
+	defer stmt.Close()
+	var test string
+	row := stmt.QueryRowContext(ctx, name)
+	if err = row.Scan(&test); err == nil {
+		return fmt.Errorf("Floor name exists!")
+	}
 	return nil
 }
 
