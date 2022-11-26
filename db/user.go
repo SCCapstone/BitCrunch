@@ -25,25 +25,30 @@ func (u *user) IsAdmin() bool {
 	return u.admin != 0
 }
 
-func (db *base) New(username, password, email string, administrator int) (*user, error) {
+func (db *dbase) New(username, password, email string, administrator int) (user, error) {
+	u := user{
+		username: "",
+		password: []byte(""),
+		email:    "",
+		admin:    0,
+	}
 	if db.checkUsername(username) != nil {
-		return nil, fmt.Errorf("Username \"%s\" is not unique. User creation failed.", username)
+		return u, fmt.Errorf("Username \"%s\" is not unique. User creation failed.", username)
 	}
 	if checkPassword(password) != nil {
-		return nil, fmt.Errorf("Password \"%s\" is not sufficient.", password)
+		return u, fmt.Errorf("Password \"%s\" is not sufficient.", password)
 	}
 	if checkEmail(email) != nil {
-		return nil, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
+		return u, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
 	}
 
-	userr := &user{
-		username: username,
-		password: hash(password),
-		email:    email,
-		admin:    administrator,
-	}
+	// Values are good so return the user
+	u.username = username
+	u.password = hash(password)
+	u.email = email
+	u.admin = administrator
 
-	return userr, nil
+	return u, nil
 }
 
 func hash(password string) []byte {
@@ -168,24 +173,7 @@ The 'admin' parameter may or may not be used
 at this point. If used, admin != 0 means
 the user IS an admin.
 */
-func (db *dbase) AddUser(username, password, email string, admin int) error {
-	var err error
-	// checking supplied values
-	// checking username
-	if err = db.checkUsername(username); err != nil {
-		return err
-	}
-
-	// checking password
-	if err = checkPassword(password); err != nil {
-		return err
-	}
-
-	// checking email
-	if err = checkEmail(email); err != nil {
-		return err
-	}
-
+func (db *dbase) AddUser(u user) error {
 	if !db.opened {
 		db.Open() // will crash if this fails
 	}
@@ -199,7 +187,7 @@ func (db *dbase) AddUser(username, password, email string, admin int) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, username, password, email, admin)
+	_, err = stmt.ExecContext(ctx, u.username, u.password, u.email, u.admin)
 	if err != nil {
 		return err
 	}
