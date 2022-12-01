@@ -2,6 +2,7 @@
 
 package main
 
+
 func initializeRoutes() {
 
 	// Use the setUserStatus middleware for every route to set a flag
@@ -32,6 +33,8 @@ func initializeRoutes() {
 		userRoutes.GET("/add_layer_modal", ensureLoggedIn(), display_add_layer_modal)
 
 		userRoutes.POST("/add_layer", ensureLoggedIn(), addLayer)
+
+		userRoutes.POST("/view_layer", ensureLoggedIn(), viewLayer)
 
 		// Handle the GET requests at /u/register
 		// Show the registration page

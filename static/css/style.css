@@ -202,10 +202,35 @@ body {
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
-    float: right;
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
   }
 
-  .floor {
-
+  .map_image {
+    border: 1px solid black;
+    position: relative;
+    left: 400px;
+    bottom: 670px;
+    background-color: white;
+    z-index: 1;
+    height: 650px;
+    width: 1000px;
   }
- 
+
+  .load_button {
+    position: inline-block;
+    height: 100px;
+  }
+
+  .l_name {
+    display: none;
+  }
+
+  .view_layer{
+    border: 1px solid black;
+    width: 300px;
+    height: 40px;
+    color: #174040;
+    font-weight: bold;
+  }

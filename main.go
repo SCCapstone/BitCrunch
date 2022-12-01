@@ -15,6 +15,7 @@ func main() {
 	router = gin.Default()
 	router.Static("/static", "./static")
 	router.LoadHTMLGlob("templates/*")
+	router.MaxMultipartMemory = 8 << 20 
 
 	initializeRoutes()
 
