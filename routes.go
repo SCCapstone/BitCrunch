@@ -31,6 +31,8 @@ func initializeRoutes() {
 
 		userRoutes.GET("/add_layer_modal", ensureLoggedIn(), display_add_layer_modal)
 
+		userRoutes.POST("/add_layer", ensureLoggedIn(), addLayer)
+
 		// Handle the GET requests at /u/register
 		// Show the registration page
 		// Ensure that the user is not logged in by using the middleware

@@ -12,7 +12,9 @@ Navigate
 </div>
 
 <div class="nav_menu">
-Grab layers and devices from DB to display here
+{{ range .payload }}
+<h2>{{.Name}}</h2>
+{{end}}
 </div>
 
 <form action="/u/logout_modal" method="GET">
@@ -46,7 +48,9 @@ Grab layers and devices from DB to display here
     <form action="/map" method="GET">
       <input class="cancel_button" type="submit" value="Cancel">
     </form>
-    <form action="/u/add_layer" method="GET">
+    <form action="/u/add_layer" method="POST">
+      <label for="layer_name">Layer Name:</label>
+      <input type="text" id="layer_name" name="layer_name">
       <input class="danger_button" type="submit" value="Save">
     </form>
   </div>

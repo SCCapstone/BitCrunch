@@ -7,8 +7,17 @@ import (
 )
 
 func showMap(c *gin.Context) {
+	floors := getAllFloors()
+	
 
 	// Call the render function with the name of the template to render
 	render(c, gin.H{
-		"title": "Map"}, "index.html")
+		"title": "Map",
+		"payload": floors}, "index.html")
+}
+
+func addLayer(c *gin.Context) {
+	layer_name := c.PostForm("layer_name")
+	createNewFloor(layer_name, "mock.txt")
+	showMap(c)
 }
