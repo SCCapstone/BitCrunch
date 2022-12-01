@@ -18,6 +18,7 @@ func showMap(c *gin.Context) {
 
 func addLayer(c *gin.Context) {
 	layer_name := c.PostForm("layer_name")
+	layer_image := c.PostForm("layer_image")
 	createNewFloor(layer_name, "mock.txt")
 	showMap(c)
 }
