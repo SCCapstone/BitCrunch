@@ -4,41 +4,38 @@ package main
 
 import (
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
-// This middleware ensures that a request will be aborted with an error
-// if the user is not logged in
+/*
+If a request comes from the user when not logged in, it will be aborted with an error
+*/
 func ensureLoggedIn() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// If there's an error or if the token is empty
-		// the user is not logged in
 		loggedInInterface, _ := c.Get("is_logged_in")
 		loggedIn := loggedInInterface.(bool)
 		if !loggedIn {
-			//if token, err := c.Cookie("token"); err != nil || token == "" {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 	}
 }
 
-// This middleware ensures that a request will be aborted with an error
-// if the user is already logged in
+/*
+If a request comes from the user when logged in, it will be aborted with an error
+*/
 func ensureNotLoggedIn() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// If there's no error or if the token is not empty
-		// the user is already logged in
 		loggedInInterface, _ := c.Get("is_logged_in")
 		loggedIn := loggedInInterface.(bool)
 		if loggedIn {
-			// if token, err := c.Cookie("token"); err == nil || token != "" {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 	}
 }
 
-// This middleware sets whether the user is logged in or not
+/*
+Sets whether the user is logged in with gin context
+*/
 func setUserStatus() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if token, err := c.Cookie("token"); err == nil || token != "" {
