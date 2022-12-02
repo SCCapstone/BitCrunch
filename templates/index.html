@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
+<div class="wrapper">
+
 <div class="nav_text">
 Navigate
 </div>
@@ -47,7 +49,9 @@ Navigate
 {{end}}
 
 <form action="/u/add_layer_modal" method="GET">
-  <input class="add_layer_button" type="submit" value="Add Layer">
+  <div class="add_layer">
+    <input class="add_layer_button" type="submit" value="Add Layer">
+  </div>
 </form>
 
 {{ if .AddLayerModal }}
@@ -58,9 +62,8 @@ Navigate
       <input class="cancel_button" type="submit" value="Cancel">
     </form>
     <form action="/u/add_layer" method="POST" enctype="multipart/form-data">
-      <label for="layer_name">Layer Name:</label>
-      <input type="text" id="layer_name" name="layer_name">
-      <label for="layer_image" class="add_file">Upload Image      
+      Layer Name: <input type="text" id="layer_name" name="layer_name"><br>
+      Map File: <label for="layer_image" class="add_file">Upload Image      
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
         </label><br>
       <input class="danger_button" type="submit" value="Save">
@@ -69,7 +72,7 @@ Navigate
 </div>
 {{end}}
 
-
+</div>
 
 
 <!--Embed the footer.html template at this location-->
