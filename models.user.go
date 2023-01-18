@@ -4,6 +4,7 @@ package main
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 )
 
@@ -44,6 +45,8 @@ func registerNewUser(username, password string) (*user, error) {
 		return nil, errors.New("The password can't be empty")
 	} else if !isUsernameAvailable(username) {
 		return nil, errors.New("The username isn't available")
+	} else if !isPasswordValid(password) {
+		return nil, errors.New("Password must have at least 10 characters, consisting of a capital letter, lowercase letter, symbol, and number")
 	}
 
 	u := user{Username: username, Password: password}
@@ -62,4 +65,15 @@ func isUsernameAvailable(username string) bool {
 		}
 	}
 	return true
+}
+
+/*
+Check if the inputted password is valid
+*/
+func isPasswordValid(password string) bool {
+	validChar, err := regexp.MatchString("[!@#$%^&* | A-z0-9]", password)
+	if err == nil && len(password) >= 10 && validChar {
+		return true
+	}
+	return false
 }
