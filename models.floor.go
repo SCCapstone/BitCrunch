@@ -6,7 +6,7 @@ package main
 floor struct has a name and a file where its image is stored
 */
 type floor struct {
-	Name      string   `json:"Name"`
+	Name      string `json:"Name"`
 	ImageFile string `json:"Devices"`
 }
 
@@ -21,7 +21,7 @@ var floorList = []floor{
 /*
 Return a list of all the floors
 */
-func getAllFloors() []floor {
+func GetAllFloors() []floor {
 	return floorList
 }
 
