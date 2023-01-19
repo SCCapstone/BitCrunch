@@ -2,11 +2,15 @@
 
 package main
 
+import (
+	"errors"
+)
+
 /*
 floor struct has a name and a file where its image is stored
 */
 type floor struct {
-	Name      string   `json:"Name"`
+	Name      string `json:"Name"`
 	ImageFile string `json:"Devices"`
 }
 
@@ -29,7 +33,23 @@ func getAllFloors() []floor {
 Creates a new floor and adds it to the list
 */
 func createNewFloor(name, file string) (*floor, error) {
+	if !isLayerNameAvailable((name)) {
+		return nil, errors.New("Layer name is not available")
+	}
+
 	f := floor{Name: name, ImageFile: file}
 	floorList = append(floorList, f)
 	return &f, nil
+}
+
+/*
+Checks if layer name is available
+*/
+func isLayerNameAvailable(name string) bool {
+	for _, f := range floorList {
+		if f.Name == name {
+			return false
+		}
+	}
+	return true
 }
