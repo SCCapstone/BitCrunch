@@ -1,39 +1,7 @@
 // routes.go
 
-package main
+package routes
 
-<<<<<<< HEAD
-import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-)
-
-// "plots" out all routes that can be taken, sets up the functions w them
-func initializeRoutes() {
-	router.GET("/", func(c *gin.Context) { // the / means on initial connection (welcome page)
-		c.HTML(
-			http.StatusOK,
-			"login.html",
-			gin.H{
-				"title": "Login Page",
-			},
-		)
-
-	}) // basic setup
-
-	router.POST("/login", performLogin) // throw up performLogin AT (---)/login
-
-	router.GET("/sign", showSignUp) // throw up showSign AT (---)/sign
-
-	router.GET("/dragtest", showDraggable) //
-
-	router.GET("/settings", showSettings) // for settings formatting
-
-	router.GET("/map", showMap) // for map formatting
-
-}
-=======
 /*
 Initializes the routes for the entire project
 */
@@ -89,4 +57,3 @@ func initializeRoutes() {
 	// Render the index page
 	router.GET("/map", ensureLoggedIn(), showMap)
 }
->>>>>>> main

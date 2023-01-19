@@ -1,6 +1,6 @@
 // models.user.go
 
-package main
+package models
 
 import (
 	"errors"
@@ -19,18 +19,14 @@ type user struct {
 List of users
 */
 var userList = []user{
-	user{Username: "user1", Password: "pass1"},
-	user{Username: "user2", Password: "pass2"},
-	user{Username: "user3", Password: "pass3"},
+	{Username: "user1", Password: "pass1"},
+	{Username: "user2", Password: "pass2"},
+	{Username: "user3", Password: "pass3"},
 }
 
-<<<<<<< HEAD
-// logic check for user validation
-=======
 /*
 Checks if the username and password combination is valid
 */
->>>>>>> main
 func isUserValid(username, password string) bool {
 	for _, u := range userList {
 		if u.Username == username && u.Password == password {

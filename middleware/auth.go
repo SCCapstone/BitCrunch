@@ -1,9 +1,10 @@
 // middleware.auth.go
 
-package main
+package middleware
 
 import (
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 

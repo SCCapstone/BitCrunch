@@ -1,10 +1,11 @@
-// handlers.map.go
+// handlers/map.go
 
-package main
+package handlers
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 /*
@@ -12,11 +13,11 @@ Renders the index with updated layer values
 */
 func showMap(c *gin.Context) {
 	floors := getAllFloors()
-	
+
 	render(c, gin.H{
-		"title": "Map",
+		"title":   "Map",
 		"payload": floors,
-		}, "index.html")
+	}, "index.html")
 }
 
 /*
@@ -32,12 +33,12 @@ func addLayer(c *gin.Context) {
 		log.Println(err)
 	}
 
-	err = c.SaveUploadedFile(file, "static/assets/" + file.Filename)
+	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
 		log.Println(err)
 	}
 
-	createNewFloor(layer_name, "static/assets/" + file.Filename)
+	createNewFloor(layer_name, "static/assets/"+file.Filename)
 	showMap(c)
 }
 
@@ -49,12 +50,12 @@ func viewLayer(c *gin.Context) {
 	name := c.PostForm("l_name")
 	floors := getAllFloors()
 	for i := 0; i < len(floors); i++ {
-		if(floors[i].Name == name) {
+		if floors[i].Name == name {
 			render(c, gin.H{
-				"title": "Map",
+				"title":   "Map",
 				"payload": floors,
-				"Image": "../" + floors[i].ImageFile,
-				}, "index.html")
+				"Image":   "../" + floors[i].ImageFile,
+			}, "index.html")
 		}
 	}
 }

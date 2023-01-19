@@ -1,6 +1,6 @@
 // models.floor.go
 
-package main
+package models
 
 /*
 floor struct has a name and a file where its image is stored
@@ -14,8 +14,8 @@ type floor struct {
 List of floors
 */
 var floorList = []floor{
-	floor{Name: "Floor 1", ImageFile: "static/assets/floor1.png"},
-	floor{Name: "Floor 2", ImageFile: "static/assets/floor2.png"},
+	{Name: "Floor 1", ImageFile: "static/assets/floor1.png"},
+	{Name: "Floor 2", ImageFile: "static/assets/floor2.png"},
 }
 
 /*

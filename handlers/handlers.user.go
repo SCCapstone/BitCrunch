@@ -1,17 +1,15 @@
 // handlers.user.go
 
-package main
+package handlers
 
 import (
 	"math/rand"
 	"net/http"
 	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
-<<<<<<< HEAD
-// these handle the specific pages startup (i.e. /login, /sign)
-=======
 /*
 Renders the login page
 */
@@ -28,7 +26,6 @@ If valid, setss token in a cookie
 Renders successful login
 If invalid, renders an error
 */
->>>>>>> main
 func performLogin(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
@@ -54,31 +51,13 @@ func generateSessionToken() string {
 	return strconv.FormatInt(rand.Int63(), 16)
 }
 
-<<<<<<< HEAD
-func showDraggable(c *gin.Context) { // for testing draggable objects
-	//handleDragPageStart(c) // testing this out
-	render(c, gin.H{"title": "DragTest"}, "dragables.html")
-}
-
-func showSettings(c *gin.Context) {
-	// cookies check would go here
-	render(c, gin.H{
-		"title": "Settings"}, "settings.html")
-}
-
-func showMap(c *gin.Context) {
-	// cookies check would go here
-	render(c, gin.H{
-		"title": "Map"}, "map-base.html")
-}
-=======
 /*
 Renders the Logout Modal when the user presses the logout button
 */
 func display_logout_modal(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"LogoutModal":   "Logout Modal",
-		})
+		"LogoutModal": "Logout Modal",
+	})
 }
 
 /*
@@ -86,8 +65,8 @@ Renders the Add Layer Modal when the user presses the add layer button
 */
 func display_add_layer_modal(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"AddLayerModal":   "Add Layer Modal",
-		})
+		"AddLayerModal": "Add Layer Modal",
+	})
 }
 
 /*
@@ -129,4 +108,3 @@ func register(c *gin.Context) {
 			"ErrorMessage": err.Error()})
 	}
 }
->>>>>>> main

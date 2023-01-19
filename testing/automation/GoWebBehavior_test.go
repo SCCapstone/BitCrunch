@@ -16,6 +16,6 @@ func TestMain(m *testing.M) {
 }
 
 func TestBrowser(t *testing.T) {
-	floorList := main.GetAllFloors()
+	newfloorList := main.GetAllFloors()
 
 }
