@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	main "github.com/SCCapstone/BitCrunch"
+	models "github.com/SCCapstone/BitCrunch/models"
 
 	"github.com/go-rod/rod"
 )
@@ -16,6 +16,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestBrowser(t *testing.T) {
-	newfloorList := main.GetAllFloors()
+	newfloorList := models.GetAllFloors()
+	fmt.Println(newfloorList[0]) // placeholder
 
 }

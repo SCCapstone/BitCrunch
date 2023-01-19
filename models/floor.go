@@ -28,7 +28,7 @@ func GetAllFloors() []floor {
 /*
 Creates a new floor and adds it to the list
 */
-func createNewFloor(name, file string) (*floor, error) {
+func CreateNewFloor(name, file string) (*floor, error) {
 	f := floor{Name: name, ImageFile: file}
 	floorList = append(floorList, f)
 	return &f, nil

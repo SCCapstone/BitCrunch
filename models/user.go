@@ -27,7 +27,7 @@ var userList = []user{
 /*
 Checks if the username and password combination is valid
 */
-func isUserValid(username, password string) bool {
+func IsUserValid(username, password string) bool {
 	for _, u := range userList {
 		if u.Username == username && u.Password == password {
 			return true
@@ -39,7 +39,7 @@ func isUserValid(username, password string) bool {
 /*
 Registers a new user with given username/password by adding to list
 */
-func registerNewUser(username, password string) (*user, error) {
+func RegisterNewUser(username, password string) (*user, error) {
 	if strings.TrimSpace(password) == "" {
 		return nil, errors.New("The password can't be empty")
 	} else if !isUsernameAvailable(username) {

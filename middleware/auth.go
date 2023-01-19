@@ -11,7 +11,7 @@ import (
 /*
 If a request comes from the user when not logged in, it will be aborted with an error
 */
-func ensureLoggedIn() gin.HandlerFunc {
+func EnsureLoggedIn() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		loggedInInterface, _ := c.Get("is_logged_in")
 		loggedIn := loggedInInterface.(bool)
@@ -24,7 +24,7 @@ func ensureLoggedIn() gin.HandlerFunc {
 /*
 If a request comes from the user when logged in, it will be aborted with an error
 */
-func ensureNotLoggedIn() gin.HandlerFunc {
+func EnsureNotLoggedIn() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		loggedInInterface, _ := c.Get("is_logged_in")
 		loggedIn := loggedInInterface.(bool)
@@ -37,7 +37,7 @@ func ensureNotLoggedIn() gin.HandlerFunc {
 /*
 Sets whether the user is logged in with gin context
 */
-func setUserStatus() gin.HandlerFunc {
+func SetUserStatus() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if token, err := c.Cookie("token"); err == nil || token != "" {
 			c.Set("is_logged_in", true)
