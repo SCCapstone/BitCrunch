@@ -4,9 +4,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
+	"strconv"
 
-	handlers "github.com/SCCapstone/BitCrunch/handlers"
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	models "github.com/SCCapstone/BitCrunch/models"
 	"github.com/gin-gonic/gin"
@@ -135,7 +136,7 @@ func performLogin(c *gin.Context) {
 	password := c.PostForm("password")
 
 	if models.IsUserValid(username, password) {
-		token := handlers.GenerateSessionToken()
+		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
 
@@ -159,7 +160,7 @@ func register(c *gin.Context) {
 	password := c.PostForm("password")
 
 	if _, err := models.RegisterNewUser(username, password); err == nil {
-		token := handlers.GenerateSessionToken()
+		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
 
@@ -196,6 +197,13 @@ func display_add_layer_modal(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"AddLayerModal": "Add Layer Modal",
 	})
+}
+
+/*
+Generates a random 16 character string as the session token
+*/
+func GenerateSessionToken() string {
+	return strconv.FormatInt(rand.Int63(), 16)
 }
 
 /*
