@@ -1,10 +1,10 @@
 package db
 
 import (
-	"context"
+	"bufio"
 	"fmt"
-	"log"
-	"time"
+	"os"
+	"strings"
 )
 
 type floor struct {
@@ -22,86 +22,112 @@ Creates a new floor.
 Will check for valid name and file.
 Returns error if things went wrong.
 */
-func (db *base) New(name, deviceList string) (flo floor, err error) {
+func CreateFloor(name, deviceList string) (flo floor, err error) {
 	flo = floor{
 		name:           "",
 		deviceListFile: "",
 	}
 	// Check floor name
-	if err = db.checkFloor(name); err != nil {
+	if err = CheckFloor(name); err != nil {
 		return
 	}
 	// Check file name
-	if err = checkFile(deviceList); err != nil {
+	if err = CheckFile(deviceList); err != nil {
 		return
 	}
 
 	// Everything is good, so return the floor data
 	flo.name = name
 	flo.deviceListFile = deviceList
+
+	if err = writeFloor(flo); err != nil {
+		return floor{}, err
+	}
 	return
 }
 
 /*
-Adds a Floor to the database.
+Writes a Floor to the database.
 Returns an error if things
 went wrong. nil otherwise.
+Should only be used by the
+CreateFloor function
 */
-func (db *dbase) AddFloor(fl floor) error {
-	if !db.opened {
-		db.Open()
-	}
-
-	query := "INSERT INTO floors(name, devicelist) VALUES (?, ?)"
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	stmt, err := db.sqldb.PrepareContext(ctx, query)
-	if err != nil {
-		log.Printf("Error %s when preparing SQL statement", err)
+func writeFloor(fl floor) error {
+	var fi *os.File
+	var err error
+	// Check if the file already exists
+	fi, err = os.Open(floors)
+	if os.IsNotExist(err) {
+		fi, err = os.Create(floors)
+		if err != nil {
+			return err
+		}
+	} else {
 		return err
 	}
-	defer stmt.Close()
-
-	_, err = stmt.ExecContext(ctx, fl.name, fl.deviceListFile)
+	fi.Close()
+	// Append to the file
+	fil, err := os.OpenFile(floors, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
+	defer fil.Close()
+	// Creating the string from the floor details
+	// will append to the file
+	writeString := fmt.Sprintf("%s\t%s\n", fl.name, fl.deviceListFile)
+	_, err = fil.WriteString(writeString)
+	if err != nil {
+		return err
+	}
+	// Sucessful write
 	return nil
+}
+
+func ReadFloor(fname string) (f floor, err error) {
+	fi, err := open(floors)
+	if err != nil {
+		return
+	}
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		if line[0] == fname {
+			f = floor{
+				name:           line[0],
+				deviceListFile: line[1],
+			}
+			return f, nil
+		}
+	}
+	// The floor was not found
+	// so return an error
+	return floor{}, fmt.Errorf("Floor could not be read/found.")
 }
 
 /*
 Ensures the name for a
 floor has not already been used.
 Returns nil if the name is good.
+An error otherwise.
 */
-func (db *dbase) checkFloor(name string) error {
-	if !db.opened {
-		db.Open()
-	}
-
-	query := fmt.Sprintf("SELECT %s FROM floors", name)
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	stmt, err := db.sqldb.PrepareContext(ctx, query)
+func CheckFloor(name string) error {
+	fi, err := open(floors)
 	if err != nil {
-		log.Printf("Error %s when preparing SQL statement", err)
 		return err
 	}
-	defer stmt.Close()
-	var test string
-	row := stmt.QueryRowContext(ctx, name)
-	if err = row.Scan(&test); err == nil {
-		return fmt.Errorf("Floor name exists!")
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		if line[0] == name {
+			return fmt.Errorf("Floor name found!")
+		}
 	}
-	return nil
-}
-
-/*
-Checks to ensure the device file
-exists. Returns nil if it does.
-*/
-func checkFile(file string) error {
-	// TODO
+	// The floor name was not found
 	return nil
 }
 
@@ -110,8 +136,41 @@ Removes a floor from the database.
 Returns nil if it was sucessful.
 Returns error otherwise.
 */
-func (db *dbase) DeleteFloor(name string) error {
-	// TODO
+func DeleteFloor(name string) error {
+	// Creating a temp file
+	delMe, err := os.Create(fmt.Sprintf("temp%s.tmp", name))
+	if err != nil {
+		return err
+	}
+	fi, err := os.Open(floors)
+	if err != nil {
+		return err
+	}
+	scan := bufio.NewScanner(fi)
+	var line string
+	for scan.Scan() {
+		line = scan.Text()
+		if strings.Split(line, "\t")[0] != name {
+			delMe.WriteString(line)
+		}
+	}
+	// Done with the main file
+	// Removing it
+	fi.Close()
+	err = os.Remove(floors)
+	if err != nil {
+		return err
+	}
+
+	// Renaming the file without the
+	// floor to be deleted to the floors.db
+	err = os.Rename(delMe.Name(), floors)
+	if err != nil {
+		return err
+	}
+
+	// Done, clean up
+	delMe.Close()
 	return nil
 }
 
@@ -119,8 +178,14 @@ func (db *dbase) DeleteFloor(name string) error {
 Gets the file name of a floor
 given a floor name.
 Returns error if not sucessful.
+
+Not a super useful function but it's
+here anyway.
 */
-func (db *dbase) GetDeviceFile(name string) (string, error) {
-	// TODO
-	return "", nil
+func GetDeviceFile(floorName string) (string, error) {
+	fl, err := ReadFloor(floorName)
+	if err != nil {
+		return "", err
+	}
+	return fl.deviceListFile, nil
 }
