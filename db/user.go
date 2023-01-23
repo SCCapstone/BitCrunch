@@ -13,7 +13,6 @@ import (
 const (
 	users    = "users.db"
 	devices  = "devices.db"
-	floors   = "floors.db"
 	hashCost = 10 // min = 4, max = 31
 )
 
@@ -50,7 +49,7 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 	u.admin = admin
 
 	if err := writeUser(u); err != nil {
-		return u, fmt.Errorf("Failed to write user to db file!")
+		return user{}, fmt.Errorf("Failed to write user to db file!")
 	}
 
 	return u, nil
@@ -115,7 +114,50 @@ func ReadUser(uname string) (u user, err error) {
 			return u, nil
 		}
 	}
-	return u, fmt.Errorf("User not found.")
+	return user{}, fmt.Errorf("User not found.")
+}
+
+/*
+Deletes a user from the db
+file. Returns nil if successful.
+An error otherwise.
+*/
+func DeleteUser(uname string) error {
+	// Creating a temp file
+	delMe, err := os.Create(fmt.Sprintf("temp%s.tmp", uname))
+	if err != nil {
+		return err
+	}
+	fi, err := os.Open(users)
+	if err != nil {
+		return err
+	}
+	scan := bufio.NewScanner(fi)
+	var line string
+	for scan.Scan() {
+		line = scan.Text()
+		if strings.Split(line, "\t")[0] != uname {
+			delMe.WriteString(line)
+		}
+	}
+	// Done with the main file
+	// Removing it
+	fi.Close()
+	err = os.Remove(users)
+	if err != nil {
+		return err
+	}
+
+	// Renaming the file without the
+	// floor to be deleted to the users.db
+	err = os.Rename(delMe.Name(), users)
+	if err != nil {
+		return err
+	}
+
+	// Done, clean up
+	delMe.Close()
+	return nil
 }
 
 /*
