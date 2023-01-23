@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+const floors = "floors.db"
+
 type floor struct {
 	name string
 	/*
