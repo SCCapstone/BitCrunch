@@ -34,9 +34,9 @@ func CreateFloor(name, deviceList string) (flo floor, err error) {
 		return
 	}
 	// Check file name
-	if err = CheckFile(deviceList); err != nil {
-		return
-	}
+	// if err = CheckFile(deviceList); err != nil {
+	// 	return
+	// }
 
 	// Everything is good, so return the floor data
 	flo.name = name
