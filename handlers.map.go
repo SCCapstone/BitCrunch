@@ -3,8 +3,10 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
+	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 /*
@@ -12,11 +14,11 @@ Renders the index with updated layer values
 */
 func showMap(c *gin.Context) {
 	floors := getAllFloors()
-	
+
 	render(c, gin.H{
-		"title": "Map",
+		"title":   "Map",
 		"payload": floors,
-		}, "index.html")
+	}, "index.html")
 }
 
 /*
@@ -32,12 +34,32 @@ func addLayer(c *gin.Context) {
 		log.Println(err)
 	}
 
-	err = c.SaveUploadedFile(file, "static/assets/" + file.Filename)
+	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
 		log.Println(err)
 	}
 
-	createNewFloor(layer_name, "static/assets/" + file.Filename)
+	createNewFloor(layer_name, "static/assets/"+file.Filename)
+	showMap(c)
+}
+
+/*
+Changes layer name to new one inputted from the user
+Saves uploaded image to static/assets folder and deletes previous image
+*/
+func editLayer(c *gin.Context) {
+	new_layer_name := c.PostForm("layer_name")
+	new_file, err := c.FormFile("layer_image")
+	old_layer_name := c.PostForm("floor_name")
+	if err != nil {
+		log.Println(err)
+	}
+	remove := os.Remove(findFloor(old_layer_name).ImageFile)
+	if remove != nil {
+		log.Println(err)
+	}
+	err = c.SaveUploadedFile(new_file, "static/assets/"+new_file.Filename)
+	editFloor(new_layer_name, "static/assets/"+new_file.Filename, old_layer_name)
 	showMap(c)
 }
 
@@ -49,12 +71,12 @@ func viewLayer(c *gin.Context) {
 	name := c.PostForm("l_name")
 	floors := getAllFloors()
 	for i := 0; i < len(floors); i++ {
-		if(floors[i].Name == name) {
+		if floors[i].Name == name {
 			render(c, gin.H{
-				"title": "Map",
+				"title":   "Map",
 				"payload": floors,
-				"Image": "../" + floors[i].ImageFile,
-				}, "index.html")
+				"Image":   "../" + floors[i].ImageFile,
+			}, "index.html")
 		}
 	}
 }
