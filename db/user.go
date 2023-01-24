@@ -1,16 +1,18 @@
 package db
 
 import (
-	"context"
+	"bufio"
 	"fmt"
-	"log"
+	"os"
 	"regexp"
-	"time"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 const (
+	users    = "users.db"
+	devices  = "devices.db"
 	hashCost = 10 // min = 4, max = 31
 )
 
@@ -21,70 +23,166 @@ type user struct {
 	admin    int
 }
 
-func (u *user) IsAdmin() bool {
-	return u.admin != 0
-}
-
-func (db *dbase) New(username, password, email string, administrator int) (user, error) {
+func CreateUser(username, password, email string, admin int) (user, error) {
 	u := user{
 		username: "",
 		password: []byte(""),
 		email:    "",
 		admin:    0,
 	}
-	if db.checkUsername(username) != nil {
+	if CheckUsername(username) != nil {
 		return u, fmt.Errorf("Username \"%s\" is not unique. User creation failed.", username)
 	}
-	if checkPassword(password) != nil {
+	if CheckPassword(password) != nil {
 		return u, fmt.Errorf("Password \"%s\" is not sufficient.", password)
 	}
 	if checkEmail(email) != nil {
 		return u, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
 	}
 
-	// Values are good so return the user
+	// Everything checks out so
+	// return the user and
+	// add to db
 	u.username = username
-	u.password = hash(password)
+	hashed, err := hash(password)
+	if err != nil {
+		return user{}, err
+	}
+	u.password = hashed
 	u.email = email
-	u.admin = administrator
+	u.admin = admin
+
+	if err := writeUser(u); err != nil {
+		return user{}, fmt.Errorf("Failed to write user to db file!")
+	}
 
 	return u, nil
 }
 
-func hash(password string) []byte {
-	return bcrypt.GenerateFromPassword([]byte(password), hashCost)
+func writeUser(u user) error {
+	var fi *os.File
+	var err error
+	// Check if the file aready exists
+	fi, err = os.Open(users)
+	if os.IsNotExist(err) {
+		// Create the file if the file already exists
+		fi, err = os.Create(users)
+		if err != nil {
+			return err
+		}
+	} else {
+		return err
+	}
+	// Append to the file
+	fi.Close()
+	fil, err := os.OpenFile(users, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer fil.Close()
+	// Creating the string from the user details
+	// to append to the file
+	writeString := fmt.Sprintf("%s\t%s\t%s\t%d\n", u.username, u.password, u.email, u.admin)
+	_, err = fil.WriteString(writeString)
+	if err != nil {
+		return err
+	}
+	// Finally, no problems
+	return nil
+}
+
+/*
+Attempts to find the user
+in the db file and then
+return a user struct from the
+read data. Returns error
+if the user is not found.
+*/
+func ReadUser(uname string) (u user, err error) {
+	fi, err := open(users)
+	if err != nil {
+		return
+	}
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		if line[0] == uname {
+			u = user{
+				username: line[0],
+				password: []byte(line[1]),
+				email:    line[2],
+				admin:    0,
+			}
+			return u, nil
+		}
+	}
+	return user{}, fmt.Errorf("User not found.")
+}
+
+/*
+Deletes a user from the db
+file. Returns nil if successful.
+An error otherwise.
+*/
+func DeleteUser(uname string) error {
+	// Creating a temp file
+	delMe, err := os.Create(fmt.Sprintf("temp%s.tmp", uname))
+	if err != nil {
+		return err
+	}
+	fi, err := os.Open(users)
+	if err != nil {
+		return err
+	}
+	scan := bufio.NewScanner(fi)
+	var line string
+	for scan.Scan() {
+		line = scan.Text()
+		if strings.Split(line, "\t")[0] != uname {
+			delMe.WriteString(line)
+		}
+	}
+	// Done with the main file
+	// Removing it
+	fi.Close()
+	err = os.Remove(users)
+	if err != nil {
+		return err
+	}
+
+	// Renaming the file without the
+	// floor to be deleted to the users.db
+	err = os.Rename(delMe.Name(), users)
+	if err != nil {
+		return err
+	}
+
+	// Done, clean up
+	delMe.Close()
+	return nil
 }
 
 /*
 This function will check if a
 password for a user is correct.
-Returns true if the password
+Returns nil if the password
 is valid for the user.
-False otherwise.
+Error otherwise.
 */
-func (db *dbase) CheckValidPassword(username, password string) bool {
-	if !db.opened {
-		db.Open()
-	}
-	query := "SELECT password FROM users WHERE username = ?"
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	stmt, err := db.sqldb.PrepareContext(ctx, query)
+func CheckValidPassword(username, passwd string) (err error) {
+	userr, err := ReadUser(username)
 	if err != nil {
-		return false, err
+		return
 	}
-	defer stmt.Close()
-	var hash string
-	row := stmt.QueryRowContext(ctx, username)
-	if err := row.Scan(&hash); err != nil {
-		return false
+	bytepasswd := []byte(passwd)
+	for i, _ := range userr.password {
+		if userr.password[i] != bytepasswd[i] {
+			return fmt.Errorf("Invalid password!")
+		}
 	}
-
-	err = bcrypt.CompareHashAndPassword(hash, []byte(password))
-	if err != nil {
-		return true
-	}
-	return false
+	return nil
 }
 
 /*
@@ -93,25 +191,43 @@ the username is available.
 Returns nil if it is.
 An error otherwise.
 */
-func (db *dbase) checkUsername(username string) error {
-	if !db.opened {
-		db.Open() // will crash if this fails
-	}
-	query := fmt.Sprintf("SELECT %s FROM users", username)
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	stmt, err := db.sqldb.PrepareContext(ctx, query)
+func CheckUsername(u string) error {
+	fi, err := open(users)
 	if err != nil {
-		log.Printf("Error %s when preparing SQL statement", err)
 		return err
 	}
-	defer stmt.Close()
-	var test string
-	row := stmt.QueryRowContext(ctx, username)
-	if err = row.Scan(&test); err == nil {
-		return fmt.Errorf("Username exists!")
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		if line[0] == u {
+			return fmt.Errorf("Username found!")
+		}
 	}
+	// Username not found
 	return nil
+}
+
+/*
+Local function used to open
+a specific file and return it.
+Ensures that the file is not
+already created.
+*/
+func open(file string) (fi *os.File, err error) {
+	fi, err = os.Open(users)
+	var err2 error
+	if os.IsNotExist(err) {
+		// Create the file if the file already exists
+		fi, err2 = os.Create(users)
+		if err2 != nil {
+			return nil, err2
+		}
+	} else {
+		return nil, err
+	}
+	return
 }
 
 /*
@@ -123,7 +239,7 @@ and number of symbols, etc.
 Returns nil if the password
 is sufficient.
 */
-func checkPassword(password string) error {
+func CheckPassword(password string) error {
 	// password must be at least 10 characters
 	if len(password) < 10 {
 		return fmt.Errorf("Password length=%d, need>=%d", len(password), 10)
@@ -158,39 +274,14 @@ to see that an email is valid
 based on regex.
 Returns nil if it is good to use.
 */
-func checkEmail(email string) error {
+func checkEmail(e string) error {
 	reg := regexp.MustCompile("(\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,6})")
-	if !reg.Match([]byte(email)) {
+	if !reg.Match([]byte(e)) {
 		return fmt.Errorf("Incorrect email!")
 	}
 	return nil
 }
 
-/*
-Add a user to the user table in the DB.
-Supply the username, password, and email for the user.
-The 'admin' parameter may or may not be used
-at this point. If used, admin != 0 means
-the user IS an admin.
-*/
-func (db *dbase) AddUser(u user) error {
-	if !db.opened {
-		db.Open() // will crash if this fails
-	}
-	query := "INSERT INTO users(username, password, email, admin) VALUES (?, ?, ?, ?)"
-	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelfunc()
-	stmt, err := db.sqldb.PrepareContext(ctx, query)
-	if err != nil {
-		log.Printf("Error %s when preparing SQL statement", err)
-		return err
-	}
-	defer stmt.Close()
-
-	_, err = stmt.ExecContext(ctx, u.username, u.password, u.email, u.admin)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func hash(password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(password), hashCost)
 }
