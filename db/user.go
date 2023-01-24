@@ -12,7 +12,6 @@ import (
 
 const (
 	users    = "users.db"
-	devices  = "devices.db"
 	hashCost = 10 // min = 4, max = 31
 )
 
