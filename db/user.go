@@ -44,7 +44,11 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 	// return the user and
 	// add to db
 	u.username = username
-	u.password = hash(password)
+	hashed, err := hash(password)
+	if err != nil {
+		return user{}, err
+	}
+	u.password = hashed
 	u.email = email
 	u.admin = admin
 
@@ -278,6 +282,6 @@ func checkEmail(e string) error {
 	return nil
 }
 
-func hash(password string) []byte {
+func hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), hashCost)
 }
