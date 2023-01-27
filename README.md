@@ -34,7 +34,7 @@ All tests are located under in /testing. They are seperated by Behaviorial tests
 
 
 ## Testing Technology
-Go compiler has built-in test functionality. In addition, we will be using (url link to go-rod) to facillitate behaviorial testing.
+Go compiler has built-in test functionality. In addition, we will be using ([go-rod](https://github.com/go-rod/rod)) to facillitate behaviorial testing.
 
 ## Running Tests
 To run tests, first navigate to the correct directory for the desired testing type. These are either /testing/automation, or /testing/unit. While in these directories, you may run the following commands to test. 
@@ -48,7 +48,7 @@ go test file_name.go <- to run all tests in a specific file
 ## Additional Testing Notes
 While running behaviorial testing, if a browser is not detected on your machine, the code will automatically download one for testing. 
 
-If on a Windows machine, the code will generate a temp file that is marked as suspiscous, and will be labeled as a Trojan, and subsequently quarentined. **DO NOT PANIC!** This file is used to control the testing browser in many different ways, and is crucial to get the tests to function correctly. You can safely release the file from quarentine, which will allow the behaviorial tests to correctly function. If on another machine, such as a Linux or Mac, the file will not raise any issues.. Please see (url to go-rod's issues page w the right issue) for more information. 
+If on a Windows machine, the code will generate a temp file that is marked as suspiscous, and will be labeled as a Trojan, and subsequently quarentined. **DO NOT PANIC!** This file is used to control the testing browser in many different ways, and is crucial to get the tests to function correctly. You can safely release the file from quarentine, which will allow the behaviorial tests to correctly function. If on another machine, such as a Linux or Mac, the file will not raise any issues.. Please see [this issue in go-rod's github](https://github.com/go-rod/rod/issues/739) for more information. 
 
 
 # Authors
