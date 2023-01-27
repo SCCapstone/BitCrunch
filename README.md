@@ -29,22 +29,27 @@ Deployment will be done with AWS Hosting. After deploying to AWS, visiting the U
 
 # Testing
 
-In 492 you will write automated tests. When you do you will need to add a 
-section that explains how to run them.
+All tests are located under in /testing. They are seperated by Behaviorial tests (/automation), and Unit tests (/unit).
 
-The unit tests are in `/test/unit`.
 
-The behavioral tests are in `/test/automation/`. (Cypress)
 
 ## Testing Technology
-Go compiler has built-in test functionality
+Go compiler has built-in test functionality. In addition, we will be using (url link to go-rod) to facillitate behaviorial testing.
 
 ## Running Tests
-go test <- to run all tests
+To run tests, first navigate to the correct directory for the desired testing type. These are either /testing/automation, or /testing/unit. While in these directories, you may run the following commands to test. 
 
-go test -v -run test_name <- to run individual test
+go test <- to run all tests in current directory
 
-go test file_name.go <- to run tests in a specific file
+go test -v -run test_name <- to run individual test within a test file
+
+go test file_name.go <- to run all tests in a specific file
+
+## Additional Testing Notes
+While running behaviorial testing, if a browser is not detected on your machine, the code will automatically download one for testing. 
+
+If on a Windows machine, the code will generate a temp file that is marked as suspiscous, and will be labeled as a Trojan, and subsequently quarentined. **DO NOT PANIC!** This file is used to control the testing browser in many different ways, and is crucial to get the tests to function correctly. You can safely release the file from quarentine, which will allow the behaviorial tests to correctly function. If on another machine, such as a Linux or Mac, the file will not raise any issues.. Please see (url to go-rod's issues page w the right issue) for more information. 
+
 
 # Authors
 Ethan Speer: jespeer@email.sc.edu
@@ -54,3 +59,5 @@ Trey Sturman: rsturman@email.sc.edu
 Dan Rochester: rochesw@email.sc.edu
 
 Wilson Green: wtgreen@email.sc.edu (account email wilsontgreen@gmail.com)
+
+

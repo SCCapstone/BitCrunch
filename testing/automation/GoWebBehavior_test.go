@@ -7,11 +7,14 @@ import (
 	"os/exec"
 	"runtime"
 	"testing"
+
+	"github.com/go-rod/rod"
 )
 
 // https://github.com/go-rod/rod/blob/master/examples_test.go
 
 func TestMain(m *testing.M) {
+	fmt.Println("Please note: in order to properly test, please read the Readme!! Otherwise, the browser will NOT connect properly!")
 	fmt.Println("Building and Activating GoWeb...")
 	fmt.Println("Making sure that we are in the correct directory...")
 	cherry := os.Chdir("../../")
@@ -40,29 +43,42 @@ func TestMain(m *testing.M) {
 	/*
 		browser := rod.New().MustConnect() // opens up the default browser
 		fmt.Printf("browser")
-		defer browser.MustClose()              // makes sure the browser closes once Tests are complete
-		page1 := browser.MustPage("localhost") // creates a page from browser
+		defer browser.MustClose()                         // makes sure the browser closes once Tests are complete
+		page1 := browser.MustPage("http://localhost:80/") // creates a page from browser
 		fmt.Printf("page1")
 		fmt.Println(page1)
 		fmt.Printf("defer close")
+		//openbrowser("localhost")
 	*/
-	openbrowser("localhost")
 	fmt.Println("GoWeb activated! Begin Testing...") // will be "connecting" using rod within the tests themselves
 	m.Run()
 	fmt.Println("Testing Complete!")
 
-	//NOTE: GoWeb.exe isn't removed by the code (TODO), make sure you delete it before running tests!
+	//NOTE: GoWeb.exe isn't stopped (TODO), make sure you delete it before running more tests!
 }
 
 func TestPageRunning(t *testing.T) {
 
+	browser := rod.New().MustConnect() // opens up the default browser
+	defer func() {
+		_, err := browser.Pages()
+		if err != nil { // check to see if the page was rendered at all
+			t.Errorf("There was an issue rendering the webapp!")
+		}
+		browser.MustClose() // On panic (and end), close the browser
+	}()
+	browser.MustPage("http://localhost:80/") // creates a page from browser, connects to localhost
 }
 
 func TestLogin(t *testing.T) { // opens up the domain and attempts to login using user1 and pass1
-
+	t.Errorf("Auto fail this!")
 }
 
-// Helper function to open correct browser for testee's machine
+func TestThetests(t *testing.T) {
+	t.Errorf("Used to test TestMain's functions, make sure to comment out once done!")
+}
+
+// Helper function to open correct browser for testee's machine, but does not function properly woth localhost
 // thanks to https://gist.github.com/hyg/9c4afcd91fe24316cbf0
 func openbrowser(url string) {
 	var err error
