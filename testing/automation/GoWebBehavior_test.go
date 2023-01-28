@@ -40,16 +40,6 @@ func TestMain(m *testing.M) {
 		fmt.Println(fmt.Sprint(err) + ": " + string(output))
 		return
 	}
-	/*
-		browser := rod.New().MustConnect() // opens up the default browser
-		fmt.Printf("browser")
-		defer browser.MustClose()                         // makes sure the browser closes once Tests are complete
-		page1 := browser.MustPage("http://localhost:80/") // creates a page from browser
-		fmt.Printf("page1")
-		fmt.Println(page1)
-		fmt.Printf("defer close")
-		//openbrowser("localhost")
-	*/
 	fmt.Println("GoWeb activated! Begin Testing...") // will be "connecting" using rod within the tests themselves
 	m.Run()
 	fmt.Println("Testing Complete!")
