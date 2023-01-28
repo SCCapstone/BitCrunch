@@ -162,9 +162,6 @@ func register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	fmt.Print(username)
-	fmt.Print(password)
-
 	if _, err := db.CreateUser(username, password,"temp@email.com", 1); err == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
