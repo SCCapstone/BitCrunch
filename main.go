@@ -10,6 +10,7 @@ import (
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	models "github.com/SCCapstone/BitCrunch/models"
+	db "github.com/SCCapstone/BitCrunch/db"
 	"github.com/gin-gonic/gin"
 )
 
@@ -135,7 +136,7 @@ func performLogin(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	if models.IsUserValid(username, password) {
+	if db.CheckValidPassword(username, password) == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
@@ -143,11 +144,13 @@ func performLogin(c *gin.Context) {
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
 	} else {
+		fmt.Print("uuuu", db.CheckUsername(username))
+		fmt.Print("pppp", db.CheckPassword(password))
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{
 			"ErrorTitle":   "Login Failed",
 			"ErrorMessage": "Invalid credentials provided"})
 	}
-}
+	}
 
 /*
 Obtains user inputted username and password
@@ -159,7 +162,10 @@ func register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	if _, err := models.RegisterNewUser(username, password); err == nil {
+	fmt.Print(username)
+	fmt.Print(password)
+
+	if _, err := db.CreateUser(username, password,"temp@email.com", 1); err == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
@@ -171,7 +177,7 @@ func register(c *gin.Context) {
 			"ErrorTitle":   "Registration Failed",
 			"ErrorMessage": err.Error()})
 	}
-}
+	}
 
 /*
 Clears the cookie and redirects to the home page
