@@ -59,21 +59,21 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 }
 
 func writeUser(u user) error {
-	var fi *os.File
-	var err error
-	// Check if the file aready exists
-	fi, err = os.Open(users)
-	if os.IsNotExist(err) {
-		// Create the file if the file already exists
-		fi, err = os.Create(users)
-		if err != nil {
-			return err
-		}
-	} else {
-		return err
-	}
-	// Append to the file
-	fi.Close()
+	// var fi *os.File
+	// var err error
+	// // Check if the file aready exists
+	// fi, err = os.Open(users)
+	// if os.IsNotExist(err) {
+	// 	// Create the file if the file already exists
+	// 	fi, err = os.Create(users)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// } else {
+	// 	return err
+	// }
+	// // Append to the file
+	// fi.Close()
 	fil, err := os.OpenFile(users, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
@@ -98,15 +98,18 @@ read data. Returns error
 if the user is not found.
 */
 func ReadUser(uname string) (u user, err error) {
-	fi, err := open(users)
+	fi, err := os.Open(users)
 	if err != nil {
 		return
 	}
 	defer fi.Close()
 	scan := bufio.NewScanner(fi)
+	//scan.Split(bufio.ScanLines)
 	var line []string
+	fmt.Println("\n\n\nI AM FIRST\n\n")
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
+		fmt.Sprintln("\n\n\nLine:%s\n\n", line[0])
 		if line[0] == uname {
 			u = user{
 				username: line[0],
@@ -114,6 +117,7 @@ func ReadUser(uname string) (u user, err error) {
 				email:    line[2],
 				admin:    0,
 			}
+			fmt.Sprintln("\n\n=========\n%s\n\n", u.username)
 			return u, nil
 		}
 	}
@@ -215,15 +219,8 @@ Ensures that the file is not
 already created.
 */
 func open(file string) (fi *os.File, err error) {
-	fi, err = os.Open(users)
-	var err2 error
-	if os.IsNotExist(err) {
-		// Create the file if the file already exists
-		fi, err2 = os.Create(users)
-		if err2 != nil {
-			return nil, err2
-		}
-	} else {
+	fi, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
 		return nil, err
 	}
 	return

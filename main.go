@@ -144,8 +144,8 @@ func performLogin(c *gin.Context) {
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
 	} else {
-		fmt.Print("uuuu", db.CheckUsername(username))
-		fmt.Print("pppp", db.CheckPassword(password))
+		fmt.Print("username:", db.CheckUsername(username))
+		fmt.Print("password:", db.CheckPassword(password))
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{
 			"ErrorTitle":   "Login Failed",
 			"ErrorMessage": "Invalid credentials provided"})
