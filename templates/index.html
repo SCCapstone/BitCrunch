@@ -16,17 +16,17 @@ Navigate
 <div class="nav_menu">
 {{ range .payload }}
 <form action="/u/view_layer" method="POST">
-  <input class="view_layer" type="submit" value={{.Name}}>
-  <input class ="l_name" type="text" id="l_name" name="l_name" value="{{.Name}}" readonly><br><br>
+  <input class="view_layer" type="submit" value={{.name}}>
+  <input class ="l_name" type="text" id="l_name" name="l_name" value="{{.name}}" readonly><br><br>
 </form>
 {{end}}
 </div>
 
-<div class="map_image">
+<!-- <div class="map_image">
   {{ if .Image }}
   <img src="../{{.Image}}" height="inherit" width="inherit"/>
   {{end}}
-</div>
+</div> -->
 
 <form action="/u/logout_modal" method="GET">
   <div class="logout">
