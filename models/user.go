@@ -4,8 +4,9 @@ package models
 
 import (
 	"errors"
-	"regexp"
 	"strings"
+
+	db "github.com/SCCapstone/BitCrunch/db"
 )
 
 /*
@@ -40,40 +41,21 @@ func IsUserValid(username, password string) bool {
 /*
 Registers a new user with given username/password by adding to list
 */
-func RegisterNewUser(username, password string) (*user, error) {
+func RegisterNewUser(username, password, confirm_password, email string) (*user, error) {
 	if strings.TrimSpace(password) == "" {
 		return nil, errors.New("The password can't be empty")
-	} else if !isUsernameAvailable(username) {
+	} else if db.CheckUsername(username) != nil {
 		return nil, errors.New("The username isn't available")
-	} else if !isPasswordValid(password) {
-		return nil, errors.New("Password must have at least 10 characters, consisting of a capital letter, lowercase letter, symbol, and number")
+	} else if db.CheckPassword(password) != nil {
+		return nil, db.CheckPassword(password)
+	} else if password != confirm_password {
+		return nil, errors.New("Passwords do not match")
+	} else if db.checkEmail(email) != nil {
+		return nil, errors.New("Email is not valid")
 	}
 
 	u := user{Username: username, Password: password}
 	userList = append(userList, u)
 
 	return &u, nil
-}
-
-/*
-Check if the inputted username is available
-*/
-func isUsernameAvailable(username string) bool {
-	for _, u := range userList {
-		if u.Username == username {
-			return false
-		}
-	}
-	return true
-}
-
-/*
-Check if the inputted password is valid
-*/
-func isPasswordValid(password string) bool {
-	validChar, err := regexp.MatchString("[!@#$%^&* | A-z0-9]", password)
-	if err == nil && len(password) >= 10 && validChar {
-		return true
-	}
-	return false
 }

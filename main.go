@@ -4,8 +4,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
@@ -158,8 +160,10 @@ If the user created is invalid, renders an error
 func register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	confirm_password := c.PostForm("confirm_password")
+	email := c.PostForm("email")
 
-	if _, err := models.RegisterNewUser(username, password); err == nil {
+	if _, err := models.RegisterNewUser(username, password, confirm_password, email); err == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
@@ -255,5 +259,25 @@ func AddLayer(c *gin.Context) {
 	}
 
 	models.CreateNewFloor(layer_name, "static/assets/"+file.Filename)
+	showMap(c)
+}
+
+/*
+Changes layer name to new one inputted from the user
+Saves uploaded image to static/assets folder and deletes previous image
+*/
+func EditLayer(c *gin.Context) {
+	new_layer_name := c.PostForm("layer_name")
+	new_file, err := c.FormFile("layer_image")
+	old_layer_name := c.PostForm("floor_name")
+	if err != nil {
+		log.Println(err)
+	}
+	remove := os.Remove(models.FindFloor(old_layer_name).ImageFile)
+	if remove != nil {
+		log.Println(err)
+	}
+	err = c.SaveUploadedFile(new_file, "static/assets/"+new_file.Filename)
+	models.EditFloor(new_layer_name, "static/assets/"+new_file.Filename, old_layer_name)
 	showMap(c)
 }
