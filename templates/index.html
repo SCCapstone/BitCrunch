@@ -9,7 +9,7 @@
 
   <div class="parent">
     <div class="grid-item item1"> 
-      <div class="feedbox">
+      <div class="floor_navigation">
         {{ range .payload }}
         <form action="/u/view_layer" method="POST">
           <button name="layer" type="submit" value="{{ . }}">{{ . }}</button>

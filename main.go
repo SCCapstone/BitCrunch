@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"os"
+	"log"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
@@ -267,5 +269,18 @@ func AddLayer(c *gin.Context) {
 	}
 
 	db.CreateFloor(layer_name, layer_name+".txt")
+
+	createDeviceFile(layer_name, file.Filename)
+
 	showMap(c)
+}
+
+func createDeviceFile(name string, filename string) {
+	file, err := os.OpenFile(name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	writeString := fmt.Sprintf(filename)
+	_, err = file.WriteString(writeString)
 }

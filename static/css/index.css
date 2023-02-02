@@ -40,19 +40,17 @@
       position: relative;
     }
 
-.feedbox {
+.floor_navigation {
   border: solid;
   border-radius: 10px;
   border-color: #90e0ef;
   padding: 6px;
   font: 24px/36px sans-serif;
-  width: 60%;
+  width: 100%;
   overflow: hidden;
   overflow: scroll;
   background-color: #EAEDED;
-  height: 80%;
-  position: absolute;
-  top: 20px;
+  height: 100%;
 }
 
 ::-webkit-scrollbar {
