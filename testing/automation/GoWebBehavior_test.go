@@ -31,6 +31,7 @@ func TestMain(m *testing.M) {
 		return
 	}
 	fmt.Println("Running built exe file...")
+	//func StartProcess(name string, argv []string, attr *ProcAttr) (*Process, error)
 	cmd = exec.Command(".\\GoWeb.exe") // running the exe to produce a local copy of the webpage
 	output, err = cmd.CombinedOutput()
 	if err != nil {
@@ -39,10 +40,16 @@ func TestMain(m *testing.M) {
 		return
 	}
 	fmt.Println("GoWeb activated! Begin Testing...") // will be "connecting" using rod within the tests themselves
-	m.Run()
+	m.Run()                                          // All ""selected"" tests are run here.
 	fmt.Println("Testing Complete!")
-
-	//NOTE: GoWeb.exe isn't stopped (TODO), make sure you delete it before running more tests!
+	err = cmd.Process.Kill()
+	if err != nil {
+		// Something happened when trying to kill GoWeb.
+		fmt.Println(fmt.Sprint(err) + ": " + string(output))
+		fmt.Println("GoWeb cannot be killed. The uprising has begun. (Try killing it manually using Task Manager/System Monitor)")
+		return
+	}
+	fmt.Println("GoWeb has been closed.") // undecided as what to place here
 }
 
 func TestPageRunning(t *testing.T) {
@@ -54,7 +61,7 @@ func TestPageRunning(t *testing.T) {
 			t.Errorf("There was an issue rendering the webapp!")
 		}
 		browser.MustClose() // On panic (and end), close the browser
-	}()
+	}() // technically a lambda function btw
 	browser.MustPage("http://localhost:80/") // creates a page from browser, connects to localhost
 }
 
