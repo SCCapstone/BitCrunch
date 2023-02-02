@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
@@ -232,19 +233,19 @@ func viewLayer(c *gin.Context) {
 Renders the index with updated layer values
 */
 func showMap(c *gin.Context) {
-
-	fmt.Print(db.GetAllFloors())
 	floors := db.GetAllFloors()
+	floorNames := []string{}
 
 	for i := 0; i < len(floors); i++ {
-		
+		str := fmt.Sprintf("%#v", floors[i])
+		comma := strings.Index(str, ",")
+		substr := str[15:comma-1]
+		floorNames = append(floorNames, substr)
 	}
-	
-
 
 	Render(c, gin.H{
 		"title":   "Map",
-		"payload": floors,
+		"payload": floorNames,
 	}, "index.html")
 }
 
