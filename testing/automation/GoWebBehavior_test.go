@@ -2,10 +2,8 @@ package testing
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
-	"runtime"
 	"testing"
 
 	"github.com/go-rod/rod"
@@ -60,31 +58,27 @@ func TestPageRunning(t *testing.T) {
 	browser.MustPage("http://localhost:80/") // creates a page from browser, connects to localhost
 }
 
-func TestLogin(t *testing.T) { // opens up the domain and attempts to login using user1 and pass1
-	t.Errorf("Auto fail this!")
+func TestProperLogin(t *testing.T) { // opens up the domain and attempts to login using user1 and pass1
+	// open up localhost as above
+	// find input 1, 2 -> username pass
+	// do input using user1, pass1
+	// find login button
+	// click
+	// check page, make sure its on the non-login/non-error page (anything else is good)- error here
+
+	// be sure to defer pageclose
+}
+func TestImproperLogin(t *testing.T) { // opens up the domain and attempts to login using user1 and pass1
+	// open up localhost as above
+	// find input 1, 2 -> username pass
+	// do input using user0, pass0 (or funny names, just not the actual ones)
+	// find login button
+	// click
+	// check page, make sure its on the login/error page (anything else is BAD)- error here
+
+	// be sure to defer pageclose
 }
 
 func TestThetests(t *testing.T) {
 	t.Errorf("Used to test TestMain's functions, make sure to comment out once done!")
-}
-
-// Helper function to open correct browser for testee's machine, but does not function properly woth localhost
-// thanks to https://gist.github.com/hyg/9c4afcd91fe24316cbf0
-func openbrowser(url string) {
-	var err error
-
-	switch runtime.GOOS {
-	case "linux":
-		err = exec.Command("xdg-open", url).Start()
-	case "windows":
-		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-	case "darwin":
-		err = exec.Command("open", url).Start()
-	default:
-		err = fmt.Errorf("unsupported platform")
-	}
-	if err != nil {
-		log.Fatal(err)
-	}
-
 }
