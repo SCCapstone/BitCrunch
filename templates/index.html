@@ -9,7 +9,7 @@
 
   <div class="parent">
     <div class="grid-item item1"> 
-      <div class="floor_navigation">
+      <div class="feedbox">
         {{ range .payload }}
         <form action="/u/view_layer" method="POST">
           <button name="layer" type="submit" value="{{ . }}">{{ . }}</button>
@@ -24,8 +24,14 @@
       <button class="add_layer_button" type="submit" value="Add Layer"></button>
       </form>
     </div>
-    <div class="grid-item item5"> 5</div>
+    <div class="grid-item item5"> 
+      {{  if .Image }}
+      <img src="../{{.Image}}" height="inherit" width="inherit"/>
+      {{ end }}
+    </div>
     <div class="grid-item item6"> 6</div>
+    <div class="grid-item item7"> 7</div>
+    <div class="grid-item item8"> 8</div>
     </div>
 
     {{ if .AddLayerModal }}

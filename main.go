@@ -10,6 +10,7 @@ import (
 	"strings"
 	"os"
 	"log"
+	"io/ioutil"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
@@ -218,17 +219,41 @@ Renders the proper floor image onto the map
 */
 func viewLayer(c *gin.Context) {
 	name := c.PostForm("layer")
+	imageName := ""
 	fmt.Println("here", name)
-	// floors := models.GetAllFloors()
-	// for i := 0; i < len(floors); i++ {
-	// 	if floors[i].Name == name {
-	// 		Render(c, gin.H{
-	// 			"title":   "Map",
-	// 			"payload": floors,
-	// 			"Image":   "../" + floors[i].ImageFile,
-	// 		}, "index.html")
-	// 	}
-	// }
+	floors := db.GetAllFloors()
+	floorNames := []string{}
+	for i := 0; i < len(floors); i++ {
+		str := fmt.Sprintf("%#v", floors[i])
+		comma := strings.Index(str, ",")
+		substr := str[15:comma-1]
+		floorNames = append(floorNames, substr)
+	}
+	for i := 0; i < len(floorNames); i++ {
+		if floorNames[i] == name {
+			fmt.Println("floor", name)
+			fileIO, err := os.OpenFile(name+".txt", os.O_RDWR, 0600)
+			if err != nil {
+				panic(err)
+			}
+			defer fileIO.Close()
+			rawBytes, err := ioutil.ReadAll(fileIO)
+			if err != nil {
+				panic(err)
+			}
+			lines := strings.Split(string(rawBytes), "\n")
+			for i, line := range lines {
+				if i == 0 {
+					imageName = line
+				}
+			}
+		}
+	}
+	Render(c, gin.H{
+		"title": "Map",
+		"payload": floorNames,
+		"Image": "static/assets/" + imageName,
+	}, "index.html")
 }
 
 /*
