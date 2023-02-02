@@ -19,10 +19,32 @@
     </div>
     <div class="grid-item item2"> 2</div>
     <div class="grid-item item3"> 3</div>
-    <div class="grid-item item4"> 4</div>
+    <div class="grid-item item4">
+      <form action="/u/add_layer_modal" method="GET">
+      <button class="add_layer_button" type="submit" value="Add Layer"></button>
+      </form>
+    </div>
     <div class="grid-item item5"> 5</div>
     <div class="grid-item item6"> 6</div>
     </div>
+
+    {{ if .AddLayerModal }}
+<div id="add_layer_modal" class="modal">
+  <div class="modal-content">
+    <h3>Add Layer</h3>
+    <form action="/map" method="GET">
+      <input class="cancel_button" type="submit" value="Cancel">
+    </form>
+    <form action="/u/add_layer" method="POST" enctype="multipart/form-data">
+      Layer Name: <input type="text" id="layer_name" name="layer_name"><br>
+      Map File: <label for="layer_image" class="add_file">Upload Image      
+        <input type="file" id="layer_image" name="layer_image" accept="image/*">
+        </label><br>
+      <input class="danger_button" type="submit" value="Save">
+    </form>
+  </div>
+</div>
+{{end}}
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

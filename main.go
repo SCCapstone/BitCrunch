@@ -88,7 +88,7 @@ func InitializeRoutes() {
 
 		// Handle POST requests at /u/add_layer, ensure user is logged in using middleware
 		// Add the layer
-		// userRoutes.POST("/add_layer", middleware.EnsureLoggedIn(), AddLayer)
+		userRoutes.POST("/add_layer", middleware.EnsureLoggedIn(), AddLayer)
 
 		// Handle POST requests at /u/view_layer, ensure user is logged in using middleware
 		// Render the image to map
@@ -254,19 +254,18 @@ Adds a layer with a layer name inputted from the user
 Saves uploaded image to static/assets folder
 Creates a new floor and adds it to the list of floors, calls showMap to render the map with updates
 */
-// func AddLayer(c *gin.Context) {
-// 	layer_name := c.PostForm("layer_name")
+func AddLayer(c *gin.Context) {
+	layer_name := c.PostForm("layer_name")
+	file, err := c.FormFile("layer_image")
+	fmt.Println(layer_name)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-// 	file, err := c.FormFile("layer_image")
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	models.CreateNewFloor(layer_name, "static/assets/"+file.Filename)
-// 	showMap(c)
-// }
+	db.CreateFloor(layer_name, layer_name+".txt")
+	showMap(c)
+}

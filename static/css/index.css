@@ -67,3 +67,74 @@
   } ::-webkit-scrollbar-thumb:hover {
     background: #90e0ef;  
   }
+
+  .add_layer_button {
+    background-color: white;
+    border: inset;
+    color: teal;
+    padding: 9px 40px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 18px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+
+  .modal {
+    display: block;
+    position: fixed;
+    z-index: 1;
+    padding-top: 200px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+  } .modal-content {
+    background-color: #fefefe;
+    color: teal;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 44%;
+  }
+  .danger_button {
+    background-color: white;
+    border: inset;
+    color: teal;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    width: 140px;
+    height: 30px;
+    cursor: pointer;
+    transition-duration: 0.4s;
+    position: relative;
+    right: 10%;
+    float: right;
+    bottom: 50px;
+  } .danger_button:hover {
+    background-color: red;
+    color: white;
+  }
+  .cancel_button {
+    background-color: white;
+    border: inset;
+    color: teal;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;
+    width: 140px;
+    height: 30px;
+    cursor: pointer;
+    transition-duration: 0.4s;
+    right: 35%;
+  } .cancel_button:hover {
+    background-color: grey;
+    color: white;
+  }
