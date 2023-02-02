@@ -1,0 +1,69 @@
+.parent {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    background-color: white;
+    padding: 10px;
+    height: 90vh;
+    }
+    .grid-item {
+      border: 1px solid rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      font-size: 30px;
+      resize: none;
+      overflow: hidden;
+    }
+    
+    .item1 { grid-area: 2 / 1 / 5 / 2;
+      position: relative;
+    }
+    .item2 { 
+      grid-area: 1 / 1 / 2 / 2; 
+      position: relative;
+    }
+    .item3 { 
+      grid-area: 5 / 1 / 6 / 2; 
+      position: relative;
+    }
+    .item4 { 
+      grid-area: 5 / 5 / 6 / 6; 
+      position: relative;
+    }
+    .item5 { 
+      grid-area: 2 / 2 / 5 / 5; 
+      position: relative;
+    }
+    .item6 { 
+      grid-area: 1 / 5 / 2 / 6; 
+      position: relative;
+    }
+
+.feedbox {
+  border: solid;
+  border-radius: 10px;
+  border-color: #90e0ef;
+  padding: 6px;
+  font: 24px/36px sans-serif;
+  width: 60%;
+  overflow: hidden;
+  overflow: scroll;
+  background-color: #EAEDED;
+  height: 80%;
+  position: absolute;
+  top: 20px;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  } ::-webkit-scrollbar-track {
+    border: 1px solid #90e0ef;
+    border-radius: 10px;
+  } ::-webkit-scrollbar-thumb {
+    background: #90e0ef;  
+    border-radius: 10px;
+  } ::-webkit-scrollbar-thumb:hover {
+    background: #90e0ef;  
+  }

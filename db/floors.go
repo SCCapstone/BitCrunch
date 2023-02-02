@@ -186,7 +186,7 @@ func GetDeviceFile(floorName string) (string, error) {
 /*
 Returns a list of all the floors in the database (with file names)
 */
-func GetAllFloors() (myfloors [] floor, err error) {
+func GetAllFloors() (myfloors [] floor) {
 	var floorList = []floor{}
 	fi, err := os.Open(floors)
 	if err != nil {
@@ -203,5 +203,5 @@ func GetAllFloors() (myfloors [] floor, err error) {
 		}
 		floorList = append(floorList, f)
 	}
-	return floorList, nil
+	return floorList
 }

@@ -91,7 +91,7 @@ func InitializeRoutes() {
 
 		// Handle POST requests at /u/view_layer, ensure user is logged in using middleware
 		// Render the image to map
-		// userRoutes.POST("/view_layer", middleware.EnsureLoggedIn(), viewLayer)
+		userRoutes.POST("/view_layer", middleware.EnsureLoggedIn(), viewLayer)
 
 		// Handle GET requests at /u/register, ensure user is not logged in using middleware
 		//Render the registration page
@@ -213,26 +213,34 @@ func GenerateSessionToken() string {
 Gets the proper floor from the list of floors based on its name
 Renders the proper floor image onto the map
 */
-// func viewLayer(c *gin.Context) {
-// 	name := c.PostForm("l_name")
-// 	floors := models.GetAllFloors()
-// 	for i := 0; i < len(floors); i++ {
-// 		if floors[i].Name == name {
-// 			Render(c, gin.H{
-// 				"title":   "Map",
-// 				"payload": floors,
-// 				"Image":   "../" + floors[i].ImageFile,
-// 			}, "index.html")
-// 		}
-// 	}
-// }
+func viewLayer(c *gin.Context) {
+	name := c.PostForm("layer")
+	fmt.Println("here", name)
+	// floors := models.GetAllFloors()
+	// for i := 0; i < len(floors); i++ {
+	// 	if floors[i].Name == name {
+	// 		Render(c, gin.H{
+	// 			"title":   "Map",
+	// 			"payload": floors,
+	// 			"Image":   "../" + floors[i].ImageFile,
+	// 		}, "index.html")
+	// 	}
+	// }
+}
 
 /*
 Renders the index with updated layer values
 */
 func showMap(c *gin.Context) {
+
 	fmt.Print(db.GetAllFloors())
-	floors, _ := db.GetAllFloors()
+	floors := db.GetAllFloors()
+
+	for i := 0; i < len(floors); i++ {
+		
+	}
+	
+
 
 	Render(c, gin.H{
 		"title":   "Map",
