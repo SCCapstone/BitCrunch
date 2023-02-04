@@ -7,9 +7,13 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
+	"os"
+	"log"
+	"io/ioutil"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
-	models "github.com/SCCapstone/BitCrunch/models"
+	// models "github.com/SCCapstone/BitCrunch/models"
 	db "github.com/SCCapstone/BitCrunch/db"
 	"github.com/gin-gonic/gin"
 )
@@ -214,28 +218,61 @@ Gets the proper floor from the list of floors based on its name
 Renders the proper floor image onto the map
 */
 func viewLayer(c *gin.Context) {
-	name := c.PostForm("l_name")
-	floors := models.GetAllFloors()
+	name := c.PostForm("layer")
+	imageName := ""
+	fmt.Println("here", name)
+	floors := db.GetAllFloors()
+	floorNames := []string{}
 	for i := 0; i < len(floors); i++ {
-		if floors[i].Name == name {
-			Render(c, gin.H{
-				"title":   "Map",
-				"payload": floors,
-				"Image":   "../" + floors[i].ImageFile,
-			}, "index.html")
+		str := fmt.Sprintf("%#v", floors[i])
+		comma := strings.Index(str, ",")
+		substr := str[15:comma-1]
+		floorNames = append(floorNames, substr)
+	}
+	for i := 0; i < len(floorNames); i++ {
+		if floorNames[i] == name {
+			fmt.Println("floor", name)
+			fileIO, err := os.OpenFile(name+".txt", os.O_RDWR, 0600)
+			if err != nil {
+				panic(err)
+			}
+			defer fileIO.Close()
+			rawBytes, err := ioutil.ReadAll(fileIO)
+			if err != nil {
+				panic(err)
+			}
+			lines := strings.Split(string(rawBytes), "\n")
+			for i, line := range lines {
+				if i == 0 {
+					imageName = line
+				}
+			}
 		}
 	}
+	Render(c, gin.H{
+		"title": "Map",
+		"payload": floorNames,
+		"Image": "static/assets/" + imageName,
+	}, "index.html")
 }
 
 /*
 Renders the index with updated layer values
 */
 func showMap(c *gin.Context) {
-	floors := models.GetAllFloors()
+	floors := db.GetAllFloors()
+	floorNames := []string{}
+
+	for i := 0; i < len(floors); i++ {
+		str := fmt.Sprintf("%#v", floors[i])
+		comma := strings.Index(str, ",")
+		substr := str[15:comma-1]
+		floorNames = append(floorNames, substr)
+	}
 
 	Render(c, gin.H{
 		"title":   "Map",
-		"payload": floors,
+		"payload": floorNames,
 	}, "index.html")
 }
 
@@ -246,17 +283,29 @@ Creates a new floor and adds it to the list of floors, calls showMap to render t
 */
 func AddLayer(c *gin.Context) {
 	layer_name := c.PostForm("layer_name")
-
 	file, err := c.FormFile("layer_image")
+	fmt.Println(layer_name)
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	models.CreateNewFloor(layer_name, "static/assets/"+file.Filename)
+	db.CreateFloor(layer_name, layer_name+".txt")
+
+	createDeviceFile(layer_name, file.Filename)
+
 	showMap(c)
+}
+
+func createDeviceFile(name string, filename string) {
+	file, err := os.OpenFile(name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	writeString := fmt.Sprintf(filename)
+	_, err = file.WriteString(writeString)
 }

@@ -9,6 +9,7 @@ import (
 
 const floors = "floors.db"
 
+
 type floor struct {
 	name string
 	/*
@@ -17,6 +18,10 @@ type floor struct {
 		each device for the floor.
 	*/
 	deviceListFile string
+}
+
+var floorList = []floor {
+
 }
 
 /*
@@ -56,20 +61,6 @@ Should only be used by the
 CreateFloor function
 */
 func writeFloor(fl floor) error {
-	var fi *os.File
-	var err error
-	// Check if the file already exists
-	fi, err = os.Open(floors)
-	if os.IsNotExist(err) {
-		fi, err = os.Create(floors)
-		if err != nil {
-			return err
-		}
-	} else {
-		return err
-	}
-	fi.Close()
-	// Append to the file
 	fil, err := os.OpenFile(floors, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
@@ -190,4 +181,27 @@ func GetDeviceFile(floorName string) (string, error) {
 		return "", err
 	}
 	return fl.deviceListFile, nil
+}
+
+/*
+Returns a list of all the floors in the database (with file names)
+*/
+func GetAllFloors() (myfloors [] floor) {
+	var floorList = []floor{}
+	fi, err := os.Open(floors)
+	if err != nil {
+		return
+	}
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		f := floor{
+			name: line[0],
+			deviceListFile: line[1],
+		}
+		floorList = append(floorList, f)
+	}
+	return floorList
 }
