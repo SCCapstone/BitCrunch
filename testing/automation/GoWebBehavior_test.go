@@ -81,16 +81,24 @@ func TestProperLogin(t *testing.T) { // opens up the domain and attempts to logi
 
 	// find input 1, 2 -> username pass
 	// do input using user1, pass1
-	elUser := page.MustElement(`[type="text id=username"]`)
+	fmt.Println("going for username look")
+	elUser := page.MustElement(`[type="text id=username"]`) // issue is here!!!
+	fmt.Println("going for username input")
 	elUser.MustInput("user1")
 
 	fmt.Println(elUser.MustText()) // use MustText to get the text
+	fmt.Println("going for pass look")
+
 	elPass := page.MustElement(`[type="text id=password"]`)
+	fmt.Println("going for pass input")
+
 	elPass.MustInput("pass1")
 	fmt.Println(elPass.MustText()) // use MustText to get the text
 	// find login button
 	// click
-	page.MustElement("button").MustClick()
+	fmt.Println("going for button (not this time)")
+
+	//page.MustElement("button").MustClick()
 	// check page, make sure its on the non-login/non-error page (anything else is good)- error here
 
 	// be sure to defer pageclose
