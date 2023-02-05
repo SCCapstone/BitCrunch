@@ -67,16 +67,45 @@ func TestPageRunning(t *testing.T) {
 
 func TestProperLogin(t *testing.T) { // opens up the domain and attempts to login using user1 and pass1
 	// open up localhost as above
+	browser := rod.New().MustConnect()
+	defer func() {
+		_, err := browser.Pages()
+		if err != nil { // check to see if the page was rendered at all
+			t.Errorf("There was an issue rendering the webapp!")
+		}
+		browser.MustClose() // On panic (and end), close the browser
+	}()
+	page := browser.MustPage("http://localhost:80/") // creates a page from browser, connects to localhost
+
+	// https://go-rod.github.io/#/input
+
 	// find input 1, 2 -> username pass
 	// do input using user1, pass1
+	elUser := page.MustElement(`[type="text id=username"]`)
+	elUser.MustInput("user1")
+
+	fmt.Println(elUser.MustText()) // use MustText to get the text
+	elPass := page.MustElement(`[type="text id=password"]`)
+	elPass.MustInput("pass1")
+	fmt.Println(elPass.MustText()) // use MustText to get the text
 	// find login button
 	// click
+	page.MustElement("button").MustClick()
 	// check page, make sure its on the non-login/non-error page (anything else is good)- error here
 
 	// be sure to defer pageclose
 }
 func TestImproperLogin(t *testing.T) { // opens up the domain and attempts to login using user1 and pass1
 	// open up localhost as above
+	browser := rod.New().MustConnect()
+	defer func() {
+		_, err := browser.Pages()
+		if err != nil { // check to see if the page was rendered at all
+			t.Errorf("There was an issue rendering the webapp!")
+		}
+		browser.MustClose() // On panic (and end), close the browser
+	}()
+	browser.MustPage("http://localhost:80/") // creates a page from browser, connects to localhost
 	// find input 1, 2 -> username pass
 	// do input using user0, pass0 (or funny names, just not the actual ones)
 	// find login button
@@ -86,6 +115,8 @@ func TestImproperLogin(t *testing.T) { // opens up the domain and attempts to lo
 	// be sure to defer pageclose
 }
 
+/*
 func TestThetests(t *testing.T) {
 	t.Errorf("Used to test TestMain's functions, make sure to comment out once done!")
 }
+*/
