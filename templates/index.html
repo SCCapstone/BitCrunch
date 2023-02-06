@@ -18,7 +18,11 @@
       </div>
     </div>
     <div class="grid-item item2"> 2</div>
-    <div class="grid-item item3"> 3</div>
+    <div class="grid-item item3">
+      <form action="/u/logout_modal" method="GET">
+        <button class="style1_button" value="Logout">Logout</button>
+      </form>
+    </div>
     <div class="grid-item item4">
       <form action="/u/add_layer_modal" method="GET">
       <button class="style1_button" type="submit" value="Add Layer">Add Layer</button>
@@ -45,6 +49,18 @@
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
         <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .LogoutModal }}
+<div id="logout_modal" class="modal">
+  <div class="modal-content">
+    <h3>Are you sure you want to logout?</h3>
+    <form action="/u/logout" method="GET" enctype="multipart/form-data">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map"> 
+        <input class="danger_button" type="submit" value="Logout">
     </form>
   </div>
 </div>
