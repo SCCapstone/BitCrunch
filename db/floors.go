@@ -98,40 +98,6 @@ func ReadFloor(fname string) (f floor, err error) {
 }
 
 /*
-Edits name of floor
-*/
-func EditFloor(new_fname, old_fname, new_device_file string) (f floor, err error) {
-	// Find floor to rewrite
-	floorList = GetAllFloors()
-	for i := 0; i < len(floorList); i++ {
-		if floorList[i].name == old_fname {
-			f = floorList[i]
-		}
-	}
-
-	// Check floor name
-	if err = CheckFloor(old_fname); err != nil {
-		return f, fmt.Errorf("Floor name already taken.")
-	}
-
-	// Remove old device file
-	remove := os.Remove(f.deviceListFile)
-	if remove != nil {
-		return f, fmt.Errorf("Removal of device file unsuccessful.")
-	}
-
-	// Changing name and device file
-	f.name = new_fname
-	f.deviceListFile = new_device_file
-
-	// Edit
-	if err = writeFloor(f); err != nil {
-		return floor{}, err
-	}
-	return
-}
-
-/*
 Ensures the name for a
 floor has not already been used.
 Returns nil if the name is good.
@@ -148,7 +114,7 @@ func CheckFloor(name string) error {
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		if line[0] == name {
-			return fmt.Errorf("Floor name found!")
+			return fmt.Errorf("Floor name already taken.")
 		}
 	}
 	// The floor name was not found

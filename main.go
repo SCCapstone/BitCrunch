@@ -302,33 +302,6 @@ func AddLayer(c *gin.Context) {
 	showMap(c)
 }
 
-/*
-Changes layer name to new one inputted from the user
-Saves uploaded image to static/assets folder and deletes previous image
-*/
-func EditLayer(c *gin.Context) {
-	new_layer_name := c.PostForm("new_layer_name")
-	new_file, err := c.FormFile("new_layer_image")
-	old_layer_name := c.PostForm("old_layer_name")
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(new_layer_name)
-	if err != nil {
-		fmt.Println(err)
-	}
-	err = c.SaveUploadedFile(new_file, "static/assets/"+new_file.Filename)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	db.EditFloor(new_layer_name, old_layer_name, new_layer_name+".txt")
-
-	createDeviceFile(new_layer_name, new_file.Filename)
-
-	showMap(c)
-}
-
 func createDeviceFile(name string, filename string) {
 	file, err := os.OpenFile(name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
