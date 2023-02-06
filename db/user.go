@@ -30,7 +30,7 @@ func CreateUser(username, password, confirm_password, email string, admin int) (
 		admin:    0,
 	}
 	if CheckUsername(username) != nil {
-		return u, fmt.Errorf("Username \"%s\" is not unique. User creation failed.", username)
+		return u, fmt.Errorf("Username \"%s\" is not unique.", username)
 	}
 	if CheckPassword(password) != nil {
 		return u, fmt.Errorf("Password \"%s\" is not sufficient.", password)
@@ -39,7 +39,7 @@ func CreateUser(username, password, confirm_password, email string, admin int) (
 		return u, fmt.Errorf("Passwords \"%s\" and \"%s\" do not match.", password, confirm_password)
 	}
 	if checkEmail(email) != nil {
-		return u, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
+		return u, fmt.Errorf("Email \"%s\" is already used.", email)
 	}
 
 	// Everything checks out so
@@ -248,19 +248,13 @@ func CheckPassword(password string) error {
 }
 
 /*
-This function will check
-to see that an email is valid
-based on regex.
+This function will check that
+email is not already taken
 Returns nil if it is good to use.
 */
 func checkEmail(e string) error {
-	// checking format of input
-	reg := regexp.MustCompile("(\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,6})")
-	if !reg.Match([]byte(e)) {
-		return fmt.Errorf("Incorrect format for email.")
-	}
 	// checking if email already taken
-	fi, err := open(users)
+	fi, err := os.Open(users)
 	if err != nil {
 		return err
 	}
@@ -273,8 +267,7 @@ func checkEmail(e string) error {
 			return fmt.Errorf("Email taken.")
 		}
 	}
-	// input is in correct format and
-	// email not already in database
+	// email is not already in database
 	return nil
 }
 
