@@ -4,13 +4,13 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
-	"os"
-	"log"
-	"io/ioutil"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
@@ -154,7 +154,7 @@ func performLogin(c *gin.Context) {
 			"ErrorTitle":   "Login Failed",
 			"ErrorMessage": "Invalid credentials provided"})
 	}
-	}
+}
 
 /*
 Obtains user inputted username and password
@@ -165,8 +165,10 @@ If the user created is invalid, renders an error
 func register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	confirm_password := c.PostForm("confirm_password")
+	email := c.PostForm("email")
 
-	if _, err := db.CreateUser(username, password,"temp@email.com", 1); err == nil {
+	if _, err := db.CreateUser(username, password, confirm_password, email, 1); err == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
@@ -178,7 +180,7 @@ func register(c *gin.Context) {
 			"ErrorTitle":   "Registration Failed",
 			"ErrorMessage": err.Error()})
 	}
-	}
+}
 
 /*
 Clears the cookie and redirects to the home page
@@ -226,7 +228,7 @@ func viewLayer(c *gin.Context) {
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
-		substr := str[15:comma-1]
+		substr := str[15 : comma-1]
 		floorNames = append(floorNames, substr)
 	}
 	for i := 0; i < len(floorNames); i++ {
@@ -250,9 +252,9 @@ func viewLayer(c *gin.Context) {
 		}
 	}
 	Render(c, gin.H{
-		"title": "Map",
+		"title":   "Map",
 		"payload": floorNames,
-		"Image": "static/assets/" + imageName,
+		"Image":   "static/assets/" + imageName,
 	}, "index.html")
 }
 
@@ -266,7 +268,7 @@ func showMap(c *gin.Context) {
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
-		substr := str[15:comma-1]
+		substr := str[15 : comma-1]
 		floorNames = append(floorNames, substr)
 	}
 
@@ -296,6 +298,33 @@ func AddLayer(c *gin.Context) {
 	db.CreateFloor(layer_name, layer_name+".txt")
 
 	createDeviceFile(layer_name, file.Filename)
+
+	showMap(c)
+}
+
+/*
+Changes layer name to new one inputted from the user
+Saves uploaded image to static/assets folder and deletes previous image
+*/
+func EditLayer(c *gin.Context) {
+	new_layer_name := c.PostForm("new_layer_name")
+	new_file, err := c.FormFile("new_layer_image")
+	old_layer_name := c.PostForm("old_layer_name")
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(new_layer_name)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = c.SaveUploadedFile(new_file, "static/assets/"+new_file.Filename)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	db.EditFloor(new_layer_name, old_layer_name, new_layer_name+".txt")
+
+	createDeviceFile(new_layer_name, new_file.Filename)
 
 	showMap(c)
 }
