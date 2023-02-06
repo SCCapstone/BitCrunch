@@ -44,37 +44,63 @@
   border: solid;
   border-radius: 10px;
   border-color: #90e0ef;
-  font: 24px/36px sans-serif;
-  width: 100%;
+  width: 12vw;
   overflow: hidden;
   overflow: scroll;
   background-color: #EAEDED;
   height: 100%;
+  position: relative;
+  left: -3vh;
+}
+
+.feedbox button {
+  background-color: white; 
+  border: 1px solid grey;
+  color: teal;
+  padding-left: 10px;
+  cursor: pointer;
+  width: 100%;
+  display: block;
+  text-align: left;
+  height: 8vh;
+  font-size: 3vh;
+}
+
+.feedbox button:not(:last-child) {
+  border-bottom: none;
+}
+
+/* Add a background color on hover */
+.feedbox button:hover {
+  background-color: lightgray;
 }
 
 ::-webkit-scrollbar {
     width: 12px;
     height: 12px;
   } ::-webkit-scrollbar-track {
-    border: 1px solid #90e0ef;
+    border: 1px solid teal;
     border-radius: 10px;
   } ::-webkit-scrollbar-thumb {
-    background: #90e0ef;  
+    background: teal;  
     border-radius: 10px;
   } ::-webkit-scrollbar-thumb:hover {
-    background: #90e0ef;  
+    background: teal;  
   }
 
-  .add_layer_button {
+  .style1_button {
     background-color: white;
-    border: inset;
     color: teal;
     padding: 9px 40px;
     text-align: center;
-    text-decoration: none;
-    font-size: 18px;
     margin: 4px 2px;
     cursor: pointer;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .style1_button:hover {
+    text-shadow:0px 0px 1px black;
+    background-color: lightgray;
   }
 
   .modal {
@@ -90,48 +116,41 @@
     background-color: rgb(0,0,0);
     background-color: rgba(0,0,0,0.4);
   } .modal-content {
+    text-align: center;
     background-color: #fefefe;
     color: teal;
-    text-align: center;
     font-family: Arial, Helvetica, sans-serif;
     margin: auto;
     padding: 20px;
     border: 1px solid #888;
     width: 44%;
+    height: 25%;
   }
   .danger_button {
-    background-color: white;
-    border: inset;
-    color: teal;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 16px;
-    font-weight: bold;
-    width: 140px;
-    height: 30px;
-    cursor: pointer;
     transition-duration: 0.4s;
-    position: relative;
-    right: 10%;
+    background-color: white;
+    color: teal;
+    padding: 9px 40px;
+    text-align: center;
+    cursor: pointer;
     float: right;
-    bottom: 50px;
   } .danger_button:hover {
     background-color: red;
     color: white;
   }
   .cancel_button {
-    background-color: white;
-    border: inset;
-    color: teal;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 16px;
-    font-weight: bold;
-    position: relative;
-    width: 140px;
-    height: 30px;
-    cursor: pointer;
     transition-duration: 0.4s;
-    right: 35%;
+    background-color: white;
+    color: teal;
+    padding: 9px 40px;
+    text-align: center;
+    cursor: pointer;
+    float: left;
   } .cancel_button:hover {
     background-color: grey;
     color: white;
   }
+.custom-file-upload {
+}
