@@ -21,7 +21,7 @@
     <div class="grid-item item3"> 3</div>
     <div class="grid-item item4">
       <form action="/u/add_layer_modal" method="GET">
-      <button class="add_layer_button" type="submit" value="Add Layer"></button>
+      <button class="style1_button" type="submit" value="Add Layer">Add Layer</button>
       </form>
     </div>
     <div class="grid-item item5"> 
@@ -38,15 +38,13 @@
 <div id="add_layer_modal" class="modal">
   <div class="modal-content">
     <h3>Add Layer</h3>
-    <form action="/map" method="GET">
-      <input class="cancel_button" type="submit" value="Cancel">
-    </form>
     <form action="/u/add_layer" method="POST" enctype="multipart/form-data">
-      Layer Name: <input type="text" id="layer_name" name="layer_name"><br>
-      Map File: <label for="layer_image" class="add_file">Upload Image      
+        <lable for="layer_name">Layer Name:</lable>
+        <input type="text" id="layer_name" name="layer_name"><br>
+        <label for="layer_image" class="custom-file-upload">Upload File</label>
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        </label><br>
-      <input class="danger_button" type="submit" value="Save">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
 </div>
