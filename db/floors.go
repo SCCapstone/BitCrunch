@@ -9,7 +9,6 @@ import (
 
 const floors = "floors.db"
 
-
 type floor struct {
 	name string
 	/*
@@ -20,9 +19,7 @@ type floor struct {
 	deviceListFile string
 }
 
-var floorList = []floor {
-
-}
+var floorList = []floor{}
 
 /*
 Creates a new floor.
@@ -98,6 +95,40 @@ func ReadFloor(fname string) (f floor, err error) {
 	// The floor was not found
 	// so return an error
 	return floor{}, fmt.Errorf("Floor could not be read/found.")
+}
+
+/*
+Edits name of floor
+*/
+func EditFloor(new_fname, old_fname, new_device_file string) (f floor, err error) {
+	// Find floor to rewrite
+	floorList = GetAllFloors()
+	for i := 0; i < len(floorList); i++ {
+		if floorList[i].name == old_fname {
+			f = floorList[i]
+		}
+	}
+
+	// Check floor name
+	if err = CheckFloor(old_fname); err != nil {
+		return f, fmt.Errorf("Floor name already taken.")
+	}
+
+	// Remove old device file
+	remove := os.Remove(f.deviceListFile)
+	if remove != nil {
+		return f, fmt.Errorf("Removal of device file unsuccessful.")
+	}
+
+	// Changing name and device file
+	f.name = new_fname
+	f.deviceListFile = new_device_file
+
+	// Edit
+	if err = writeFloor(f); err != nil {
+		return floor{}, err
+	}
+	return
 }
 
 /*
@@ -186,7 +217,7 @@ func GetDeviceFile(floorName string) (string, error) {
 /*
 Returns a list of all the floors in the database (with file names)
 */
-func GetAllFloors() (myfloors [] floor) {
+func GetAllFloors() (myfloors []floor) {
 	var floorList = []floor{}
 	fi, err := os.Open(floors)
 	if err != nil {
@@ -198,7 +229,7 @@ func GetAllFloors() (myfloors [] floor) {
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		f := floor{
-			name: line[0],
+			name:           line[0],
 			deviceListFile: line[1],
 		}
 		floorList = append(floorList, f)
