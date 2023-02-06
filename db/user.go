@@ -22,7 +22,7 @@ type user struct {
 	admin    int
 }
 
-func CreateUser(username, password, email string, admin int) (user, error) {
+func CreateUser(username, password, confirm_password, email string, admin int) (user, error) {
 	u := user{
 		username: "",
 		password: []byte(""),
@@ -34,6 +34,9 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 	}
 	if CheckPassword(password) != nil {
 		return u, fmt.Errorf("Password \"%s\" is not sufficient.", password)
+	}
+	if password != confirm_password {
+		return u, fmt.Errorf("Passwords \"%s\" and \"%s\" do not match.", password, confirm_password)
 	}
 	if checkEmail(email) != nil {
 		return u, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
@@ -185,7 +188,7 @@ func CheckUsername(u string) error {
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		if line[0] == u {
-			return fmt.Errorf("Username found!")
+			return fmt.Errorf("Username taken.")
 		}
 	}
 	// Username not found
@@ -251,10 +254,27 @@ based on regex.
 Returns nil if it is good to use.
 */
 func checkEmail(e string) error {
+	// checking format of input
 	reg := regexp.MustCompile("(\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,6})")
 	if !reg.Match([]byte(e)) {
-		return fmt.Errorf("Incorrect email!")
+		return fmt.Errorf("Incorrect format for email.")
 	}
+	// checking if email already taken
+	fi, err := open(users)
+	if err != nil {
+		return err
+	}
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		if line[2] == e {
+			return fmt.Errorf("Email taken.")
+		}
+	}
+	// input is in correct format and
+	// email not already in database
 	return nil
 }
 
