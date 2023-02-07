@@ -168,7 +168,11 @@ func register(c *gin.Context) {
 	confirm_password := c.PostForm("confirm_password")
 	email := c.PostForm("email")
 
-	if _, err := db.CreateUser(username, password, confirm_password, email, 1); err == nil {
+	if password != confirm_password {
+		c.HTML(http.StatusBadRequest, "register.html", gin.H{
+			"ErrorTitle":   "Registration Failed",
+			"ErrorMessage": fmt.Errorf("Passwords \"%s\" and \"%s\" do not match.", password, confirm_password)})
+	} else if _, err := db.CreateUser(username, password, email, 1); err == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)

@@ -22,7 +22,7 @@ type user struct {
 	admin    int
 }
 
-func CreateUser(username, password, confirm_password, email string, admin int) (user, error) {
+func CreateUser(username, password, email string, admin int) (user, error) {
 	u := user{
 		username: "",
 		password: []byte(""),
@@ -34,9 +34,6 @@ func CreateUser(username, password, confirm_password, email string, admin int) (
 	}
 	if CheckPassword(password) != nil {
 		return u, fmt.Errorf("Password \"%s\" is not sufficient.", password)
-	}
-	if password != confirm_password {
-		return u, fmt.Errorf("Passwords \"%s\" and \"%s\" do not match.", password, confirm_password)
 	}
 	if checkEmail(email) != nil {
 		return u, fmt.Errorf("Email \"%s\" is already used.", email)
