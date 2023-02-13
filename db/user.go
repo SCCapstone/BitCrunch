@@ -128,7 +128,7 @@ func DeleteUser(uname string) error {
 	for scan.Scan() {
 		line = scan.Text()
 		if strings.Split(line, "\t")[0] != uname {
-			delMe.WriteString(line)
+			delMe.WriteString(line + "\n")
 		}
 	}
 	// Done with the main file
@@ -141,13 +141,24 @@ func DeleteUser(uname string) error {
 
 	// Renaming the file without the
 	// floor to be deleted to the users.db
-	err = os.Rename(delMe.Name(), users)
+	// err = os.Rename(delMe.Name(), users)
+	// if err != nil {
+	// 	return err
+	// }
+
+	delMe.Close()
+
+	RenameFile(delMe.Name())
+
+	// Done, clean up
+	return nil
+}
+
+func RenameFile(filename string) error {
+	err := os.Rename(filename, users)
 	if err != nil {
 		return err
 	}
-
-	// Done, clean up
-	delMe.Close()
 	return nil
 }
 
