@@ -33,8 +33,16 @@
       <img src="../{{.Image}}" height="inherit" width="inherit"/>
       {{ end }}
     </div>
-    <div class="grid-item item6"> 6</div>
-    <div class="grid-item item7"> 7</div>
+    <div class="grid-item item6">
+      Hello
+    </div>
+    <div class="grid-item item7">
+      <form action="/u/delete_layer_modal" method="GET">
+      <button class="style1_button" type="submit" value="Delete Layer"> Delete Layer</button>
+      <form action="/u/add_device_modal" method="GET">
+      <button class="style1_button" type="submit" value="Add Device"> Add Device</button>
+      </form>
+    </div>
     <div class="grid-item item8"> 8</div>
     </div>
 
@@ -61,6 +69,39 @@
     <form action="/u/logout" method="GET" enctype="multipart/form-data">
         <input class="cancel_button" type="submit" value="Cancel" formaction="/map"> 
         <input class="danger_button" type="submit" value="Logout">
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .DeleteLayerModal }}
+<div id="Delete_layer_modal" class="modal">
+  <div class="modal-content">
+    <h3>Delete which layer?</h3>
+    <form action="/map" method="GET">
+      <input class="cancel_button" type="submit" value="Cancel">
+    </form>
+    <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
+      Floor Name: <input type="text" id="floor_name" name="floor_name"><br>
+        </label><br>
+      <input class="danger_button" type="submit" value="Continue">
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .AddDeviceModal }}
+<div id="Add_Device_modal" class="modal">
+  <div class="modal-content">
+    <h3>Add Device</h3>
+    <form action="/map" method="GET">
+      <input class="cancel_button" type="submit" value="Cancel">
+    </form>
+    <form action="/u/add_device" method="POST" enctype="multipart/form-data">
+      Device Name: <input type="text" id="device_name" name="device_name"><br>
+      Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
+        </label><br>
+      <input class="danger_button" type="submit" value="Continue">
     </form>
   </div>
 </div>

@@ -93,6 +93,22 @@ func InitializeRoutes() {
 		// Add the layer
 		userRoutes.POST("/add_layer", middleware.EnsureLoggedIn(), AddLayer)
 
+		// Handle GET requests at /u/add_device_modal, ensure user is logged in using middleware
+		// Display the add device modal
+		userRoutes.GET("/add_device_modal", middleware.EnsureLoggedIn(), display_add_device_modal)
+
+		// Handle POST requests at /u/add_device, ensure user is logged in using middleware
+		// Add the device
+		userRoutes.POST("/add_device", middleware.EnsureLoggedIn(), AddDevice)
+
+		// Handle GET requests at /u/delete_layer_modal, ensure user is logged in using middleware
+		// Display the delete layer modal
+		userRoutes.GET("/delete_layer_modal", middleware.EnsureLoggedIn(), display_delete_layer_modal)
+
+		// Handle POST requests at /u/delete_layer, ensure user is logged in using middleware
+		// Delete the layer
+		userRoutes.POST("/delete_layer", middleware.EnsureLoggedIn(), DeleteLayer)
+
 		// Handle POST requests at /u/view_layer, ensure user is logged in using middleware
 		// Render the image to map
 		userRoutes.POST("/view_layer", middleware.EnsureLoggedIn(), viewLayer)
@@ -207,6 +223,24 @@ func display_add_layer_modal(c *gin.Context) {
 }
 
 /*
+Renders the Delete Layer Modal when the user presses the delete layer button
+*/
+func display_delete_layer_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"DeleteLayerModal": "Delete Layer Modal",
+	})
+}
+
+/*
+Renders the Add Device Modal when the user presses the add device button
+*/
+func display_add_device_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"AddDeviceModal": "Add Device Modal",
+	})
+}
+
+/*
 Generates a random 16 character string as the session token
 */
 func GenerateSessionToken() string {
@@ -297,6 +331,35 @@ func AddLayer(c *gin.Context) {
 
 	createDeviceFile(layer_name, file.Filename)
 
+	showMap(c)
+}
+
+/*
+Adds a device with a device name inputted from the user
+adds the device to the floor's deviceList file
+*/
+func AddDevice(c *gin.Context) {
+	device_name := c.PostForm("device_name")
+	device_ip := c.PostForm("device_ip")
+	layer_name := c.PostForm("layer")
+
+	fmt.Println(device_name)	
+	fmt.Println(device_ip)
+
+	db.CreateDevice(device_name, device_ip, layer_name+".txt")
+
+	// createDeviceFile(layer_name, file.Filename, layer_name+".txt")
+
+	showMap(c)
+}
+
+/*
+Deletes a layer from the list of floors,
+calls showMap to render the map with updates
+*/
+func DeleteLayer(c *gin.Context) {
+	floorName := c.PostForm("floor_name")
+	db.DeleteFloor(floorName)
 	showMap(c)
 }
 

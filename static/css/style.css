@@ -130,6 +130,22 @@ body {
     background-color: #D9D9D9;
   }
 
+  .delete_layer {
+    position: relative;
+    width: 150px;
+    bottom: 710%;
+    left: 45%;
+    background-color: #D9D9D9;
+  }
+
+  .add_device {
+    position: relative;
+    width: 150px;
+    bottom: 610%;
+    left: 15%;
+    background-color: #D9D9D9;
+  }
+
   .logout-btn {
     background-color: white;
     border: inset;
