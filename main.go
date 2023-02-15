@@ -81,6 +81,8 @@ func InitializeRoutes() {
 		// Logout the user
 		userRoutes.GET("/logout", middleware.EnsureLoggedIn(), logout)
 
+		userRoutes.POST("/logout", middleware.EnsureLoggedIn(), logout)
+
 		// Handle GET requests at /u/logout, ensure user is logged in using middleware
 		// Display the logout modal
 		userRoutes.GET("/logout_modal", middleware.EnsureLoggedIn(), display_logout_modal)
@@ -104,6 +106,10 @@ func InitializeRoutes() {
 		// Handle POST requests at /u/register, ensure user is not logged in using middleware
 		//Register the user
 		userRoutes.POST("/register", middleware.EnsureNotLoggedIn(), register)
+
+		userRoutes.GET("/delete_account_modal", middleware.EnsureLoggedIn(), display_delete_account_modal)
+
+		userRoutes.GET("/delete_account", middleware.EnsureLoggedIn(), delete_account)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -128,6 +134,10 @@ func showRegistrationPage(c *gin.Context) {
 		"title": "Register"}, "register.html")
 }
 
+func showSettings(c *gin.Context) {
+	fmt.Println("TODO Settings")
+}
+
 /*
 Obtains user inputted username and password
 Checks if the username/password combination is valid
@@ -144,6 +154,7 @@ func performLogin(c *gin.Context) {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
+		c.SetCookie("current_user", username, 3600, "/", "localhost", false, true)
 
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
@@ -170,6 +181,7 @@ func register(c *gin.Context) {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
+		c.SetCookie("current_user", username, 3600, "/", "localhost", false, true)
 
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
@@ -203,6 +215,12 @@ Renders the Add Layer Modal when the user presses the add layer button
 func display_add_layer_modal(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"AddLayerModal": "Add Layer Modal",
+	})
+}
+
+func display_delete_account_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"DeleteAccountModal": "Delete Account Modal",
 	})
 }
 
@@ -308,4 +326,10 @@ func createDeviceFile(name string, filename string) {
 	defer file.Close()
 	writeString := fmt.Sprintf(filename)
 	_, err = file.WriteString(writeString)
+}
+
+func delete_account(c *gin.Context) {
+	logout(c)
+	current_user, _ := c.Cookie("current_user")
+	db.DeleteUser(current_user)
 }

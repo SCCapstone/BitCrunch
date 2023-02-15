@@ -31,13 +31,13 @@
     grid-area: 2 / 2 / 9 / 8; 
   }
   .item6 { 
-    grid-area: 1 / 8 / 2 / 9; 
+    grid-area: 1 / 8 / 3 / 9; 
   }
   .item7 { 
     grid-area: 1 / 2 / 2 / 8; 
   }
   .item8 { 
-    grid-area: 2 / 8 / 8 / 9; 
+    grid-area: 3 / 8 / 8 / 9; 
   }
 
 .feedbox {
@@ -139,6 +139,12 @@
     background-color: red;
     color: white;
   }
+  .danger_button:disabled {
+    border: 1px solid #999999;
+    background-color: #cccccc;
+    color: #666666;
+    cursor: default;
+  }
   .cancel_button {
     font-family: Arial, Helvetica, sans-serif;
     transition-duration: 0.4s;
@@ -151,4 +157,30 @@
   } .cancel_button:hover {
     background-color: grey;
     color: white;
+  }
+ 
+  
+  .dropdown {
+    display: inline-block;
+    position: relative;
+  }
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    width: 100%;
+    overflow: auto;
+    box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.4);
+  }
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  .dropdown-content a {
+    display: block;
+    color: #000000;
+    padding: 5px;
+    font-size: 14px;
+  }
+  .dropdown-content a:hover {
+    color: #FFFFFF;
+    background-color: #00A4BD;
   }
