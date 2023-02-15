@@ -141,13 +141,7 @@ func DeleteUser(uname string) error {
 
 	// Renaming the file without the
 	// floor to be deleted to the users.db
-	// err = os.Rename(delMe.Name(), users)
-	// if err != nil {
-	// 	return err
-	// }
-
 	delMe.Close()
-
 	RenameFile(delMe.Name())
 
 	// Done, clean up

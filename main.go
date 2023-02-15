@@ -134,10 +134,6 @@ func showRegistrationPage(c *gin.Context) {
 		"title": "Register"}, "register.html")
 }
 
-func showSettings(c *gin.Context) {
-	fmt.Println("TODO Settings")
-}
-
 /*
 Obtains user inputted username and password
 Checks if the username/password combination is valid
