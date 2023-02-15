@@ -54,6 +54,7 @@ func RunFromScript(filename string, targetIP string) (error, string) {
 		}
 		outputAll += string(output) // move the output into the full output
 	}
+	file.Close()
 	return nil, outputAll
 }
 
