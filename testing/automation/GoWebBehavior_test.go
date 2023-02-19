@@ -75,33 +75,35 @@ func TestProperLogin(t *testing.T) { // opens up the domain and attempts to logi
 		}
 		browser.MustClose() // On panic (and end), close the browser
 	}()
-	page := browser.MustPage("http://localhost:80/") // creates a page from browser, connects to localhost
+	page := browser.MustPage("http://localhost:5000/") // creates a page from browser, connects to localhost
 
 	// https://go-rod.github.io/#/input
 
 	// find input 1, 2 -> username pass
 	// do input using user1, pass1
-	fmt.Println("going for username look")
-	elUser := page.MustElement(`[type="text id=username"]`) // issue is here!!!
+	//fmt.Println("going for username look")
+	elUser := page.MustElement("form").MustElement("input#username") // FIX: its <__ action > that is being looked for
+	fmt.Println("Found", elUser, "input element for \"username\". ")
+
 	fmt.Println("going for username input")
 	elUser.MustInput("user1")
 
 	fmt.Println(elUser.MustText()) // use MustText to get the text
 	fmt.Println("going for pass look")
 
-	elPass := page.MustElement(`[type="text id=password"]`)
+	elPass := page.MustElement("form").MustElement("input#password")
 	fmt.Println("going for pass input")
 
 	elPass.MustInput("pass1")
 	fmt.Println(elPass.MustText()) // use MustText to get the text
 	// find login button
 	// click
-	fmt.Println("going for button (not this time)")
+	//fmt.Println("going for button (not this time)")
 
-	//page.MustElement("button").MustClick()
+	page.MustElement("form").MustElement("div").MustClick()
 	// check page, make sure its on the non-login/non-error page (anything else is good)- error here
-
 	// be sure to defer pageclose
+
 }
 func TestImproperLogin(t *testing.T) { // opens up the domain and attempts to login using user1 and pass1
 	// open up localhost as above

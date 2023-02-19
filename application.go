@@ -29,7 +29,7 @@ func main() {
 	router.LoadHTMLGlob("templates/*")
 	router.MaxMultipartMemory = 8 << 20
 	InitializeRoutes()
-	router.Run(":80")
+	router.Run(":5000")
 }
 
 /*
