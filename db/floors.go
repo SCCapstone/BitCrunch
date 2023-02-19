@@ -54,6 +54,36 @@ func CreateFloor(name, deviceList string) (flo floor, err error) {
 }
 
 /*
+Creates a new floor.
+Will check for valid name and file.
+Returns error if things went wrong.
+*/
+func EditFloor(name, deviceList string) (flo floor, err error) {
+	flo = floor{
+		name:           "",
+		deviceListFile: "",
+	}
+	
+	// Check floor name
+	if err = CheckFloor(name); err != nil {
+		return
+	}
+	// Check file name
+	// if err = CheckFile(deviceList); err != nil {
+	// 	return
+	// }
+
+	// Everything is good, so return the floor data
+	flo.name = name
+	flo.deviceListFile = deviceList
+
+	if err = writeFloor(flo); err != nil {
+		return floor{}, err
+	}
+	return
+}
+
+/*
 Writes a Floor to the database.
 Returns an error if things
 went wrong. nil otherwise.

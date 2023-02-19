@@ -37,11 +37,14 @@
       Hello
     </div>
     <div class="grid-item item7">
-      <form action="/u/delete_layer_modal" method="GET">
-      <button class="style1_button" type="submit" value="Delete Layer"> Delete Layer</button>
-      <form action="/u/add_device_modal" method="GET">
-      <button class="style1_button" type="submit" value="Add Device"> Add Device</button>
+      {{ if .EditLayerButton }}
+      <form action="/u/edit_layer_modal" method="GET">
+      <button class="style1_button" value="edit_layer" type="submit">Edit Layer</button>
       </form>
+      <form action="/u/delete_layer_modal" method="GET">
+      <button class="style1_button" value="delete_layer" type="submit">Delete Layer</button>
+      </form>
+      {{ end }}
     </div>
     <div class="grid-item item8"> 8</div>
     </div>
@@ -77,13 +80,11 @@
 {{ if .DeleteLayerModal }}
 <div id="Delete_layer_modal" class="modal">
   <div class="modal-content">
-    <h3>Delete which layer?</h3>
+    <h3>Are you sure you want to remove this layer?</h3>
     <form action="/map" method="GET">
       <input class="cancel_button" type="submit" value="Cancel">
     </form>
     <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
-      Floor Name: <input type="text" id="floor_name" name="floor_name"><br>
-        </label><br>
       <input class="danger_button" type="submit" value="Continue">
     </form>
   </div>
@@ -102,6 +103,22 @@
       Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
         </label><br>
       <input class="danger_button" type="submit" value="Continue">
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .EditLayerModal }}
+<div id="edit_layer_modal" class="modal">
+  <div class="modal-content">
+    <h3>Edit Layer</h3>
+    <form action="/u/edit_layer" method="POST" enctype="multipart/form-data">
+      <label for="layer_name">Layer Name:</label>
+        <input type="text" id="layer_name" name="layer_name"><br>
+        <label for="layer_image">Upload File</label>
+        <input type="file" id="layer_image" name="layer_image" accept="image/*">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
 </div>

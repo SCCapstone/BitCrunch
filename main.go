@@ -109,6 +109,10 @@ func InitializeRoutes() {
 		// Delete the layer
 		userRoutes.POST("/delete_layer", middleware.EnsureLoggedIn(), DeleteLayer)
 
+		// Handle GET requests at /u/edit_layer_modal, ensure user is logged in using middleware
+		// Display the edit layer modal
+		userRoutes.GET("/edit_layer_modal", middleware.EnsureLoggedIn(), display_edit_layer_modal)
+
 		// Handle POST requests at /u/view_layer, ensure user is logged in using middleware
 		// Render the image to map
 		userRoutes.POST("/view_layer", middleware.EnsureLoggedIn(), viewLayer)
@@ -241,6 +245,15 @@ func display_add_device_modal(c *gin.Context) {
 }
 
 /*
+Renders the Edit Layer Modal when the user presses the on a layer 
+*/
+func display_edit_layer_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"EditLayerModal": "Edit Layer Modal",
+	})
+}
+
+/*
 Generates a random 16 character string as the session token
 */
 func GenerateSessionToken() string {
@@ -283,10 +296,12 @@ func viewLayer(c *gin.Context) {
 			}
 		}
 	}
+
 	Render(c, gin.H{
 		"title": "Map",
 		"payload": floorNames,
 		"Image": "static/assets/" + imageName,
+		"EditLayerButton": "EditLayerButton",
 	}, "index.html")
 }
 
@@ -335,6 +350,28 @@ func AddLayer(c *gin.Context) {
 }
 
 /*
+Edit the name, image, or both of the current layer
+*/
+// func EditLayer(c *gin.Context) {
+// 	layer_name := c.PostForm("layer_name")
+// 	file, err := c.FormFile("layer_image")
+// 	fmt.Println(layer_name)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+
+// 	db.CreateFloor(layer_name, layer_name+".txt")
+
+// 	editDeviceFile(layer_name, file.Filename)
+
+// 	showMap(c)
+// }
+
+/*
 Adds a device with a device name inputted from the user
 adds the device to the floor's deviceList file
 */
@@ -358,8 +395,9 @@ Deletes a layer from the list of floors,
 calls showMap to render the map with updates
 */
 func DeleteLayer(c *gin.Context) {
-	floorName := c.PostForm("floor_name")
-	db.DeleteFloor(floorName)
+	layer_name := c.PostForm("layer_name")
+	db.DeleteFloor(layer_name)
+	// removeDeviceFile(layer_name+".txt")
 	showMap(c)
 }
 
@@ -371,4 +409,11 @@ func createDeviceFile(name string, filename string) {
 	defer file.Close()
 	writeString := fmt.Sprintf(filename)
 	_, err = file.WriteString(writeString)
+}
+
+func removeDeviceFile(name string) {
+	err := os.Remove(name)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
