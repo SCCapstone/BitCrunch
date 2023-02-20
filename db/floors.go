@@ -9,7 +9,6 @@ import (
 
 const floors = "floors.db"
 
-
 type floor struct {
 	name string
 	/*
@@ -20,9 +19,7 @@ type floor struct {
 	deviceListFile string
 }
 
-var floorList = []floor {
-
-}
+var floorList = []floor{}
 
 /*
 Creates a new floor.
@@ -117,7 +114,7 @@ func CheckFloor(name string) error {
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		if line[0] == name {
-			return fmt.Errorf("Floor name found!")
+			return fmt.Errorf("Floor name  \"%s\" is taken.", name)
 		}
 	}
 	// The floor name was not found
@@ -186,7 +183,7 @@ func GetDeviceFile(floorName string) (string, error) {
 /*
 Returns a list of all the floors in the database (with file names)
 */
-func GetAllFloors() (myfloors [] floor) {
+func GetAllFloors() (myfloors []floor) {
 	var floorList = []floor{}
 	fi, err := os.Open(floors)
 	if err != nil {
@@ -198,7 +195,7 @@ func GetAllFloors() (myfloors [] floor) {
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		f := floor{
-			name: line[0],
+			name:           line[0],
 			deviceListFile: line[1],
 		}
 		floorList = append(floorList, f)
