@@ -3,14 +3,15 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
-	"os"
-	"log"
-	"io/ioutil"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
@@ -110,6 +111,15 @@ func InitializeRoutes() {
 		userRoutes.GET("/delete_account_modal", middleware.EnsureLoggedIn(), display_delete_account_modal)
 
 		userRoutes.GET("/delete_account", middleware.EnsureLoggedIn(), delete_account)
+
+		// Handle POST requests at /u/view_devices, ensure user is logged in using middleware
+		// Render the image to map
+		userRoutes.POST("/view_devices", middleware.EnsureLoggedIn(), viewDevices)
+
+		// Handle POST requests at /u/edit_device, ensure user is logged in using middleware
+		// Display edit device modal
+		userRoutes.POST("/edit_device_modal", middleware.EnsureLoggedIn(), display_edit_device_modal)
+
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -161,7 +171,7 @@ func performLogin(c *gin.Context) {
 			"ErrorTitle":   "Login Failed",
 			"ErrorMessage": "Invalid credentials provided"})
 	}
-	}
+}
 
 /*
 Obtains user inputted username and password
@@ -173,7 +183,7 @@ func register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	if _, err := db.CreateUser(username, password,"temp@email.com", 1); err == nil {
+	if _, err := db.CreateUser(username, password, "temp@email.com", 1); err == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
@@ -186,7 +196,7 @@ func register(c *gin.Context) {
 			"ErrorTitle":   "Registration Failed",
 			"ErrorMessage": err.Error()})
 	}
-	}
+}
 
 /*
 Clears the cookie and redirects to the home page
@@ -240,7 +250,7 @@ func viewLayer(c *gin.Context) {
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
-		substr := str[15:comma-1]
+		substr := str[15 : comma-1]
 		floorNames = append(floorNames, substr)
 	}
 	for i := 0; i < len(floorNames); i++ {
@@ -264,9 +274,9 @@ func viewLayer(c *gin.Context) {
 		}
 	}
 	Render(c, gin.H{
-		"title": "Map",
+		"title":   "Map",
 		"payload": floorNames,
-		"Image": "static/assets/" + imageName,
+		"Image":   "static/assets/" + imageName,
 	}, "index.html")
 }
 
@@ -280,7 +290,7 @@ func showMap(c *gin.Context) {
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
-		substr := str[15:comma-1]
+		substr := str[15 : comma-1]
 		floorNames = append(floorNames, substr)
 	}
 
@@ -328,4 +338,81 @@ func delete_account(c *gin.Context) {
 	logout(c)
 	current_user, _ := c.Cookie("current_user")
 	db.DeleteUser(current_user)
+}
+
+/*
+Gets the device from the list of devices based on its name
+Renders device image
+--> for now doing this, will change as db is updated
+*/
+func viewDevices(c *gin.Context) {
+	floor_name := c.PostForm("floor")
+	device_name := c.PostForm("device")
+	// ip := c.PostForm("ip")
+	image_name := ""
+	device, err := db.GetDeviceFile(floor_name)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// opening device list file
+	deviceList, err := os.OpenFile(device+".txt", os.O_RDWR, 0600)
+	if err != nil {
+		panic(err)
+	}
+	defer deviceList.Close()
+	// reading device list file
+	readDevices := bufio.NewScanner(deviceList)
+	readDevices.Split(bufio.ScanLines)
+	// looking for device
+	for readDevices.Scan() {
+		line := strings.Split(readDevices.Text(), "\t") // current line
+		if line[1] == device_name {
+			fmt.Println("device", device_name)
+			// ip := line[2]
+			image_name = line[3]
+		}
+	}
+	Render(c, gin.H{
+		"title":   "Devices",
+		"payload": deviceList,
+		"Image":   "static/assets/" + image_name,
+	}, "index.html")
+}
+
+/*
+Edits current device
+Saves uploaded image to static/assets folder
+*/
+func EditDevice(c *gin.Context) {
+	file, err := c.FormFile("device_image")
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"EditDeviceModal": "Edit Device Modal",
+			"ErrorTitle":      "Edit Device Failed",
+			"ErrorMessage":    fmt.Sprintf("Image file could not be created.")})
+		return
+	}
+	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"EditDeviceModal": "Edit Device Modal",
+			"ErrorTitle":      "Edit Device Failed",
+			"ErrorMessage":    fmt.Sprintf("Image file could not be saved.")})
+		return
+	}
+	// some database function to edit device and have error message here
+}
+
+// display edit device modal
+func display_edit_device_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"EditDeviceModal": "Edit Device Modal",
+	})
+}
+
+/*
+Renders list of scripts for device
+*/
+func viewScripts(c *gin.Context) {
+	// in static/assets folder is the scripts
 }
