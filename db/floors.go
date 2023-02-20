@@ -24,6 +24,8 @@ var floorList = []floor {
 
 }
 
+// var currentFloor = ""
+
 /*
 Creates a new floor.
 Will check for valid name and file.
@@ -162,6 +164,7 @@ Returns error otherwise.
 func DeleteFloor(name string) error {
 	// Creating a temp file
 	delMe, err := os.Create(fmt.Sprintf("temp%s.tmp", name))
+	newName := "floors.db"
 	if err != nil {
 		return err
 	}
@@ -187,13 +190,13 @@ func DeleteFloor(name string) error {
 
 	// Renaming the file without the
 	// floor to be deleted to the floors.db
-	err = os.Rename(delMe.Name(), floors)
+	delMe.Close()
+	err = os.Rename(delMe.Name(), newName)
 	if err != nil {
 		return err
 	}
 
 	// Done, clean up
-	delMe.Close()
 	return nil
 }
 
@@ -235,3 +238,13 @@ func GetAllFloors() (myfloors [] floor) {
 	}
 	return floorList
 }
+
+// func setCurrentFloor(floorName string) {
+// 	if len(floorName) > 0 {
+// 		currentFloor = floorName
+// 	}
+// }
+
+// func getCurrentFloor() (floorName string) {
+// 	return currentFloor
+// }

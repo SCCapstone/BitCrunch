@@ -21,6 +21,9 @@ import (
 // Create the router
 var router *gin.Engine
 
+var currentFloor = ""
+var currentFile = ""
+
 /*
 Configures the router to load HTML templates
 Sets the lower memory limit
@@ -308,6 +311,9 @@ func viewLayer(c *gin.Context) {
 		}
 	}
 
+	setCurrentFloor(name)
+	setCurrentFile(imageName)
+
 	Render(c, gin.H{
 		"title": "Map",
 		"payload": floorNames,
@@ -364,9 +370,16 @@ func AddLayer(c *gin.Context) {
 Edit the name, image, or both of the current layer
 */
 func EditLayer(c *gin.Context) {
-	old_layer_name := "Floor 1"
+	old_layer_name := getCurrentFloor()
+	old_file_name := getCurrentFile()
 	layer_name := c.PostForm("layer_name")
+	if (len(layer_name) == 0) {
+		layer_name = old_layer_name
+	}
 	file, err := c.FormFile("layer_image")
+	if (file == nil) {
+		file.Filename = old_file_name
+	}
 	fmt.Println(layer_name)
 	if err != nil {
 		fmt.Println(err)
@@ -411,23 +424,9 @@ Deletes a layer from the list of floors,
 calls showMap to render the map with updates
 */
 func DeleteLayer(c *gin.Context) {
-	name := c.PostForm("layer")
-	fmt.Println("here", name)
-	floors := db.GetAllFloors()
-	floorNames := []string{}
-	for i := 0; i < len(floors); i++ {
-		str := fmt.Sprintf("%#v", floors[i])
-		comma := strings.Index(str, ",")
-		substr := str[15:comma-1]
-		floorNames = append(floorNames, substr)
-	}
-	for i := 0; i < len(floorNames); i++ {
-		if floorNames[i] == name {
-		db.DeleteFloor(floorNames[i])
-		}
-	}
-	// db.DeleteFloor(name)
-	// removeDeviceFile(layer_name+".txt")
+	name := getCurrentFloor()
+	db.DeleteFloor(name)
+	removeDeviceFile(name+".txt")
 	showMap(c)
 }
 
@@ -454,7 +453,22 @@ func delete_account(c *gin.Context) {
 	db.DeleteUser(current_user)
 }
 
-func get_layer_name(c *gin.Context) {
-	name := c.PostForm("layer")
-	fmt.Println("here", name)
+func setCurrentFloor(floorName string) {
+	if len(floorName) > 0 {
+		currentFloor = floorName
+	}
+}
+
+func getCurrentFloor() (floorName string) {
+	return currentFloor
+}
+
+func setCurrentFile(fileName string) {
+	if len(fileName) > 0 {
+		currentFile = fileName
+	}
+}
+
+func getCurrentFile() (fileName string) {
+	return currentFile
 }
