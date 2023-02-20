@@ -387,17 +387,17 @@ func EditDevice(c *gin.Context) {
 	file, err := c.FormFile("device_image")
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"EditDeviceModal": "Edit Device Modal",
-			"ErrorTitle":      "Edit Device Failed",
-			"ErrorMessage":    fmt.Sprintf("Image file could not be created.")})
+			"EditDeviceModalError": "Edit Device Modal",
+			"ErrorTitle":           "Edit Device Failed",
+			"ErrorMessage":         fmt.Sprintf("Image file could not be created.")})
 		return
 	}
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"EditDeviceModal": "Edit Device Modal",
-			"ErrorTitle":      "Edit Device Failed",
-			"ErrorMessage":    fmt.Sprintf("Image file could not be saved.")})
+			"EditDeviceModalError": "Edit Device Modal",
+			"ErrorTitle":           "Edit Device Failed",
+			"ErrorMessage":         fmt.Sprintf("Image file could not be saved.")})
 		return
 	}
 	// some database function to edit device and have error message here
