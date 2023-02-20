@@ -30,11 +30,18 @@
     </div>
     <div class="grid-item item5"> 
       {{  if .Image }}
-      <img src="../{{.Image}}" height="inherit" width="inherit"/>
+      <img src="../{{.Image}}" class="map_image"/>
       {{ end }}
     </div>
     <div class="grid-item item6">
-      Hello
+      <div class="dropdown">
+        <button class="style1_button">Settings</button>
+        <div class="dropdown-content">
+        <a href="/u/delete_account_modal">Delete My Account</a>
+        <a href="TODO">Setting2</a>
+        <a href="TODO">Setting3</a>
+        </div>
+      </div>
     </div>
     <div class="grid-item item7">
       {{ if .EditLayerButton }}
@@ -123,6 +130,32 @@
   </div>
 </div>
 {{end}}
+
+{{ if .DeleteAccountModal }}
+<div id="delete_account_modal" class="modal">
+  <div class="modal-content">
+    <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
+    <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map">
+        <input type="text" id="delete_confirmation" name="delete_confirmation">
+        <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
+    </form>
+  </div>
+</div>
+{{end}}
+
+<script>
+  let delete_input = document.getElementById("delete_confirmation")
+  let button = document.getElementById("delete_account_button")
+  delete_input.addEventListener("keyup", stateHandle)
+  function stateHandle() {
+    if (delete_input.value === "DELETE") {
+        button.disabled = false;
+    } else {
+        button.disabled = true;
+    }
+}
+</script>
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

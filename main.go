@@ -113,6 +113,7 @@ func InitializeRoutes() {
 		// Display the edit layer modal
 		userRoutes.GET("/edit_layer_modal", middleware.EnsureLoggedIn(), display_edit_layer_modal)
 
+		userRoutes.POST("/edit_layer", middleware.EnsureLoggedIn(), EditLayer)
 		// Handle POST requests at /u/view_layer, ensure user is logged in using middleware
 		// Render the image to map
 		userRoutes.POST("/view_layer", middleware.EnsureLoggedIn(), viewLayer)
@@ -124,6 +125,10 @@ func InitializeRoutes() {
 		// Handle POST requests at /u/register, ensure user is not logged in using middleware
 		//Register the user
 		userRoutes.POST("/register", middleware.EnsureNotLoggedIn(), register)
+
+		userRoutes.GET("/delete_account_modal", middleware.EnsureLoggedIn(), display_delete_account_modal)
+
+		userRoutes.GET("/delete_account", middleware.EnsureLoggedIn(), delete_account)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -223,6 +228,12 @@ Renders the Add Layer Modal when the user presses the add layer button
 func display_add_layer_modal(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"AddLayerModal": "Add Layer Modal",
+	})
+}
+
+func display_delete_account_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"DeleteAccountModal": "Delete Account Modal",
 	})
 }
 
@@ -352,24 +363,29 @@ func AddLayer(c *gin.Context) {
 /*
 Edit the name, image, or both of the current layer
 */
-// func EditLayer(c *gin.Context) {
-// 	layer_name := c.PostForm("layer_name")
-// 	file, err := c.FormFile("layer_image")
-// 	fmt.Println(layer_name)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
+func EditLayer(c *gin.Context) {
+	old_layer_name := "Floor 1"
+	layer_name := c.PostForm("layer_name")
+	file, err := c.FormFile("layer_image")
+	fmt.Println(layer_name)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-// 	db.CreateFloor(layer_name, layer_name+".txt")
+	db.DeleteFloor(old_layer_name)
 
-// 	editDeviceFile(layer_name, file.Filename)
+	removeDeviceFile(old_layer_name+".txt")
 
-// 	showMap(c)
-// }
+	db.CreateFloor(layer_name, layer_name+".txt")
+
+	createDeviceFile(layer_name, file.Filename)
+
+	showMap(c)
+}
 
 /*
 Adds a device with a device name inputted from the user
@@ -395,8 +411,22 @@ Deletes a layer from the list of floors,
 calls showMap to render the map with updates
 */
 func DeleteLayer(c *gin.Context) {
-	layer_name := c.PostForm("layer_name")
-	db.DeleteFloor(layer_name)
+	name := c.PostForm("layer")
+	fmt.Println("here", name)
+	floors := db.GetAllFloors()
+	floorNames := []string{}
+	for i := 0; i < len(floors); i++ {
+		str := fmt.Sprintf("%#v", floors[i])
+		comma := strings.Index(str, ",")
+		substr := str[15:comma-1]
+		floorNames = append(floorNames, substr)
+	}
+	for i := 0; i < len(floorNames); i++ {
+		if floorNames[i] == name {
+		db.DeleteFloor(floorNames[i])
+		}
+	}
+	// db.DeleteFloor(name)
 	// removeDeviceFile(layer_name+".txt")
 	showMap(c)
 }
@@ -416,4 +446,15 @@ func removeDeviceFile(name string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func delete_account(c *gin.Context) {
+	logout(c)
+	current_user, _ := c.Cookie("current_user")
+	db.DeleteUser(current_user)
+}
+
+func get_layer_name(c *gin.Context) {
+	name := c.PostForm("layer")
+	fmt.Println("here", name)
 }
