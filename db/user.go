@@ -30,13 +30,13 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 		admin:    0,
 	}
 	if CheckUsername(username) != nil {
-		return u, fmt.Errorf("Username \"%s\" is not unique. User creation failed.", username)
+		return u, fmt.Errorf("Username \"%s\" taken.", username)
 	}
 	if CheckPassword(password) != nil {
-		return u, fmt.Errorf("Password \"%s\" is not sufficient.", password)
+		return u, CheckPassword(password)
 	}
 	if checkEmail(email) != nil {
-		return u, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
+		return u, fmt.Errorf("This email \"%s\" is currently in use with another account.", email)
 	}
 
 	// Everything checks out so
@@ -204,11 +204,11 @@ Ensures that the file is not
 already created.
 */
 func open(file string) (fi *os.File, err error) {
-	fi, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fi, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		return nil, err
 	}
-	return
+	return fi, nil
 }
 
 /*
@@ -228,23 +228,23 @@ func CheckPassword(password string) error {
 	// password must have at least one digit
 	reg := regexp.MustCompile("\\d")
 	if !reg.Match([]byte(password)) {
-		return fmt.Errorf("Password doesn't have a digit.")
+		return fmt.Errorf("Password \"%s\" doesn't have a digit.", password)
 	}
 	// password must have a symbol
 	// symbol must be one of !@#$%^&*()
 	reg = regexp.MustCompile("[!|@|#|$|$|%|^|7|*|(|)]")
 	if !reg.Match([]byte(password)) {
-		return fmt.Errorf("Password doesn't have a symbol.")
+		return fmt.Errorf("Password \"%s\" doesn't have a symbol.", password)
 	}
 	//password must have an uppercase character
 	reg = regexp.MustCompile("[A-Z]")
 	if !reg.Match([]byte(password)) {
-		return fmt.Errorf("Password doesn't have an uppercase letter.")
+		return fmt.Errorf("Password \"%s\" doesn't have an uppercase letter.", password)
 	}
 	//password must have a lowercase char
 	reg = regexp.MustCompile("[a-z]")
 	if !reg.Match([]byte(password)) {
-		return fmt.Errorf("Password doesn't have a lowercase letter.")
+		return fmt.Errorf("Password \"%s\" doesn't have a lowercase letter.", password)
 	}
 	return nil
 }
@@ -256,10 +256,20 @@ based on regex.
 Returns nil if it is good to use.
 */
 func checkEmail(e string) error {
-	reg := regexp.MustCompile("(\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,6})")
-	if !reg.Match([]byte(e)) {
-		return fmt.Errorf("Incorrect email!")
+	fi, err := open(users)
+	if err != nil {
+		return err
 	}
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		if line[2] == e {
+			return fmt.Errorf("Email found!")
+		}
+	}
+	// Email not found
 	return nil
 }
 
