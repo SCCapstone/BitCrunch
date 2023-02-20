@@ -1,0 +1,127 @@
+<!--devices.html -->
+
+<!--Embed the header.html template at this location-->
+{{ template "header.html" .}}
+
+<head>
+  <link rel="stylesheet" href="/static/css/index.css">
+</head>
+
+  <div class="parent">
+    <div class="grid-item item1"> 
+      <div class="feedbox">
+        {{ range .payload }}
+        <form action="/u/view_devices" method="POST">
+          <button name="device" type="submit" value="{{ . }}">{{ . }}</button>
+        </form>
+      {{ end }}
+      </div>
+    </div>
+    <div class="grid-item item2"> 2</div>
+    <div class="grid-item item3">
+      <form action="/u/logout_modal" method="GET">
+        <button class="style1_button" value="Logout">Logout</button>
+      </form>
+    </div>
+    <div class="grid-item item4">
+      <form action="/u/edit_device_modal" method="GET">
+      <button class="style1_button" type="submit" value="Add Layer">Edit Device</button>
+      </form>
+    </div>
+    <div class="grid-item item5"> 
+      {{  if .Image }}
+        <img src="../{{.Image}}" class="map_image"/>
+      {{ end }}
+      {{ if .Command}}
+        <div class="command"></div>
+      {{ end }}
+    </div>
+    <div class="grid-item item6"> 
+      <div class="dropdown">
+        <button class="style1_button">Settings</button>
+        <div class="dropdown-content">
+        <a href="/u/delete_account_modal">Delete My Account</a>
+        <a href="TODO">Setting2</a>
+        <a href="TODO">Setting3</a>
+        </div>
+      </div>
+    </div>
+    <div class="grid-item item7"> 7</div>
+    <div class="grid-item item8"> Scripts 
+      
+    </div>
+    </div>
+
+{{ if .EditDeviceModal}}
+<div id="edit_device_modal" class="modal">
+    <div class="modal-content">
+      <h3>Add Layer</h3>
+      <form action="/u/edit_device" method="POST" enctype="multipart/form-data">
+          <label for="device_image">Upload File</label>
+          <input type="file" id="device_image" name="device_image" accept="image/*">
+          <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+          <input class="danger_button" type="submit" value="Save">
+      </form>
+    </div>
+  </div>
+{{ end }}
+
+<!-- current method of displaying error -->
+{{ if .EditDeviceModalError}}
+<div id="edit_device_modal" class="modal">
+    <div class="modal-content">
+      <h3>Add Layer</h3>
+      <form action="/u/edit_device" method="POST" enctype="multipart/form-data">
+          <label for="device_image">Upload File</label>
+          <input type="file" id="device_image" name="device_image" accept="image/*">
+          <div class="error">
+            {{.ErrorTitle}}: {{.ErrorMessage}}
+            </div>
+          <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+          <input class="danger_button" type="submit" value="Save">
+      </form>
+    </div>
+  </div>
+{{ end }}
+
+
+{{ if .LogoutModal }}
+<div id="logout_modal" class="modal">
+  <div class="modal-content">
+    <h3>Are you sure you want to logout?</h3>
+    <form action="/u/logout" method="GET" enctype="multipart/form-data">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map"> 
+        <input class="danger_button" type="submit" value="Logout">
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .DeleteAccountModal }}
+<div id="delete_account_modal" class="modal">
+  <div class="modal-content">
+    <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
+    <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map">
+        <input type="text" id="delete_confirmation" name="delete_confirmation">
+        <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
+    </form>
+  </div>
+</div>
+{{end}}
+
+<script>
+  let delete_input = document.getElementById("delete_confirmation")
+  let button = document.getElementById("delete_account_button")
+  delete_input.addEventListener("keyup", stateHandle)
+  function stateHandle() {
+    if (delete_input.value === "DELETE") {
+        button.disabled = false;
+    } else {
+        button.disabled = true;
+    }
+}
+</script>
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.html" .}}
