@@ -83,27 +83,35 @@ func TestProperLogin(t *testing.T) { // opens up the domain and attempts to logi
 	// do input using user1, pass1
 	//fmt.Println("going for username look")
 	elUser := page.MustElement("form").MustElement("input#username") // FIX: its <__ action > that is being looked for
-	fmt.Println("Found", elUser, "input element for \"username\". ")
+	//fmt.Println("Found", elUser, "input element for \"username\". ")
 
-	fmt.Println("going for username input")
+	//fmt.Println("going for username input")
 	elUser.MustInput("user1")
 
-	fmt.Println(elUser.MustText()) // use MustText to get the text
-	fmt.Println("going for pass look")
+	//fmt.Println(elUser.MustText()) // use MustText to get the text
+	//fmt.Println("going for pass look")
 
 	elPass := page.MustElement("form").MustElement("input#password")
-	fmt.Println("going for pass input")
+	//fmt.Println("going for pass input")
 
 	elPass.MustInput("pass1")
-	fmt.Println(elPass.MustText()) // use MustText to get the text
+	//fmt.Println(elPass.MustText()) // use MustText to get the text
 	// find login button
-	// click
-	//fmt.Println("going for button (not this time)")
-
+	// click it
 	page.MustElement("form").MustElement("div").MustClick()
 	// check page, make sure its on the non-login/non-error page (anything else is good)- error here
+	currpages, err := browser.Pages()
+	if err != nil { // check to see if the page was rendered at all
+		t.Errorf("There was an issue rendering the map/floors page!")
+		return
+	}
+	page, err = currpages.FindByURL("/^http:\\/\\/\\w+(\\.\\w+)*(:[0-9]+)?\\/?(\\/[.\\w]*)*$/")
+	// god i hate regex so much
+	if page == nil { // couldn't find the right url
+		t.Errorf("The login was not successfull! There is an issue on typing login!")
+		return
+	}
 	// be sure to defer pageclose
-
 }
 func TestImproperLogin(t *testing.T) { // opens up the domain and attempts to login using user1 and pass1
 	// open up localhost as above
@@ -115,13 +123,42 @@ func TestImproperLogin(t *testing.T) { // opens up the domain and attempts to lo
 		}
 		browser.MustClose() // On panic (and end), close the browser
 	}()
-	browser.MustPage("http://localhost:80/") // creates a page from browser, connects to localhost
-	// find input 1, 2 -> username pass
-	// do input using user0, pass0 (or funny names, just not the actual ones)
-	// find login button
-	// click
-	// check page, make sure its on the login/error page (anything else is BAD)- error here
+	page := browser.MustPage("http://localhost:5000/") // creates a page from browser, connects to localhost
 
+	// https://go-rod.github.io/#/input
+
+	// find input 1, 2 -> username pass
+	// do input using user1, pass1
+	//fmt.Println("going for username look")
+	elUser := page.MustElement("form").MustElement("input#username") // FIX: its <__ action > that is being looked for
+	//fmt.Println("Found", elUser, "input element for \"username\". ")
+
+	//fmt.Println("going for username input")
+	elUser.MustInput("oxymoron")
+
+	//fmt.Println(elUser.MustText()) // use MustText to get the text
+	//fmt.Println("going for pass look")
+
+	elPass := page.MustElement("form").MustElement("input#password")
+	//fmt.Println("going for pass input")
+
+	elPass.MustInput("ferroseed4732#!")
+	//fmt.Println(elPass.MustText()) // use MustText to get the text
+	// find login button
+	// click it
+	page.MustElement("form").MustElement("div").MustClick()
+	// check page, make sure its on the non-login/non-error page (anything else is good)- error here
+	currpages, err := browser.Pages()
+	if err != nil { // check to see if the page was rendered at all
+		t.Errorf("There was an issue rendering the map/floors page!")
+		return
+	}
+	page, err = currpages.FindByURL("/^http:\\/\\/\\w+(\\.\\w+)*(:[0-9]+)?\\/?(\\/[.\\w]*)*$/")
+	// god i hate regex so much
+	if page != nil { // couldn't find the right url
+		t.Errorf("The login was successfull! However, it should'nt be, as these credentials are not correct")
+		return
+	}
 	// be sure to defer pageclose
 }
 
