@@ -7,9 +7,14 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
+	"os"
+	"log"
+	"io/ioutil"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
-	models "github.com/SCCapstone/BitCrunch/models"
+	// models "github.com/SCCapstone/BitCrunch/models"
+	db "github.com/SCCapstone/BitCrunch/db"
 	"github.com/gin-gonic/gin"
 )
 
@@ -76,6 +81,8 @@ func InitializeRoutes() {
 		// Logout the user
 		userRoutes.GET("/logout", middleware.EnsureLoggedIn(), logout)
 
+		userRoutes.POST("/logout", middleware.EnsureLoggedIn(), logout)
+
 		// Handle GET requests at /u/logout, ensure user is logged in using middleware
 		// Display the logout modal
 		userRoutes.GET("/logout_modal", middleware.EnsureLoggedIn(), display_logout_modal)
@@ -99,6 +106,10 @@ func InitializeRoutes() {
 		// Handle POST requests at /u/register, ensure user is not logged in using middleware
 		//Register the user
 		userRoutes.POST("/register", middleware.EnsureNotLoggedIn(), register)
+
+		userRoutes.GET("/delete_account_modal", middleware.EnsureLoggedIn(), display_delete_account_modal)
+
+		userRoutes.GET("/delete_account", middleware.EnsureLoggedIn(), delete_account)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -135,19 +146,22 @@ func performLogin(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	if models.IsUserValid(username, password) {
+	if db.CheckValidPassword(username, password) == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
+		c.SetCookie("current_user", username, 3600, "/", "localhost", false, true)
 
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
 	} else {
+		fmt.Print("username:", db.CheckUsername(username))
+		fmt.Print("password:", db.CheckPassword(password))
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{
 			"ErrorTitle":   "Login Failed",
 			"ErrorMessage": "Invalid credentials provided"})
 	}
-}
+	}
 
 /*
 Obtains user inputted username and password
@@ -159,10 +173,11 @@ func register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	if _, err := models.RegisterNewUser(username, password); err == nil {
+	if _, err := db.CreateUser(username, password,"temp@email.com", 1); err == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
+		c.SetCookie("current_user", username, 3600, "/", "localhost", false, true)
 
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
@@ -171,7 +186,7 @@ func register(c *gin.Context) {
 			"ErrorTitle":   "Registration Failed",
 			"ErrorMessage": err.Error()})
 	}
-}
+	}
 
 /*
 Clears the cookie and redirects to the home page
@@ -199,6 +214,12 @@ func display_add_layer_modal(c *gin.Context) {
 	})
 }
 
+func display_delete_account_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"DeleteAccountModal": "Delete Account Modal",
+	})
+}
+
 /*
 Generates a random 16 character string as the session token
 */
@@ -211,28 +232,61 @@ Gets the proper floor from the list of floors based on its name
 Renders the proper floor image onto the map
 */
 func viewLayer(c *gin.Context) {
-	name := c.PostForm("l_name")
-	floors := models.GetAllFloors()
+	name := c.PostForm("layer")
+	imageName := ""
+	fmt.Println("here", name)
+	floors := db.GetAllFloors()
+	floorNames := []string{}
 	for i := 0; i < len(floors); i++ {
-		if floors[i].Name == name {
-			Render(c, gin.H{
-				"title":   "Map",
-				"payload": floors,
-				"Image":   "../" + floors[i].ImageFile,
-			}, "index.html")
+		str := fmt.Sprintf("%#v", floors[i])
+		comma := strings.Index(str, ",")
+		substr := str[15:comma-1]
+		floorNames = append(floorNames, substr)
+	}
+	for i := 0; i < len(floorNames); i++ {
+		if floorNames[i] == name {
+			fmt.Println("floor", name)
+			fileIO, err := os.OpenFile(name+".txt", os.O_RDWR, 0600)
+			if err != nil {
+				panic(err)
+			}
+			defer fileIO.Close()
+			rawBytes, err := ioutil.ReadAll(fileIO)
+			if err != nil {
+				panic(err)
+			}
+			lines := strings.Split(string(rawBytes), "\n")
+			for i, line := range lines {
+				if i == 0 {
+					imageName = line
+				}
+			}
 		}
 	}
+	Render(c, gin.H{
+		"title": "Map",
+		"payload": floorNames,
+		"Image": "static/assets/" + imageName,
+	}, "index.html")
 }
 
 /*
 Renders the index with updated layer values
 */
 func showMap(c *gin.Context) {
-	floors := models.GetAllFloors()
+	floors := db.GetAllFloors()
+	floorNames := []string{}
+
+	for i := 0; i < len(floors); i++ {
+		str := fmt.Sprintf("%#v", floors[i])
+		comma := strings.Index(str, ",")
+		substr := str[15:comma-1]
+		floorNames = append(floorNames, substr)
+	}
 
 	Render(c, gin.H{
 		"title":   "Map",
-		"payload": floors,
+		"payload": floorNames,
 	}, "index.html")
 }
 
@@ -243,17 +297,35 @@ Creates a new floor and adds it to the list of floors, calls showMap to render t
 */
 func AddLayer(c *gin.Context) {
 	layer_name := c.PostForm("layer_name")
-
 	file, err := c.FormFile("layer_image")
+	fmt.Println(layer_name)
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	models.CreateNewFloor(layer_name, "static/assets/"+file.Filename)
+	db.CreateFloor(layer_name, layer_name+".txt")
+
+	createDeviceFile(layer_name, file.Filename)
+
 	showMap(c)
+}
+
+func createDeviceFile(name string, filename string) {
+	file, err := os.OpenFile(name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	writeString := fmt.Sprintf(filename)
+	_, err = file.WriteString(writeString)
+}
+
+func delete_account(c *gin.Context) {
+	logout(c)
+	current_user, _ := c.Cookie("current_user")
+	db.DeleteUser(current_user)
 }

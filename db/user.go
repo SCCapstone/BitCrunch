@@ -59,21 +59,6 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 }
 
 func writeUser(u user) error {
-	var fi *os.File
-	var err error
-	// Check if the file aready exists
-	fi, err = os.Open(users)
-	if os.IsNotExist(err) {
-		// Create the file if the file already exists
-		fi, err = os.Create(users)
-		if err != nil {
-			return err
-		}
-	} else {
-		return err
-	}
-	// Append to the file
-	fi.Close()
 	fil, err := os.OpenFile(users, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
@@ -98,16 +83,18 @@ read data. Returns error
 if the user is not found.
 */
 func ReadUser(uname string) (u user, err error) {
-	fi, err := open(users)
+	fi, err := os.Open(users)
 	if err != nil {
 		return
 	}
 	defer fi.Close()
 	scan := bufio.NewScanner(fi)
 	var line []string
+	// Reading line-by-line to find the username
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		if line[0] == uname {
+			// User found, creating it to return
 			u = user{
 				username: line[0],
 				password: []byte(line[1]),
@@ -117,6 +104,7 @@ func ReadUser(uname string) (u user, err error) {
 			return u, nil
 		}
 	}
+	// User was not found in the file
 	return user{}, fmt.Errorf("User not found.")
 }
 
@@ -140,7 +128,7 @@ func DeleteUser(uname string) error {
 	for scan.Scan() {
 		line = scan.Text()
 		if strings.Split(line, "\t")[0] != uname {
-			delMe.WriteString(line)
+			delMe.WriteString(line + "\n")
 		}
 	}
 	// Done with the main file
@@ -153,13 +141,18 @@ func DeleteUser(uname string) error {
 
 	// Renaming the file without the
 	// floor to be deleted to the users.db
-	err = os.Rename(delMe.Name(), users)
+	delMe.Close()
+	RenameFile(delMe.Name())
+
+	// Done, clean up
+	return nil
+}
+
+func RenameFile(filename string) error {
+	err := os.Rename(filename, users)
 	if err != nil {
 		return err
 	}
-
-	// Done, clean up
-	delMe.Close()
 	return nil
 }
 
@@ -175,13 +168,9 @@ func CheckValidPassword(username, passwd string) (err error) {
 	if err != nil {
 		return
 	}
-	bytepasswd := []byte(passwd)
-	for i, _ := range userr.password {
-		if userr.password[i] != bytepasswd[i] {
-			return fmt.Errorf("Invalid password!")
-		}
-	}
-	return nil
+	pass := []byte(passwd)
+	// Comparing the db hash and the supplied hash
+	return bcrypt.CompareHashAndPassword(userr.password, pass)
 }
 
 /*
@@ -215,15 +204,8 @@ Ensures that the file is not
 already created.
 */
 func open(file string) (fi *os.File, err error) {
-	fi, err = os.Open(users)
-	var err2 error
-	if os.IsNotExist(err) {
-		// Create the file if the file already exists
-		fi, err2 = os.Create(users)
-		if err2 != nil {
-			return nil, err2
-		}
-	} else {
+	fi, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
 		return nil, err
 	}
 	return

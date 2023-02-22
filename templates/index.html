@@ -1,79 +1,105 @@
-<!--index.html-->
+<!-- index.html -->
 
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
 <head>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/index.css">
 </head>
 
-<div class="wrapper">
+  <div class="parent">
+    <div class="grid-item item1"> 
+      <div class="feedbox">
+        {{ range .payload }}
+        <form action="/u/view_layer" method="POST">
+          <button name="layer" type="submit" value="{{ . }}">{{ . }}</button>
+        </form>
+      {{ end }}
+      </div>
+    </div>
+    <div class="grid-item item2"> 2</div>
+    <div class="grid-item item3">
+      <form action="/u/logout_modal" method="GET">
+        <button class="style1_button" value="Logout">Logout</button>
+      </form>
+    </div>
+    <div class="grid-item item4">
+      <form action="/u/add_layer_modal" method="GET">
+      <button class="style1_button" type="submit" value="Add Layer">Add Layer</button>
+      </form>
+    </div>
+    <div class="grid-item item5"> 
+      {{  if .Image }}
+      <img src="../{{.Image}}" class="map_image"/>
+      {{ end }}
+    </div>
+    <div class="grid-item item6"> 
+      <div class="dropdown">
+        <button class="style1_button">Settings</button>
+        <div class="dropdown-content">
+        <a href="/u/delete_account_modal">Delete My Account</a>
+        <a href="TODO">Setting2</a>
+        <a href="TODO">Setting3</a>
+        </div>
+      </div>
+    </div>
+    <div class="grid-item item7"> 7</div>
+    <div class="grid-item item8"> 8</div>
+    </div>
 
-<div class="nav_text">
-Navigate
-</div>
-
-<div class="nav_menu">
-{{ range .payload }}
-<form action="/u/view_layer" method="POST">
-  <input class="view_layer" type="submit" value={{.Name}}>
-  <input class ="l_name" type="text" id="l_name" name="l_name" value="{{.Name}}" readonly><br><br>
-</form>
-{{end}}
-</div>
-
-<div class="map_image">
-  {{ if .Image }}
-  <img src="../{{.Image}}" height="inherit" width="inherit"/>
-  {{end}}
-</div>
-
-<form action="/u/logout_modal" method="GET">
-  <div class="logout">
-      <input class="logout-btn" type="submit" value="Logout">
+    {{ if .AddLayerModal }}
+<div id="add_layer_modal" class="modal">
+  <div class="modal-content">
+    <h3>Add Layer</h3>
+    <form action="/u/add_layer" method="POST" enctype="multipart/form-data">
+        <lable for="layer_name">Layer Name:</lable>
+        <input type="text" id="layer_name" name="layer_name"><br>
+        <label for="layer_image">Upload File</label>
+        <input type="file" id="layer_image" name="layer_image" accept="image/*">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="danger_button" type="submit" value="Save">
+    </form>
   </div>
-</form> 
+</div>
+{{end}}
 
 {{ if .LogoutModal }}
 <div id="logout_modal" class="modal">
   <div class="modal-content">
-    <h3>Are you sure you want to log out?</h3>
-    <form action="/map" method="GET">
-      <input class="cancel_button" type="submit" value="Cancel">
-    </form>
-    <form action="/u/logout" method="GET">
-      <input class="danger_button" type="submit" value="Logout">
+    <h3>Are you sure you want to logout?</h3>
+    <form action="/u/logout" method="GET" enctype="multipart/form-data">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map"> 
+        <input class="danger_button" type="submit" value="Logout">
     </form>
   </div>
 </div>
 {{end}}
 
-<form action="/u/add_layer_modal" method="GET">
-  <div class="add_layer">
-    <input class="add_layer_button" type="submit" value="Add Layer">
-  </div>
-</form>
-
-{{ if .AddLayerModal }}
-<div id="add_layer_modal" class="modal">
+{{ if .DeleteAccountModal }}
+<div id="delete_account_modal" class="modal">
   <div class="modal-content">
-    <h3>Add Layer</h3>
-    <form action="/map" method="GET">
-      <input class="cancel_button" type="submit" value="Cancel">
-    </form>
-    <form action="/u/add_layer" method="POST" enctype="multipart/form-data">
-      Layer Name: <input type="text" id="layer_name" name="layer_name"><br>
-      Map File: <label for="layer_image" class="add_file">Upload Image      
-        <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        </label><br>
-      <input class="danger_button" type="submit" value="Save">
+    <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
+    <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map">
+        <input type="text" id="delete_confirmation" name="delete_confirmation">
+        <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
     </form>
   </div>
 </div>
 {{end}}
 
-</div>
-
+<script>
+  let delete_input = document.getElementById("delete_confirmation")
+  let button = document.getElementById("delete_account_button")
+  delete_input.addEventListener("keyup", stateHandle)
+  function stateHandle() {
+    if (delete_input.value === "DELETE") {
+        button.disabled = false;
+    } else {
+        button.disabled = true;
+    }
+}
+</script>
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}
