@@ -373,20 +373,20 @@ func EditLayer(c *gin.Context) {
 	old_layer_name := getCurrentFloor()
 	old_file_name := getCurrentFile()
 	layer_name := c.PostForm("layer_name")
+	fname := old_file_name
 	if (len(layer_name) == 0) {
 		layer_name = old_layer_name
 	}
 	file, err := c.FormFile("layer_image")
-	if (file == nil) {
-		file.Filename = old_file_name
-	}
-	fmt.Println(layer_name)
-	if err != nil {
+	if (err != nil) {
 		fmt.Println(err)
-	}
-	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
-	if err != nil {
-		fmt.Println(err)
+		
+	} else {
+		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
+		fname = file.Filename
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	db.DeleteFloor(old_layer_name)
@@ -395,7 +395,7 @@ func EditLayer(c *gin.Context) {
 
 	db.CreateFloor(layer_name, layer_name+".txt")
 
-	createDeviceFile(layer_name, file.Filename)
+	createDeviceFile(layer_name, fname)
 
 	showMap(c)
 }
@@ -405,18 +405,18 @@ Adds a device with a device name inputted from the user
 adds the device to the floor's deviceList file
 */
 func AddDevice(c *gin.Context) {
-	device_name := c.PostForm("device_name")
-	device_ip := c.PostForm("device_ip")
-	layer_name := c.PostForm("layer")
+	// device_name := c.PostForm("device_name")
+	// device_ip := c.PostForm("device_ip")
+	// layer_name := c.PostForm("layer")
 
-	fmt.Println(device_name)	
-	fmt.Println(device_ip)
+	// fmt.Println(device_name)	
+	// fmt.Println(device_ip)
 
-	db.CreateDevice(device_name, device_ip, layer_name+".txt")
+	// db.CreateDevice(device_name, device_ip, layer_name+".txt")
 
-	// createDeviceFile(layer_name, file.Filename, layer_name+".txt")
+	// // createDeviceFile(layer_name, file.Filename, layer_name+".txt")
 
-	showMap(c)
+	// showMap(c)
 }
 
 /*

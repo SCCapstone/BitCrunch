@@ -16,6 +16,9 @@ type device struct {
 	// This is the NAME of the image file
 	// NOT the actual image in memory
 	image string
+	// This is the name of the floor that the device
+	// should be attached to
+	floorName string
 }
 
 /*
@@ -23,7 +26,7 @@ Add a device to the database.
 Returns error if things went wrong.
 nil otherwise
 */
-func CreateDevice(name, ip, image string) (dev device, err error) {
+func CreateDevice(name, ip, image, floorNm string) (dev device, err error) {
 	// Check device name
 	if err = CheckDevice(name); err != nil {
 		return
@@ -34,11 +37,18 @@ func CreateDevice(name, ip, image string) (dev device, err error) {
 		return
 	}
 
+	// Making sure the floor can be read or
+	// that it exists
+	if _, err = ReadFloor(floorNm); err != nil {
+		return
+	}
+
 	// All checks are good, creating the
 	// floor and writing to db
 	dev.name = name
 	dev.ip = ip
 	dev.image = image
+	dev.floorName = floorNm
 
 	// writing to db, might have errors
 	if err = writeDevice(dev); err != nil {
@@ -79,7 +89,7 @@ func writeDevice(d device) (err error) {
 
 	// Creating the string from the device details
 	// will append to the file
-	writeString := fmt.Sprintf("%s\t%s\t%s\n", d.name, d.ip, d.image)
+	writeString := fmt.Sprintf("%s\t%s\t%s\t%s\n", d.name, d.ip, d.image, d.floorName)
 	_, err = fil.WriteString(writeString)
 	if err != nil {
 		return
@@ -95,7 +105,7 @@ a device struct form the read data.
 Returns and error if not found.
 */
 func ReadDevice(dname string) (d device, err error) {
-	fi, err := open(devices)
+	fi, err := os.Open(devices)
 	if err != nil {
 		return
 	}
@@ -105,10 +115,12 @@ func ReadDevice(dname string) (d device, err error) {
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		if line[0] == dname {
+			// Found the device, creating it
 			d = device{
-				name:  line[0],
-				ip:    line[1],
-				image: line[2],
+				name:      line[0],
+				ip:        line[1],
+				image:     line[2],
+				floorName: line[3],
 			}
 			return d, nil
 		}
@@ -171,6 +183,8 @@ Return nil if good, error otherwise.
 func CheckDevice(name string) error {
 	_, err := ReadDevice(name)
 	if err != nil {
+		// No errors found
+		// Which means the device was found
 		return fmt.Errorf("Device name already in use!")
 	}
 	return nil
@@ -225,7 +239,6 @@ func DeleteDevice(name string) error {
 /*
 Returns the IP of a device
 given a name.
-
 Pretty useless function, but here it is.
 */
 func GetIP(name string) (string, error) {
@@ -234,4 +247,39 @@ func GetIP(name string) (string, error) {
 		return "", fmt.Errorf("Device not found!")
 	}
 	return dev.ip, nil
+}
+
+/*
+This function can be used to get every
+device attached to a certain floor.
+Returns a slice of devices and an error.
+The slice will be empty if no devices are found
+and the error will be nil.
+The only possible non-nil error is if there is a problem
+reading the devices.db file.
+*/
+func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
+	fi, err := os.Open(devices)
+	if err != nil {
+		return
+	}
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	// Finding each device with the given floor name
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		if line[3] == floorNm {
+			// Device found, append it to the slice
+			d := device{
+				name:      line[0],
+				ip:        line[1],
+				image:     line[2],
+				floorName: line[3],
+			}
+			devs = append(devs, d)
+		}
+	}
+
+	return devs, nil
 }
