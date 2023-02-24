@@ -180,7 +180,7 @@ Returns nil if it is.
 An error otherwise.
 */
 func CheckUsername(u string) error {
-	fi, err := open(users)
+	fi, err := os.Open(users)
 	if err != nil {
 		return err
 	}
@@ -252,7 +252,8 @@ func CheckPassword(password string) error {
 /*
 This function will check
 to see that an email is valid
-based on regex.
+based on regex AND that the email
+is not already in use.
 Returns nil if it is good to use.
 */
 func checkEmail(e string) error {
@@ -260,6 +261,22 @@ func checkEmail(e string) error {
 	if !reg.Match([]byte(e)) {
 		return fmt.Errorf("Incorrect email!")
 	}
+	// Now checking the db for the same email
+	fi, err := os.Open(users)
+	if err != nil {
+		return err
+	}
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		if line[2] == e {
+			// Another user with this email is found
+			return fmt.Errorf("Email already in use.")
+		}
+	}
+	// No problems
 	return nil
 }
 
