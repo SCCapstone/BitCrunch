@@ -133,14 +133,6 @@ device has the same name in the db.
 Return nil if good, error otherwise.
 // */
 // func CheckDevice(name string) error {
-// 	fmt.Println("here3")
-// 	_, err := ReadDevice(name)
-// 	if err != nil {
-// 		// No errors found
-// 		// Which means the device was found
-// 		return fmt.Errorf("Device name already in use!")
-// 	}
-// 	fmt.Println("here4")
 	// return nil
 // }
 
