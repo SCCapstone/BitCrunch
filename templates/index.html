@@ -56,7 +56,22 @@
       </form>
       {{ end }}
     </div>
-    <div class="grid-item item8"> 8</div>
+    <div class="grid-item item8">
+      <div class="feedbox">
+        {{ range .devices }}
+        <form>
+          <button name="device" value="{{ . }}">{{ . }}</button>
+          </form>
+        {{ end}}
+      </div>
+      <!-- <div class="feedbox"> -->
+        <!-- {{ range .payload }}  devices-->  
+        <!-- <form action="/u/view_layer" method="POST"> -->
+          <!-- <button name="layer" type="submit" value="{{ . }}">{{ . }}</button> -->
+        <!-- </form>
+      {{ end }} -->
+      <!-- </div> -->
+    </div>
     </div>
 
     {{ if .AddLayerModal }}

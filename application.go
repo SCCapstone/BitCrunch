@@ -294,6 +294,7 @@ func viewLayer(c *gin.Context) {
 	imageName := ""
 	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
+	deviceNames := []string{}
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
@@ -323,11 +324,25 @@ func viewLayer(c *gin.Context) {
 	setCurrentFloor(name)
 	setCurrentFile(imageName)
 
+	
+
+	devices, _ := db.GetAllDevicesForFloor(getCurrentFloor())
+
+	for i := 0; i < len(devices); i++ {
+		str := fmt.Sprintf("%#v", devices[i])
+		fmt.Println(str)
+		comma := strings.Index(str, ",")
+		substr := str[16 : comma-1]
+		fmt.Println(substr)
+		deviceNames = append(deviceNames, substr)
+	}
+
 	Render(c, gin.H{
 		"title":   "Map",
 		"payload": floorNames,
 		"Image": "static/assets/" + imageName,
 		"EditLayerButton": "EditLayerButton",
+		"devices": deviceNames,
 	}, "index.html")
 }
 
@@ -458,7 +473,7 @@ func createDeviceFile(name string, filename string) {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	writeString := fmt.Sprintf(filename)
+	writeString := fmt.Sprintf(filename+"\n")
 	_, err = file.WriteString(writeString)
 }
 

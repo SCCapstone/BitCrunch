@@ -63,12 +63,6 @@ Should only be used in the
 CreateDevice function.
 */
 func writeDevice(d device) (err error) {
-	var fi *os.File
-	fi, err = os.Open(d.floorName + ".txt")
-	// Check if the file aready exists
-	fi, err = os.Open(d.floorName + ".txt")
-	// Append to the file
-	fi.Close()
 	fil, err := os.OpenFile(d.floorName + ".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
@@ -80,10 +74,10 @@ func writeDevice(d device) (err error) {
 	writeString := fmt.Sprintf("%s\t%s\t%s\t%s\n", d.name, d.ip, d.image, d.floorName)
 	_, err = fil.WriteString(writeString)
 	if err != nil {
-		return
+		return err
 	}
 	// All is good
-	return
+	return nil
 }
 
 /*
@@ -219,7 +213,7 @@ The only possible non-nil error is if there is a problem
 reading the devices.db file.
 */
 func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
-	fi, err := os.Open(devices)
+	fi, err := os.Open(floorNm + ".txt")
 	if err != nil {
 		return
 	}
@@ -227,9 +221,13 @@ func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
 	scan := bufio.NewScanner(fi)
 	var line []string
 	// Finding each device with the given floor name
+	firstLine := true
 	for scan.Scan() {
+	if firstLine == true {
+		firstLine = false
+		continue
+	}
 		line = strings.Split(scan.Text(), "\t")
-		if line[3] == floorNm {
 			// Device found, append it to the slice
 			d := device{
 				name:      line[0],
@@ -238,7 +236,6 @@ func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
 				floorName: line[3],
 			}
 			devs = append(devs, d)
-		}
 	}
 
 	return devs, nil
