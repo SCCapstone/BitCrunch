@@ -105,7 +105,7 @@ func CheckFloor(name string) error {
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		if line[0] == name {
-			return fmt.Errorf("Floor name found!")
+			return fmt.Errorf("Floor name  \"%s\" is taken.", name)
 		}
 	}
 	// The floor name was not found
