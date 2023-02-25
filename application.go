@@ -1,4 +1,4 @@
-// main.go
+// application.go
 
 package main
 
@@ -20,6 +20,9 @@ import (
 
 // Create the router
 var router *gin.Engine
+
+var currentFloor = ""
+var currentFile = ""
 
 /*
 Configures the router to load HTML templates
@@ -95,6 +98,27 @@ func InitializeRoutes() {
 		// Add the layer
 		userRoutes.POST("/add_layer", middleware.EnsureLoggedIn(), AddLayer)
 
+		// Handle GET requests at /u/add_device_modal, ensure user is logged in using middleware
+		// Display the add device modal
+		userRoutes.GET("/add_device_modal", middleware.EnsureLoggedIn(), display_add_device_modal)
+
+		// Handle POST requests at /u/add_device, ensure user is logged in using middleware
+		// Add the device
+		userRoutes.POST("/add_device", middleware.EnsureLoggedIn(), AddDevice)
+
+		// Handle GET requests at /u/delete_layer_modal, ensure user is logged in using middleware
+		// Display the delete layer modal
+		userRoutes.GET("/delete_layer_modal", middleware.EnsureLoggedIn(), display_delete_layer_modal)
+
+		// Handle POST requests at /u/delete_layer, ensure user is logged in using middleware
+		// Delete the layer
+		userRoutes.POST("/delete_layer", middleware.EnsureLoggedIn(), DeleteLayer)
+
+		// Handle GET requests at /u/edit_layer_modal, ensure user is logged in using middleware
+		// Display the edit layer modal
+		userRoutes.GET("/edit_layer_modal", middleware.EnsureLoggedIn(), display_edit_layer_modal)
+
+		userRoutes.POST("/edit_layer", middleware.EnsureLoggedIn(), EditLayer)
 		// Handle POST requests at /u/view_layer, ensure user is logged in using middleware
 		// Render the image to map
 		userRoutes.POST("/view_layer", middleware.EnsureLoggedIn(), viewLayer)
@@ -228,6 +252,33 @@ func display_delete_account_modal(c *gin.Context) {
 }
 
 /*
+Renders the Delete Layer Modal when the user presses the delete layer button
+*/
+func display_delete_layer_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"DeleteLayerModal": "Delete Layer Modal",
+	})
+}
+
+/*
+Renders the Add Device Modal when the user presses the add device button
+*/
+func display_add_device_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"AddDeviceModal": "Add Device Modal",
+	})
+}
+
+/*
+Renders the Edit Layer Modal when the user presses the on a layer 
+*/
+func display_edit_layer_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"EditLayerModal": "Edit Layer Modal",
+	})
+}
+
+/*
 Generates a random 16 character string as the session token
 */
 func GenerateSessionToken() string {
@@ -270,10 +321,15 @@ func viewLayer(c *gin.Context) {
 			}
 		}
 	}
+
+	setCurrentFloor(name)
+	setCurrentFile(imageName)
+
 	Render(c, gin.H{
 		"title":   "Map",
 		"payload": floorNames,
-		"Image":   "static/assets/" + imageName,
+		"Image": "static/assets/" + imageName,
+		"EditLayerButton": "EditLayerButton",
 	}, "index.html")
 }
 
@@ -333,6 +389,70 @@ func AddLayer(c *gin.Context) {
 	}
 }
 
+/*
+Edit the name, image, or both of the current layer
+*/
+func EditLayer(c *gin.Context) {
+	old_layer_name := getCurrentFloor()
+	old_file_name := getCurrentFile()
+	layer_name := c.PostForm("layer_name")
+	fname := old_file_name
+	if (len(layer_name) == 0) {
+		layer_name = old_layer_name
+	}
+	file, err := c.FormFile("layer_image")
+	if (err != nil) {
+		fmt.Println(err)
+		
+	} else {
+		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
+		fname = file.Filename
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	db.DeleteFloor(old_layer_name)
+
+	removeDeviceFile(old_layer_name+".txt")
+
+	db.CreateFloor(layer_name, layer_name+".txt")
+
+	createDeviceFile(layer_name, fname)
+
+	showMap(c)
+}
+
+/*
+Adds a device with a device name inputted from the user
+adds the device to the floor's deviceList file
+*/
+func AddDevice(c *gin.Context) {
+	// device_name := c.PostForm("device_name")
+	// device_ip := c.PostForm("device_ip")
+	// layer_name := c.PostForm("layer")
+
+	// fmt.Println(device_name)	
+	// fmt.Println(device_ip)
+
+	// db.CreateDevice(device_name, device_ip, layer_name+".txt")
+
+	// // createDeviceFile(layer_name, file.Filename, layer_name+".txt")
+
+	// showMap(c)
+}
+
+/*
+Deletes a layer from the list of floors,
+calls showMap to render the map with updates
+*/
+func DeleteLayer(c *gin.Context) {
+	name := getCurrentFloor()
+	db.DeleteFloor(name)
+	removeDeviceFile(name+".txt")
+	showMap(c)
+}
+
 func createDeviceFile(name string, filename string) {
 	file, err := os.OpenFile(name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -343,14 +463,35 @@ func createDeviceFile(name string, filename string) {
 	_, err = file.WriteString(writeString)
 }
 
+func removeDeviceFile(name string) {
+	err := os.Remove(name)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func delete_account(c *gin.Context) {
 	logout(c)
 	current_user, _ := c.Cookie("current_user")
-	if err := db.DeleteUser(current_user); err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"DeleteAccountModalError": "Delete Account Modal",
-			"ErrorTitle":              "Account Deletion Failed",
-			"ErrorMessage":            fmt.Sprintf("Account could not be deleted.")})
-		return
+	db.DeleteUser(current_user)
+}
+
+func setCurrentFloor(floorName string) {
+	if len(floorName) > 0 {
+		currentFloor = floorName
 	}
+}
+
+func getCurrentFloor() (floorName string) {
+	return currentFloor
+}
+
+func setCurrentFile(fileName string) {
+	if len(fileName) > 0 {
+		currentFile = fileName
+	}
+}
+
+func getCurrentFile() (fileName string) {
+	return currentFile
 }

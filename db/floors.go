@@ -24,6 +24,8 @@ var floorList = []floor {
 
 }
 
+// var currentFloor = ""
+
 /*
 Creates a new floor.
 Will check for valid name and file.
@@ -34,6 +36,36 @@ func CreateFloor(name, deviceList string) (flo floor, err error) {
 		name:           "",
 		deviceListFile: "",
 	}
+	// Check floor name
+	if err = CheckFloor(name); err != nil {
+		return
+	}
+	// Check file name
+	// if err = CheckFile(deviceList); err != nil {
+	// 	return
+	// }
+
+	// Everything is good, so return the floor data
+	flo.name = name
+	flo.deviceListFile = deviceList
+
+	if err = writeFloor(flo); err != nil {
+		return floor{}, err
+	}
+	return
+}
+
+/*
+Creates a new floor.
+Will check for valid name and file.
+Returns error if things went wrong.
+*/
+func EditFloor(name, deviceList string) (flo floor, err error) {
+	flo = floor{
+		name:           "",
+		deviceListFile: "",
+	}
+	
 	// Check floor name
 	if err = CheckFloor(name); err != nil {
 		return
@@ -132,6 +164,7 @@ Returns error otherwise.
 func DeleteFloor(name string) error {
 	// Creating a temp file
 	delMe, err := os.Create(fmt.Sprintf("temp%s.tmp", name))
+	newName := "floors.db"
 	if err != nil {
 		return err
 	}
@@ -144,7 +177,7 @@ func DeleteFloor(name string) error {
 	for scan.Scan() {
 		line = scan.Text()
 		if strings.Split(line, "\t")[0] != name {
-			delMe.WriteString(line)
+			delMe.WriteString(line+"\n")
 		}
 	}
 	// Done with the main file
@@ -157,13 +190,13 @@ func DeleteFloor(name string) error {
 
 	// Renaming the file without the
 	// floor to be deleted to the floors.db
-	err = os.Rename(delMe.Name(), floors)
+	delMe.Close()
+	err = os.Rename(delMe.Name(), newName)
 	if err != nil {
 		return err
 	}
 
 	// Done, clean up
-	delMe.Close()
 	return nil
 }
 

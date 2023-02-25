@@ -33,7 +33,7 @@
       <img src="../{{.Image}}" class="map_image"/>
       {{ end }}
     </div>
-    <div class="grid-item item6"> 
+    <div class="grid-item item6">
       <div class="dropdown">
         <button class="style1_button">Settings</button>
         <div class="dropdown-content">
@@ -43,7 +43,16 @@
         </div>
       </div>
     </div>
-    <div class="grid-item item7"> 7</div>
+    <div class="grid-item item7">
+      {{ if .EditLayerButton }}
+      <form action="/u/edit_layer_modal" method="GET">
+      <button class="style1_button" value="edit_layer" type="submit">Edit Layer</button>
+      </form>
+      <form action="/u/delete_layer_modal" method="GET">
+      <button class="style1_button" value="delete_layer" type="submit">Delete Layer</button>
+      </form>
+      {{ end }}
+    </div>
     <div class="grid-item item8"> 8</div>
     </div>
 
@@ -95,14 +104,48 @@
 </div>
 {{end}}
 
-{{ if .DeleteAccountModal }}
-<div id="delete_account_modal" class="modal">
+{{ if .DeleteLayerModal }}
+<div id="Delete_layer_modal" class="modal">
   <div class="modal-content">
-    <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
-    <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="/map">
-        <input type="text" id="delete_confirmation" name="delete_confirmation">
-        <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
+    <h3>Are you sure you want to remove this layer?</h3>
+    <form action="/map" method="GET">
+      <input class="cancel_button" type="submit" value="Cancel">
+    </form>
+    <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
+      <input class="danger_button" type="submit" value="Continue">
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .AddDeviceModal }}
+<div id="Add_Device_modal" class="modal">
+  <div class="modal-content">
+    <h3>Add Device</h3>
+    <form action="/map" method="GET">
+      <input class="cancel_button" type="submit" value="Cancel">
+    </form>
+    <form action="/u/add_device" method="POST" enctype="multipart/form-data">
+      Device Name: <input type="text" id="device_name" name="device_name"><br>
+      Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
+        </label><br>
+      <input class="danger_button" type="submit" value="Continue">
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .EditLayerModal }}
+<div id="edit_layer_modal" class="modal">
+  <div class="modal-content">
+    <h3>Edit Layer</h3>
+    <form action="/u/edit_layer" method="POST" enctype="multipart/form-data">
+      <label for="layer_name">Layer Name:</label>
+        <input type="text" id="layer_name" name="layer_name"><br>
+        <label for="layer_image">Upload File</label>
+        <input type="file" id="layer_image" name="layer_image" accept="image/*">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
 </div>
@@ -124,7 +167,6 @@
   </div>
 </div>
 {{end}}
-
 
 <script>
   let delete_input = document.getElementById("delete_confirmation")

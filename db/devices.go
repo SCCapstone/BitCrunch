@@ -239,7 +239,6 @@ func DeleteDevice(name string) error {
 /*
 Returns the IP of a device
 given a name.
-
 Pretty useless function, but here it is.
 */
 func GetIP(name string) (string, error) {
