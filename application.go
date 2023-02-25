@@ -292,7 +292,6 @@ Renders the proper floor image onto the map
 func viewLayer(c *gin.Context) {
 	name := c.PostForm("layer")
 	imageName := ""
-	fmt.Println("here", name)
 	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
 	for i := 0; i < len(floors); i++ {
@@ -303,7 +302,6 @@ func viewLayer(c *gin.Context) {
 	}
 	for i := 0; i < len(floorNames); i++ {
 		if floorNames[i] == name {
-			fmt.Println("floor", name)
 			fileIO, err := os.OpenFile(name+".txt", os.O_RDWR, 0600)
 			if err != nil {
 				panic(err)
@@ -361,7 +359,6 @@ Creates a new floor and adds it to the list of floors, calls showMap to render t
 func AddLayer(c *gin.Context) {
 	layer_name := c.PostForm("layer_name")
 	file, err := c.FormFile("layer_image")
-	fmt.Println(layer_name)
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"AddLayerModalError": "Add Layer Modal",
@@ -402,13 +399,13 @@ func EditLayer(c *gin.Context) {
 	}
 	file, err := c.FormFile("layer_image")
 	if (err != nil) {
-		fmt.Println(err)
+		panic(err)
 		
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 		fname = file.Filename
 		if err != nil {
-			fmt.Println(err)
+			panic(err)
 		}
 	}
 
@@ -428,18 +425,20 @@ Adds a device with a device name inputted from the user
 adds the device to the floor's deviceList file
 */
 func AddDevice(c *gin.Context) {
-	// device_name := c.PostForm("device_name")
-	// device_ip := c.PostForm("device_ip")
-	// layer_name := c.PostForm("layer")
+	device_name := c.PostForm("device_name")
+	device_ip := c.PostForm("device_ip")
+	device_image, err := c.FormFile("device_image")
 
-	// fmt.Println(device_name)	
-	// fmt.Println(device_ip)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"AddDeviceModalError": "Add Device Modal",
+			"ErrorTitle":         "Failed to Add Device",
+			"ErrorMessage":       fmt.Sprintf("Image file could not be formed.")})
+		return
+	}
 
-	// db.CreateDevice(device_name, device_ip, layer_name+".txt")
-
-	// // createDeviceFile(layer_name, file.Filename, layer_name+".txt")
-
-	// showMap(c)
+	db.CreateDevice(device_name, device_ip, "static/assets/" + device_image.Filename, getCurrentFloor())
+	showMap(c)
 }
 
 /*

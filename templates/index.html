@@ -45,11 +45,14 @@
     </div>
     <div class="grid-item item7">
       {{ if .EditLayerButton }}
-      <form action="/u/edit_layer_modal" method="GET">
+      <form action="/u/edit_layer_modal" method="GET" style="display: inline-block">
       <button class="style1_button" value="edit_layer" type="submit">Edit Layer</button>
       </form>
-      <form action="/u/delete_layer_modal" method="GET">
+      <form action="/u/delete_layer_modal" method="GET" style="display: inline-block">
       <button class="style1_button" value="delete_layer" type="submit">Delete Layer</button>
+      </form>
+      <form action="/u/add_device_modal" method="GET" style="display: inline-block">
+        <button class="style1_button" value="add_device" type="submit">Add Device</button>
       </form>
       {{ end }}
     </div>
@@ -128,7 +131,7 @@
     <form action="/u/add_device" method="POST" enctype="multipart/form-data">
       Device Name: <input type="text" id="device_name" name="device_name"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
-        </label><br>
+        <input type="file" id="device_image" name="device_image" accept="image/*">
       <input class="danger_button" type="submit" value="Continue">
     </form>
   </div>

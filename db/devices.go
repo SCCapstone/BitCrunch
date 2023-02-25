@@ -28,21 +28,18 @@ nil otherwise
 */
 func CreateDevice(name, ip, image, floorNm string) (dev device, err error) {
 	// Check device name
-	if err = CheckDevice(name); err != nil {
-		return
-	}
-
+	// if err = CheckDevice(name); err != nil {
+	// 	return
+	// }
 	// Check IP formatting
 	if err = CheckIP(ip); err != nil {
 		return
 	}
-
 	// Making sure the floor can be read or
 	// that it exists
 	if _, err = ReadFloor(floorNm); err != nil {
 		return
 	}
-
 	// All checks are good, creating the
 	// floor and writing to db
 	dev.name = name
@@ -67,21 +64,12 @@ CreateDevice function.
 */
 func writeDevice(d device) (err error) {
 	var fi *os.File
-	fi, err = os.Open(devices)
+	fi, err = os.Open(d.floorName + ".txt")
 	// Check if the file aready exists
-	fi, err = os.Open(devices)
-	if os.IsNotExist(err) {
-		// Create the file if the file already exists
-		fi, err = os.Create(devices)
-		if err != nil {
-			return err
-		}
-	} else {
-		return err
-	}
+	fi, err = os.Open(d.floorName + ".txt")
 	// Append to the file
 	fi.Close()
-	fil, err := os.OpenFile(devices, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fil, err := os.OpenFile(d.floorName + ".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -96,36 +84,6 @@ func writeDevice(d device) (err error) {
 	}
 	// All is good
 	return
-}
-
-/*
-Attempts to find the device in the
-db file and then return
-a device struct form the read data.
-Returns and error if not found.
-*/
-func ReadDevice(dname string) (d device, err error) {
-	fi, err := os.Open(devices)
-	if err != nil {
-		return
-	}
-	defer fi.Close()
-	scan := bufio.NewScanner(fi)
-	var line []string
-	for scan.Scan() {
-		line = strings.Split(scan.Text(), "\t")
-		if line[0] == dname {
-			// Found the device, creating it
-			d = device{
-				name:      line[0],
-				ip:        line[1],
-				image:     line[2],
-				floorName: line[3],
-			}
-			return d, nil
-		}
-	}
-	return device{}, fmt.Errorf("Device not found!")
 }
 
 /*
@@ -179,16 +137,18 @@ func CheckIP(ip string) error {
 This checks to ensure that no other
 device has the same name in the db.
 Return nil if good, error otherwise.
-*/
-func CheckDevice(name string) error {
-	_, err := ReadDevice(name)
-	if err != nil {
-		// No errors found
-		// Which means the device was found
-		return fmt.Errorf("Device name already in use!")
-	}
-	return nil
-}
+// */
+// func CheckDevice(name string) error {
+// 	fmt.Println("here3")
+// 	_, err := ReadDevice(name)
+// 	if err != nil {
+// 		// No errors found
+// 		// Which means the device was found
+// 		return fmt.Errorf("Device name already in use!")
+// 	}
+// 	fmt.Println("here4")
+	// return nil
+// }
 
 /*
 Remove a device from the database.
@@ -241,13 +201,13 @@ Returns the IP of a device
 given a name.
 Pretty useless function, but here it is.
 */
-func GetIP(name string) (string, error) {
-	dev, err := ReadDevice(name)
-	if err != nil {
-		return "", fmt.Errorf("Device not found!")
-	}
-	return dev.ip, nil
-}
+// func GetIP(name string) (string, error) {
+// 	dev, err := ReadDevice(name)
+// 	if err != nil {
+// 		return "", fmt.Errorf("Device not found!")
+// 	}
+// 	return dev.ip, nil
+// }
 
 /*
 This function can be used to get every

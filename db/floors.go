@@ -110,7 +110,7 @@ func writeFloor(fl floor) error {
 }
 
 func ReadFloor(fname string) (f floor, err error) {
-	fi, err := open(floors)
+	fi, err := os.Open(floors)
 	if err != nil {
 		return
 	}
@@ -119,6 +119,7 @@ func ReadFloor(fname string) (f floor, err error) {
 	var line []string
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
+		fmt.Println(line)
 		if line[0] == fname {
 			f = floor{
 				name:           line[0],
