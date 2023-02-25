@@ -177,7 +177,7 @@ func DeleteFloor(name string) error {
 	for scan.Scan() {
 		line = scan.Text()
 		if strings.Split(line, "\t")[0] != name {
-			delMe.WriteString(line)
+			delMe.WriteString(line+"\n")
 		}
 	}
 	// Done with the main file
