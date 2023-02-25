@@ -322,7 +322,7 @@ func AddLayer(c *gin.Context) {
 		return
 	}
 
-	if _, err := db.CreateFloor(layer_name); err != nil {
+	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"AddLayerModalError": "Add Layer Modal",
 			"ErrorTitle":         "Add Layer Failed",

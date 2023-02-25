@@ -63,6 +63,26 @@
 </div>
 {{end}}
 
+<!-- for now, error message like this -->
+{{ if .AddLayerModalError }}
+<div id="add_layer_modal" class="modal">
+  <div class="modal-content">
+    <h3>Add Layer</h3>
+    <form action="/u/add_layer" method="POST" enctype="multipart/form-data">
+        <lable for="layer_name">Layer Name:</lable>
+        <input type="text" id="layer_name" name="layer_name"><br>
+        <label for="layer_image">Upload File</label>
+        <input type="file" id="layer_image" name="layer_image" accept="image/*">
+        <div class="error">
+          {{.ErrorTitle}}: {{.ErrorMessage}}
+        </div>
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="danger_button" type="submit" value="Save">
+    </form>
+  </div>
+</div>
+{{end}}
+
 {{ if .LogoutModal }}
 <div id="logout_modal" class="modal">
   <div class="modal-content">
@@ -87,6 +107,24 @@
   </div>
 </div>
 {{end}}
+
+<!-- for now, error message like this-->
+{{ if .DeleteAccountModalError }}
+<div id="delete_account_modal" class="modal">
+  <div class="modal-content">
+    <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
+    <div class="error">
+      {{.ErrorTitle}}: {{.ErrorMessage}}
+    </div>
+    <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map">
+        <input type="text" id="delete_confirmation" name="delete_confirmation">
+        <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
+    </form>
+  </div>
+</div>
+{{end}}
+
 
 <script>
   let delete_input = document.getElementById("delete_confirmation")

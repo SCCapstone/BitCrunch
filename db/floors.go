@@ -9,20 +9,30 @@ import (
 
 const floors = "floors.db"
 
+
 type floor struct {
 	name string
+	/*
+		The following will be a file
+		which contains the names of
+		each device for the floor.
+	*/
+	deviceListFile string
 }
 
-var floorList = []floor{}
+var floorList = []floor {
+
+}
 
 /*
 Creates a new floor.
 Will check for valid name and file.
 Returns error if things went wrong.
 */
-func CreateFloor(name string) (flo floor, err error) {
+func CreateFloor(name, deviceList string) (flo floor, err error) {
 	flo = floor{
-		name: "",
+		name:           "",
+		deviceListFile: "",
 	}
 	// Check floor name
 	if err = CheckFloor(name); err != nil {
@@ -35,6 +45,7 @@ func CreateFloor(name string) (flo floor, err error) {
 
 	// Everything is good, so return the floor data
 	flo.name = name
+	flo.deviceListFile = deviceList
 
 	if err = writeFloor(flo); err != nil {
 		return floor{}, err
@@ -57,7 +68,7 @@ func writeFloor(fl floor) error {
 	defer fil.Close()
 	// Creating the string from the floor details
 	// will append to the file
-	writeString := fmt.Sprintf("%s\t \n", fl.name)
+	writeString := fmt.Sprintf("%s\t%s\n", fl.name, fl.deviceListFile)
 	_, err = fil.WriteString(writeString)
 	if err != nil {
 		return err
@@ -67,7 +78,7 @@ func writeFloor(fl floor) error {
 }
 
 func ReadFloor(fname string) (f floor, err error) {
-	fi, err := os.Open(floors)
+	fi, err := open(floors)
 	if err != nil {
 		return
 	}
@@ -78,7 +89,8 @@ func ReadFloor(fname string) (f floor, err error) {
 		line = strings.Split(scan.Text(), "\t")
 		if line[0] == fname {
 			f = floor{
-				name: line[0],
+				name:           line[0],
+				deviceListFile: line[1],
 			}
 			return f, nil
 		}
@@ -95,7 +107,7 @@ Returns nil if the name is good.
 An error otherwise.
 */
 func CheckFloor(name string) error {
-	fi, err := os.Open(floors)
+	fi, err := open(floors)
 	if err != nil {
 		return err
 	}
@@ -156,9 +168,25 @@ func DeleteFloor(name string) error {
 }
 
 /*
+Gets the file name of a floor
+given a floor name.
+Returns error if not sucessful.
+Not a super useful function but it's
+here anyway.
+*/
+func GetDeviceFile(floorName string) (string, error) {
+	fl, err := ReadFloor(floorName)
+	if err != nil {
+		return "", err
+	}
+	return fl.deviceListFile, nil
+}
+
+/*
 Returns a list of all the floors in the database (with file names)
 */
-func GetAllFloors() (myfloors []floor, err error) {
+func GetAllFloors() (myfloors [] floor, err error) {
+	var floorList = []floor{}
 	fi, err := os.Open(floors)
 	if err != nil {
 		return
@@ -170,8 +198,9 @@ func GetAllFloors() (myfloors []floor, err error) {
 		line = strings.Split(scan.Text(), "\t")
 		f := floor{
 			name: line[0],
+			deviceListFile: line[1],
 		}
-		myfloors = append(myfloors, f)
+		floorList = append(floorList, f)
 	}
-	return
+	return floorList, nil
 }
