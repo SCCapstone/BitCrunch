@@ -95,22 +95,6 @@
 </div>
 {{end}}
 
-<!-- for now, error message like this-->
-{{ if .LogoutModalError}}
-<div id="logout_modal" class="modal">
-  <div class="modal-content">
-    <h3>Are you sure you want to logout?</h3>
-    <div class="error">
-      {{.ErrorTitle}}: {{.ErrorMessage}}
-    </div>
-    <form action="/u/logout" method="GET" enctype="multipart/form-data">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="/map"> 
-        <input class="danger_button" type="submit" value="Logout">
-    </form>
-  </div>
-</div>
-{{end}}
-
 {{ if .DeleteAccountModal }}
 <div id="delete_account_modal" class="modal">
   <div class="modal-content">
