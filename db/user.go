@@ -33,9 +33,11 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 		return u, fmt.Errorf("Username \"%s\" is taken", username)
 	}
 	if CheckPassword(password) != nil {
+		// Will return specific error
 		return u, CheckPassword(password)
 	}
 	if checkEmail(email) != nil {
+		// Will return specific error
 		return u, checkEmail(email)
 	}
 
