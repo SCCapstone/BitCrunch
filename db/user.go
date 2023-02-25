@@ -30,13 +30,13 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 		admin:    0,
 	}
 	if CheckUsername(username) != nil {
-		return u, fmt.Errorf("Username \"%s\" is not unique. User creation failed.", username)
+		return u, fmt.Errorf("Username \"%s\" is taken", username)
 	}
 	if CheckPassword(password) != nil {
-		return u, fmt.Errorf("Password \"%s\" is not sufficient.", password)
+		return u, CheckPassword(password)
 	}
 	if checkEmail(email) != nil {
-		return u, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
+		return u, checkEmail(email)
 	}
 
 	// Everything checks out so
@@ -223,28 +223,28 @@ is sufficient.
 func CheckPassword(password string) error {
 	// password must be at least 10 characters
 	if len(password) < 10 {
-		return fmt.Errorf("Password length=%d, need>=%d", len(password), 10)
+		return fmt.Errorf("Password needs to be at least 10 characters.")
 	}
 	// password must have at least one digit
 	reg := regexp.MustCompile("\\d")
 	if !reg.Match([]byte(password)) {
-		return fmt.Errorf("Password doesn't have a digit.")
+		return fmt.Errorf("Password \"%s\" doesn't have a digit.", password)
 	}
 	// password must have a symbol
 	// symbol must be one of !@#$%^&*()
 	reg = regexp.MustCompile("[!|@|#|$|$|%|^|7|*|(|)]")
 	if !reg.Match([]byte(password)) {
-		return fmt.Errorf("Password doesn't have a symbol.")
+		return fmt.Errorf("Password \"%s\" doesn't have a symbol.", password)
 	}
 	//password must have an uppercase character
 	reg = regexp.MustCompile("[A-Z]")
 	if !reg.Match([]byte(password)) {
-		return fmt.Errorf("Password doesn't have an uppercase letter.")
+		return fmt.Errorf("Password \"%s\" doesn't have an uppercase letter.", password)
 	}
 	//password must have a lowercase char
 	reg = regexp.MustCompile("[a-z]")
 	if !reg.Match([]byte(password)) {
-		return fmt.Errorf("Password doesn't have a lowercase letter.")
+		return fmt.Errorf("Password \"%s\" doesn't have a lowercase letter.", password)
 	}
 	return nil
 }
@@ -259,7 +259,7 @@ Returns nil if it is good to use.
 func checkEmail(e string) error {
 	reg := regexp.MustCompile("(\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,6})")
 	if !reg.Match([]byte(e)) {
-		return fmt.Errorf("Incorrect email!")
+		return fmt.Errorf("Please enter a valid email.")
 	}
 	// Now checking the db for the same email
 	fi, err := os.Open(users)
