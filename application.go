@@ -4,13 +4,13 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
-	"os"
-	"log"
-	"io/ioutil"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
@@ -161,10 +161,11 @@ func performLogin(c *gin.Context) {
 			"ErrorTitle":   "Login Failed",
 			"ErrorMessage": "Invalid credentials provided"})
 	}
-	}
+}
 
 /*
-Obtains user inputted username and password
+Obtains user inputted username, password,
+Password confirmation, and email
 If the user is properly created, set the token in a cookie
 Log the user in by rendering successful login
 If the user created is invalid, renders an error
@@ -172,8 +173,14 @@ If the user created is invalid, renders an error
 func register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	confirm_password := c.PostForm("confirm_password")
+	email := c.PostForm("email")
 
-	if _, err := db.CreateUser(username, password,"temp@email.com", 1); err == nil {
+	if password != confirm_password {
+		c.HTML(http.StatusBadRequest, "register.html", gin.H{
+			"ErrorTitle":   "Registration Failed",
+			"ErrorMessage": fmt.Sprintf("Passwords \"%s\" and \"%s\" do not match.", password, confirm_password)})
+	} else if _, err := db.CreateUser(username, password, email, 1); err == nil {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
@@ -186,7 +193,7 @@ func register(c *gin.Context) {
 			"ErrorTitle":   "Registration Failed",
 			"ErrorMessage": err.Error()})
 	}
-	}
+}
 
 /*
 Clears the cookie and redirects to the home page
@@ -235,12 +242,12 @@ func viewLayer(c *gin.Context) {
 	name := c.PostForm("layer")
 	imageName := ""
 	fmt.Println("here", name)
-	floors := db.GetAllFloors()
+	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
-		substr := str[15:comma-1]
+		substr := str[15 : comma-1]
 		floorNames = append(floorNames, substr)
 	}
 	for i := 0; i < len(floorNames); i++ {
@@ -264,9 +271,9 @@ func viewLayer(c *gin.Context) {
 		}
 	}
 	Render(c, gin.H{
-		"title": "Map",
+		"title":   "Map",
 		"payload": floorNames,
-		"Image": "static/assets/" + imageName,
+		"Image":   "static/assets/" + imageName,
 	}, "index.html")
 }
 
@@ -274,13 +281,13 @@ func viewLayer(c *gin.Context) {
 Renders the index with updated layer values
 */
 func showMap(c *gin.Context) {
-	floors := db.GetAllFloors()
+	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
 
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
-		substr := str[15:comma-1]
+		substr := str[15 : comma-1]
 		floorNames = append(floorNames, substr)
 	}
 
@@ -300,18 +307,30 @@ func AddLayer(c *gin.Context) {
 	file, err := c.FormFile("layer_image")
 	fmt.Println(layer_name)
 	if err != nil {
-		fmt.Println(err)
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"AddLayerModalError": "Add Layer Modal",
+			"ErrorTitle":         "Add Layer Failed",
+			"ErrorMessage":       fmt.Sprintf("Image file could not be formed.")})
+		return
 	}
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
-		fmt.Println(err)
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"AddLayerModalError": "Add Layer Modal",
+			"ErrorTitle":         "Add Layer Failed",
+			"ErrorMessage":       fmt.Sprintf("Image file could not be saved.")})
+		return
 	}
 
-	db.CreateFloor(layer_name, layer_name+".txt")
-
-	createDeviceFile(layer_name, file.Filename)
-
-	showMap(c)
+	if _, err := db.CreateFloor(layer_name); err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"AddLayerModalError": "Add Layer Modal",
+			"ErrorTitle":         "Add Layer Failed",
+			"ErrorMessage":       err.Error()})
+	} else {
+		createDeviceFile(layer_name, file.Filename)
+		showMap(c)
+	}
 }
 
 func createDeviceFile(name string, filename string) {
@@ -327,5 +346,11 @@ func createDeviceFile(name string, filename string) {
 func delete_account(c *gin.Context) {
 	logout(c)
 	current_user, _ := c.Cookie("current_user")
-	db.DeleteUser(current_user)
+	if err := db.DeleteUser(current_user); err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"DeleteAccountModalError": "Delete Account Modal",
+			"ErrorTitle":              "Account Deletion Failed",
+			"ErrorMessage":            fmt.Sprintf("Account could not be deleted.")})
+		return
+	}
 }
