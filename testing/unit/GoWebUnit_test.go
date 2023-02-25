@@ -79,3 +79,12 @@ func TestUserAvaliable(t *testing.T) {
 	// going to wait until everything is in main to do these bad boys
 	t.Errorf("These tests aren't ready yet! \n %s", userList)
 }
+func TestUserAvaliable(t *testing.T) {
+	var userList = []models.User{
+		{Username: "user1", Password: "pass1"},
+		{Username: "user2", Password: "pass2"},
+		{Username: "user3", Password: "pass3"},
+	} // Taken directly from user.go's default users
+	// going to wait until everything is in main to do these bad boys
+	t.Errorf("These tests aren't ready yet! \n %s", userList)
+}

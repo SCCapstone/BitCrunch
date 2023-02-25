@@ -204,7 +204,6 @@ func DeleteFloor(name string) error {
 Gets the file name of a floor
 given a floor name.
 Returns error if not sucessful.
-
 Not a super useful function but it's
 here anyway.
 */
@@ -219,7 +218,7 @@ func GetDeviceFile(floorName string) (string, error) {
 /*
 Returns a list of all the floors in the database (with file names)
 */
-func GetAllFloors() (myfloors [] floor) {
+func GetAllFloors() (myfloors [] floor, err error) {
 	var floorList = []floor{}
 	fi, err := os.Open(floors)
 	if err != nil {
@@ -236,15 +235,5 @@ func GetAllFloors() (myfloors [] floor) {
 		}
 		floorList = append(floorList, f)
 	}
-	return floorList
+	return floorList, nil
 }
-
-// func setCurrentFloor(floorName string) {
-// 	if len(floorName) > 0 {
-// 		currentFloor = floorName
-// 	}
-// }
-
-// func getCurrentFloor() (floorName string) {
-// 	return currentFloor
-// }
