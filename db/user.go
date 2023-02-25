@@ -204,7 +204,7 @@ Ensures that the file is not
 already created.
 */
 func open(file string) (fi *os.File, err error) {
-	fi, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fi, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		return nil, err
 	}
