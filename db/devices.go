@@ -63,7 +63,7 @@ Should only be used in the
 CreateDevice function.
 */
 func writeDevice(d device) (err error) {
-	fil, err := os.OpenFile(d.floorName + ".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fil, err := os.OpenFile("devices/" + d.floorName + ".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ The only possible non-nil error is if there is a problem
 reading the devices.db file.
 */
 func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
-	fi, err := os.Open(floorNm + ".txt")
+	fi, err := os.Open("devices/" + floorNm + ".txt")
 	if err != nil {
 		return
 	}

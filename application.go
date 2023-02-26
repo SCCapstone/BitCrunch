@@ -301,7 +301,7 @@ func viewLayer(c *gin.Context) {
 	}
 	for i := 0; i < len(floorNames); i++ {
 		if floorNames[i] == name {
-			fileIO, err := os.OpenFile(name+".txt", os.O_RDWR, 0600)
+			fileIO, err := os.OpenFile("devices/" + name+".txt", os.O_RDWR, 0600)
 			if err != nil {
 				panic(err)
 			}
@@ -422,7 +422,7 @@ func EditLayer(c *gin.Context) {
 
 	db.DeleteFloor(old_layer_name)
 
-	removeDeviceFile(old_layer_name+".txt")
+	removeDeviceFile("devices/" + old_layer_name+".txt")
 
 	db.CreateFloor(layer_name, layer_name+".txt")
 
@@ -459,12 +459,12 @@ calls showMap to render the map with updates
 func DeleteLayer(c *gin.Context) {
 	name := getCurrentFloor()
 	db.DeleteFloor(name)
-	removeDeviceFile(name+".txt")
+	removeDeviceFile("devices/" + name+".txt")
 	showMap(c)
 }
 
 func createDeviceFile(name string, filename string) {
-	file, err := os.OpenFile(name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("devices/" + name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
