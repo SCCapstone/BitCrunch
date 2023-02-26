@@ -409,7 +409,7 @@ func AddLayer(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"AddLayerModalError": "Add Layer Modal",
 			"ErrorTitle":         "Add Layer Failed",
-			"ErrorMessage":       fmt.Sprintf("Image file could not be formed.")})
+			"ErrorMessage":       fmt.Sprintf("Image file could not be found.")})
 		return
 	}
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
