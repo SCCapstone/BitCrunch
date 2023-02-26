@@ -9,7 +9,6 @@ import (
 
 const floors = "floors.db"
 
-
 type floor struct {
 	name string
 	/*
@@ -20,9 +19,7 @@ type floor struct {
 	deviceListFile string
 }
 
-var floorList = []floor {
-
-}
+var floorList = []floor{}
 
 // var currentFloor = ""
 
@@ -65,7 +62,7 @@ func EditFloor(name, deviceList string) (flo floor, err error) {
 		name:           "",
 		deviceListFile: "",
 	}
-	
+
 	// Check floor name
 	if err = CheckFloor(name); err != nil {
 		return
@@ -150,7 +147,7 @@ func CheckFloor(name string) error {
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		if line[0] == name {
-			return fmt.Errorf("Floor name found!")
+			return fmt.Errorf("Floor name \"%s\" is taken.", name)
 		}
 	}
 	// The floor name was not found
@@ -178,7 +175,7 @@ func DeleteFloor(name string) error {
 	for scan.Scan() {
 		line = scan.Text()
 		if strings.Split(line, "\t")[0] != name {
-			delMe.WriteString(line+"\n")
+			delMe.WriteString(line + "\n")
 		}
 	}
 	// Done with the main file
@@ -219,7 +216,7 @@ func GetDeviceFile(floorName string) (string, error) {
 /*
 Returns a list of all the floors in the database (with file names)
 */
-func GetAllFloors() (myfloors [] floor, err error) {
+func GetAllFloors() (myfloors []floor, err error) {
 	var floorList = []floor{}
 	fi, err := os.Open(floors)
 	if err != nil {
@@ -231,7 +228,7 @@ func GetAllFloors() (myfloors [] floor, err error) {
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
 		f := floor{
-			name: line[0],
+			name:           line[0],
 			deviceListFile: line[1],
 		}
 		floorList = append(floorList, f)

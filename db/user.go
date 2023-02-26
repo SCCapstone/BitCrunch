@@ -30,13 +30,15 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 		admin:    0,
 	}
 	if CheckUsername(username) != nil {
-		return u, fmt.Errorf("Username \"%s\" is not unique. User creation failed.", username)
+		return u, fmt.Errorf("Username \"%s\" is already in use.", username)
 	}
-	if CheckPassword(password) != nil {
-		return u, fmt.Errorf("Password \"%s\" is not sufficient.", password)
+	if err := CheckPassword(password); err != nil {
+		// Return specific error
+		return u, err
 	}
-	if checkEmail(email) != nil {
-		return u, fmt.Errorf("Email \"%s\" is either already used or not valid.", email)
+	if err := checkEmail(email); err != nil {
+		// Return specific error
+		return u, err
 	}
 
 	// Everything checks out so
@@ -204,7 +206,7 @@ Ensures that the file is not
 already created.
 */
 func open(file string) (fi *os.File, err error) {
-	fi, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fi, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +225,7 @@ is sufficient.
 func CheckPassword(password string) error {
 	// password must be at least 10 characters
 	if len(password) < 10 {
-		return fmt.Errorf("Password length=%d, need>=%d", len(password), 10)
+		return fmt.Errorf("Password needs to have at least 10 characters.")
 	}
 	// password must have at least one digit
 	reg := regexp.MustCompile("\\d")
@@ -256,10 +258,26 @@ based on regex.
 Returns nil if it is good to use.
 */
 func checkEmail(e string) error {
+	// Checking for valid email
 	reg := regexp.MustCompile("(\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,6})")
 	if !reg.Match([]byte(e)) {
-		return fmt.Errorf("Incorrect email!")
+		return fmt.Errorf("Please enter a valid email address.")
 	}
+	// Checking if email address already in use
+	fi, err := open(users)
+	if err != nil {
+		return err
+	}
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	for scan.Scan() {
+		line = strings.Split(scan.Text(), "\t")
+		if line[2] == e {
+			return fmt.Errorf("Email is already in use with another account.")
+		}
+	}
+	// Email ok
 	return nil
 }
 

@@ -409,14 +409,14 @@ func AddLayer(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"AddLayerModalError": "Add Layer Modal",
 			"ErrorTitle":         "Add Layer Failed",
-			"ErrorMessage":       fmt.Sprintf("Image file could not be found.")})
+			"ErrorMessage":       fmt.Sprintf("Image file could not be formed.")})
 		return
 	}
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"AddLayerModalError": "Add Layer Modal",
-			"ErrorTitle":         "Add Layer Failed",
+			"ErrorTitle":         "Failed to Add Layer",
 			"ErrorMessage":       fmt.Sprintf("Image file could not be saved.")})
 		return
 	}
@@ -424,8 +424,9 @@ func AddLayer(c *gin.Context) {
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"AddLayerModalError": "Add Layer Modal",
-			"ErrorTitle":         "Add Layer Failed",
+			"ErrorTitle":         "Failed to Add Layer",
 			"ErrorMessage":       err.Error()})
+		return
 	} else {
 		createDeviceFile(layer_name, file.Filename)
 		showMap(c)
@@ -445,21 +446,44 @@ func EditLayer(c *gin.Context) {
 	}
 	file, err := c.FormFile("layer_image")
 	if err != nil {
-		panic(err)
-
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"EditLayerModalError": "Edit Layer Modal",
+			"ErrorTitle":          "Failed to Edit Layer",
+			"ErrorMessage":        fmt.Sprintf("Image file could not be found."),
+		})
+		return
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 		fname = file.Filename
 		if err != nil {
-			panic(err)
+			c.HTML(http.StatusBadRequest, "index.html", gin.H{
+				"EditLayerModalError": "Edit Layer Modal",
+				"ErrorTitle":          "Failed to Edit Layer",
+				"ErrorMessage":        fmt.Sprintf("Image file could not be saved."),
+			})
+			return
 		}
 	}
 
-	db.DeleteFloor(old_layer_name)
+	if err := db.DeleteFloor(old_layer_name); err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"EditLayerModalError": "Edit Layer Modal",
+			"ErrorTitle":          "Failed to Edit Layer",
+			"ErrorMessage":        err.Error(),
+		})
+		return
+	}
 
 	removeDeviceFile("devices/" + old_layer_name + ".txt")
 
-	db.CreateFloor(layer_name, layer_name+".txt")
+	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"EditLayerModalError": "Edit Layer Modal",
+			"ErrorTitle":          "Failed to Edit Layer",
+			"ErrorMessage":        err.Error(),
+		})
+		return
+	}
 
 	createDeviceFile(layer_name, fname)
 
@@ -468,6 +492,7 @@ func EditLayer(c *gin.Context) {
 
 /*
 Adds a device with a device name inputted from the user
+Saves uploaded image to static/assets folder
 adds the device to the floor's deviceList file
 */
 func AddDevice(c *gin.Context) {
@@ -479,7 +504,15 @@ func AddDevice(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"AddDeviceModalError": "Add Device Modal",
 			"ErrorTitle":          "Failed to Add Device",
-			"ErrorMessage":        fmt.Sprintf("Image file could not be formed.")})
+			"ErrorMessage":        fmt.Sprintf("Image file could not be found.")})
+		return
+	}
+	err = c.SaveUploadedFile(device_image, "static/assets/"+device_image.Filename)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"AddDeviceModalError": "Add Device Modal",
+			"ErrorTitle":          "Failed to Add Device",
+			"ErrorMessage":        fmt.Sprintf("Image file could not be saved.")})
 		return
 	}
 
@@ -493,7 +526,13 @@ calls showMap to render the map with updates
 */
 func DeleteLayer(c *gin.Context) {
 	name := getCurrentFloor()
-	db.DeleteFloor(name)
+	if err := db.DeleteFloor(name); err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"DeleteLayerModalError": "Delete Device Modal",
+			"ErrorTitle":            "Failed to Add Device",
+			"ErrorMessage":          err.Error()})
+		return
+	}
 	removeDeviceFile("devices/" + name + ".txt")
 	showMap(c)
 }
