@@ -32,6 +32,14 @@
       {{  if .Image }}
       <img src="../{{.Image}}" class="map_image"/>
       {{ end }}
+      <!--for now, putting scripts here-->
+      <div class="feedbox">
+        {{ range .scripts}}
+        <form action="/u/view_layer" method="POST">
+          <button name="layer" type="submit" value="{{ . }}">{{ . }}</button>
+        </form>
+        {{ end }}
+      </div>  
     </div>
     <div class="grid-item item6">
       <div class="dropdown">
@@ -79,6 +87,26 @@
         <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
     </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .ScriptOutputModal}}
+<div id="script_output_modal" class="modal">
+  <div class="modal-content">
+    <h3>Script Output</h3>
+    <p>{{.Script}}</p>
+  </div>
+</div>
+{{end}}
+
+{{ if .ScriptOutputModalError}}
+<div id="script_output_modal" class="modal">
+  <div class="modal-content">
+    <h3>Script Output</h3>
+    <div class="error">
+      {{.ErrorTitle}}: {{.ErrorMessage}}
+    </div>
   </div>
 </div>
 {{end}}
