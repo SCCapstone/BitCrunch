@@ -179,8 +179,6 @@ func performLogin(c *gin.Context) {
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
 	} else {
-		fmt.Print("username:", db.CheckUsername(username))
-		fmt.Print("password:", db.CheckPassword(password))
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{
 			"ErrorTitle":   "Login Failed",
 			"ErrorMessage": "Invalid credentials provided"})
@@ -292,9 +290,9 @@ Renders the proper floor image onto the map
 func viewLayer(c *gin.Context) {
 	name := c.PostForm("layer")
 	imageName := ""
-	fmt.Println("here", name)
 	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
+	deviceNames := []string{}
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
@@ -303,8 +301,7 @@ func viewLayer(c *gin.Context) {
 	}
 	for i := 0; i < len(floorNames); i++ {
 		if floorNames[i] == name {
-			fmt.Println("floor", name)
-			fileIO, err := os.OpenFile(name+".txt", os.O_RDWR, 0600)
+			fileIO, err := os.OpenFile("devices/" + name+".txt", os.O_RDWR, 0600)
 			if err != nil {
 				panic(err)
 			}
@@ -325,11 +322,23 @@ func viewLayer(c *gin.Context) {
 	setCurrentFloor(name)
 	setCurrentFile(imageName)
 
+	
+
+	devices, _ := db.GetAllDevicesForFloor(getCurrentFloor())
+
+	for i := 0; i < len(devices); i++ {
+		str := fmt.Sprintf("%#v", devices[i])
+		comma := strings.Index(str, ",")
+		substr := str[16 : comma-1]
+		deviceNames = append(deviceNames, substr)
+	}
+
 	Render(c, gin.H{
 		"title":   "Map",
 		"payload": floorNames,
 		"Image": "static/assets/" + imageName,
 		"EditLayerButton": "EditLayerButton",
+		"devices": deviceNames,
 	}, "index.html")
 }
 
@@ -361,7 +370,6 @@ Creates a new floor and adds it to the list of floors, calls showMap to render t
 func AddLayer(c *gin.Context) {
 	layer_name := c.PostForm("layer_name")
 	file, err := c.FormFile("layer_image")
-	fmt.Println(layer_name)
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"AddLayerModalError": "Add Layer Modal",
@@ -402,19 +410,19 @@ func EditLayer(c *gin.Context) {
 	}
 	file, err := c.FormFile("layer_image")
 	if (err != nil) {
-		fmt.Println(err)
+		panic(err)
 		
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 		fname = file.Filename
 		if err != nil {
-			fmt.Println(err)
+			panic(err)
 		}
 	}
 
 	db.DeleteFloor(old_layer_name)
 
-	removeDeviceFile(old_layer_name+".txt")
+	removeDeviceFile("devices/" + old_layer_name+".txt")
 
 	db.CreateFloor(layer_name, layer_name+".txt")
 
@@ -428,18 +436,20 @@ Adds a device with a device name inputted from the user
 adds the device to the floor's deviceList file
 */
 func AddDevice(c *gin.Context) {
-	// device_name := c.PostForm("device_name")
-	// device_ip := c.PostForm("device_ip")
-	// layer_name := c.PostForm("layer")
+	device_name := c.PostForm("device_name")
+	device_ip := c.PostForm("device_ip")
+	device_image, err := c.FormFile("device_image")
 
-	// fmt.Println(device_name)	
-	// fmt.Println(device_ip)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"AddDeviceModalError": "Add Device Modal",
+			"ErrorTitle":         "Failed to Add Device",
+			"ErrorMessage":       fmt.Sprintf("Image file could not be formed.")})
+		return
+	}
 
-	// db.CreateDevice(device_name, device_ip, layer_name+".txt")
-
-	// // createDeviceFile(layer_name, file.Filename, layer_name+".txt")
-
-	// showMap(c)
+	db.CreateDevice(device_name, device_ip, "static/assets/" + device_image.Filename, getCurrentFloor())
+	showMap(c)
 }
 
 /*
@@ -449,17 +459,17 @@ calls showMap to render the map with updates
 func DeleteLayer(c *gin.Context) {
 	name := getCurrentFloor()
 	db.DeleteFloor(name)
-	removeDeviceFile(name+".txt")
+	removeDeviceFile("devices/" + name+".txt")
 	showMap(c)
 }
 
 func createDeviceFile(name string, filename string) {
-	file, err := os.OpenFile(name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("devices/" + name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	writeString := fmt.Sprintf(filename)
+	writeString := fmt.Sprintf(filename+"\n")
 	_, err = file.WriteString(writeString)
 }
 
