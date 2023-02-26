@@ -15,6 +15,7 @@ import (
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
 	db "github.com/SCCapstone/BitCrunch/db"
+	rd "github.com/SCCapstone/BitCrunch/devices"
 	"github.com/gin-gonic/gin"
 )
 
@@ -268,7 +269,7 @@ func display_add_device_modal(c *gin.Context) {
 }
 
 /*
-Renders the Edit Layer Modal when the user presses the on a layer 
+Renders the Edit Layer Modal when the user presses the on a layer
 */
 func display_edit_layer_modal(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
@@ -293,6 +294,7 @@ func viewLayer(c *gin.Context) {
 	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
 	deviceNames := []string{}
+	scriptNames := []string{}
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
@@ -301,7 +303,7 @@ func viewLayer(c *gin.Context) {
 	}
 	for i := 0; i < len(floorNames); i++ {
 		if floorNames[i] == name {
-			fileIO, err := os.OpenFile("devices/" + name+".txt", os.O_RDWR, 0600)
+			fileIO, err := os.OpenFile("devices/"+name+".txt", os.O_RDWR, 0600)
 			if err != nil {
 				panic(err)
 			}
@@ -322,8 +324,6 @@ func viewLayer(c *gin.Context) {
 	setCurrentFloor(name)
 	setCurrentFile(imageName)
 
-	
-
 	devices, _ := db.GetAllDevicesForFloor(getCurrentFloor())
 
 	for i := 0; i < len(devices); i++ {
@@ -333,13 +333,48 @@ func viewLayer(c *gin.Context) {
 		deviceNames = append(deviceNames, substr)
 	}
 
+	files, err := ioutil.ReadDir("/static/assets")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, files := range files {
+		temp := files.Name()
+		if strings.Contains(temp, "script.txt") {
+			delete := strings.Index(temp, "script.txt")
+			scriptName := temp[0 : delete-1]
+			scriptNames = append(scriptNames, scriptName)
+		}
+	}
+
 	Render(c, gin.H{
-		"title":   "Map",
-		"payload": floorNames,
-		"Image": "static/assets/" + imageName,
+		"title":           "Map",
+		"payload":         floorNames,
+		"Image":           "static/assets/" + imageName,
 		"EditLayerButton": "EditLayerButton",
-		"devices": deviceNames,
+		"devices":         deviceNames,
+		"scripts":         scriptNames,
 	}, "index.html")
+}
+
+// Runs scripts
+func RunScript(c *gin.Context) {
+	script := c.PostForm("script")
+	IP := c.PostForm("ip")
+	script_file := script + "script.txt"
+
+	if err, script := rd.RunFromScript(script_file, IP); err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"ScriptOutputModalError": "Script Output Modal Error",
+			"ErrorTitle":             "Script Error",
+			"ErrorMessage":           err.Error()})
+		return
+	} else {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"ScriptOutputModal": "Script Output Modal",
+			"ScriptOutput":      script})
+		return
+	}
 }
 
 /*
@@ -405,13 +440,13 @@ func EditLayer(c *gin.Context) {
 	old_file_name := getCurrentFile()
 	layer_name := c.PostForm("layer_name")
 	fname := old_file_name
-	if (len(layer_name) == 0) {
+	if len(layer_name) == 0 {
 		layer_name = old_layer_name
 	}
 	file, err := c.FormFile("layer_image")
-	if (err != nil) {
+	if err != nil {
 		panic(err)
-		
+
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 		fname = file.Filename
@@ -422,7 +457,7 @@ func EditLayer(c *gin.Context) {
 
 	db.DeleteFloor(old_layer_name)
 
-	removeDeviceFile("devices/" + old_layer_name+".txt")
+	removeDeviceFile("devices/" + old_layer_name + ".txt")
 
 	db.CreateFloor(layer_name, layer_name+".txt")
 
@@ -443,12 +478,12 @@ func AddDevice(c *gin.Context) {
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"AddDeviceModalError": "Add Device Modal",
-			"ErrorTitle":         "Failed to Add Device",
-			"ErrorMessage":       fmt.Sprintf("Image file could not be formed.")})
+			"ErrorTitle":          "Failed to Add Device",
+			"ErrorMessage":        fmt.Sprintf("Image file could not be formed.")})
 		return
 	}
 
-	db.CreateDevice(device_name, device_ip, "static/assets/" + device_image.Filename, getCurrentFloor())
+	db.CreateDevice(device_name, device_ip, "static/assets/"+device_image.Filename, getCurrentFloor())
 	showMap(c)
 }
 
@@ -459,17 +494,17 @@ calls showMap to render the map with updates
 func DeleteLayer(c *gin.Context) {
 	name := getCurrentFloor()
 	db.DeleteFloor(name)
-	removeDeviceFile("devices/" + name+".txt")
+	removeDeviceFile("devices/" + name + ".txt")
 	showMap(c)
 }
 
 func createDeviceFile(name string, filename string) {
-	file, err := os.OpenFile("devices/" + name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("devices/"+name+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	writeString := fmt.Sprintf(filename+"\n")
+	writeString := fmt.Sprintf(filename + "\n")
 	_, err = file.WriteString(writeString)
 }
 
