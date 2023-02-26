@@ -129,6 +129,65 @@
 </div>
 {{end}}
 
+<!--error message for delete layer-->
+{{ if .DeleteLayerModalError }}
+<div id="Delete_layer_modal_error" class="modal">
+  <div class="modal-content">
+    <h3>Are you sure you want to remove this layer?</h3>
+    <div class="error">
+      {{.ErrorTitle}}: {{.ErrorMessage}}
+    </div>
+    <form action="/map" method="GET">
+      <input class="cancel_button" type="submit" value="Cancel">
+    </form>
+    <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
+      <input class="danger_button" type="submit" value="Continue">
+    </form>
+  </div>
+</div>
+{{end}}
+
+<!-- error message for add device-->
+{{ if .AddDeviceModalError }}
+<div id="Add_Device_modal_error" class="modal">
+  <div class="modal-content">
+    <h3>Add Device</h3>
+    <form action="/map" method="GET">
+      <input class="cancel_button" type="submit" value="Cancel">
+    </form>
+    <form action="/u/add_device" method="POST" enctype="multipart/form-data">
+      Device Name: <input type="text" id="device_name" name="device_name"><br>
+      Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
+      <div class="error">
+        {{.ErrorTitle}}: {{.ErrorMessage}}
+      </div>
+        <input type="file" id="device_image" name="device_image" accept="image/*">
+      <input class="danger_button" type="submit" value="Continue">
+    </form>
+  </div>
+</div>
+{{end}}
+
+<!--edit layer error-->
+{{ if .EditLayerModalError }}
+<div id="edit_layer_modal_error" class="modal">
+  <div class="modal-content">
+    <h3>Edit Layer</h3>
+    <form action="/u/edit_layer" method="POST" enctype="multipart/form-data">
+      <label for="layer_name">Layer Name:</label>
+        <input type="text" id="layer_name" name="layer_name"><br>
+        <label for="layer_image">Upload File</label>
+        <div class="error">
+          {{.ErrorTitle}}: {{.ErrorMessage}}
+        </div>
+        <input type="file" id="layer_image" name="layer_image" accept="image/*">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="danger_button" type="submit" value="Save">
+    </form>
+  </div>
+</div>
+{{end}}
+
 {{ if .AddDeviceModal }}
 <div id="Add_Device_modal" class="modal">
   <div class="modal-content">
@@ -145,6 +204,7 @@
   </div>
 </div>
 {{end}}
+
 
 {{ if .EditLayerModal }}
 <div id="edit_layer_modal" class="modal">
