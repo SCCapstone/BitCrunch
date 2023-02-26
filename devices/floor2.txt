@@ -1,2 +1,0 @@
-school.jpg
-d2	192.168.123.133	static/assets/device.png	floor2
