@@ -141,14 +141,15 @@ Remove a device from the database.
 Returns nil if it was sucessful.
 Error otherwise.
 */
-func DeleteDevice(name string) error {
+func DeleteDevice(name, floorNm string) error {
 	// making temp file
 	delMe, err := os.Create(fmt.Sprintf("temp%s.tmp", name))
+	newName := "devices/" + floorNm + ".txt"
 	if err != nil {
 		return err
 	}
 	// Opening db file
-	fi, err := os.Open(devices)
+	fi, err := os.Open("devices/" + floorNm + ".txt")
 	if err != nil {
 		return err
 	}
@@ -158,27 +159,27 @@ func DeleteDevice(name string) error {
 	for scan.Scan() {
 		line = scan.Text()
 		if strings.Split(line, "\t")[0] != name {
-			delMe.WriteString(line)
+			delMe.WriteString(line + "\n")
 		}
 	}
 
 	// Finished coping the device data to new file
 	// Cleaning up
 	fi.Close()
-	err = os.Remove(devices)
+	err = os.Remove("devices/" + floorNm + ".txt")
 	if err != nil {
 		return err
 	}
 
 	// Renaming the new file withouth the
 	// deleted device to the devices.db name
-	err = os.Rename(delMe.Name(), devices)
+	delMe.Close()
+	err = os.Rename(delMe.Name(), newName)
 	if err != nil {
 		return err
 	}
 
 	// All good, clean up
-	delMe.Close()
 	return nil
 }
 
