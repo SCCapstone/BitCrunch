@@ -32,14 +32,6 @@
       {{  if .Image }}
       <img src="../{{.Image}}" class="map_image"/>
       {{ end }}
-      <!--for now, putting scripts here-->
-      <div class="feedbox">
-        {{ range .scripts}}
-        <form action="/u/view_layer" method="POST">
-          <button name="layer" type="submit" value="{{ . }}">{{ . }}</button>
-        </form>
-        {{ end }}
-      </div>  
     </div>
     <div class="grid-item item6">
       <div class="dropdown">
@@ -75,7 +67,7 @@
     </div>
     </div>
 
-    {{ if .AddLayerModal }}
+{{ if .AddLayerModal }}
 <div id="add_layer_modal" class="modal">
   <div class="modal-content">
     <h3>Add Layer</h3>
@@ -87,26 +79,6 @@
         <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
     </form>
-  </div>
-</div>
-{{end}}
-
-{{ if .ScriptOutputModal}}
-<div id="script_output_modal" class="modal">
-  <div class="modal-content">
-    <h3>Script Output</h3>
-    <p>{{.Script}}</p>
-  </div>
-</div>
-{{end}}
-
-{{ if .ScriptOutputModalError}}
-<div id="script_output_modal" class="modal">
-  <div class="modal-content">
-    <h3>Script Output</h3>
-    <div class="error">
-      {{.ErrorTitle}}: {{.ErrorMessage}}
-    </div>
   </div>
 </div>
 {{end}}
@@ -245,6 +217,19 @@
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
         <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .DeleteAccountModal }}
+<div id="delete_account_modal" class="modal">
+  <div class="modal-content">
+    <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
+    <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/map">
+        <input type="text" id="delete_confirmation" name="delete_confirmation">
+        <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
     </form>
   </div>
 </div>
