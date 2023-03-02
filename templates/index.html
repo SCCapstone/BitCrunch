@@ -119,10 +119,8 @@
 <div id="Delete_layer_modal" class="modal">
   <div class="modal-content">
     <h3>Are you sure you want to remove this layer?</h3>
-    <form action="/map" method="GET">
-      <input class="cancel_button" type="submit" value="Cancel">
-    </form>
     <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
+      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
       <input class="danger_button" type="submit" value="Delete">
     </form>
   </div>
@@ -137,10 +135,8 @@
     <div class="error">
       {{.ErrorTitle}}: {{.ErrorMessage}}
     </div>
-    <form action="/map" method="GET">
-      <input class="cancel_button" type="submit" value="Cancel">
-    </form>
     <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
+      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
       <input class="danger_button" type="submit" value="Delete">
     </form>
   </div>
@@ -152,9 +148,6 @@
 <div id="Add_Device_modal_error" class="modal">
   <div class="modal-content">
     <h3>Add Device</h3>
-    <form action="/map" method="GET">
-      <input class="cancel_button" type="submit" value="Cancel">
-    </form>
     <form action="/u/add_device" method="POST" enctype="multipart/form-data">
       Device Name: <input type="text" id="device_name" name="device_name"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
@@ -162,6 +155,7 @@
         {{.ErrorTitle}}: {{.ErrorMessage}}
       </div>
         <input type="file" id="device_image" name="device_image" accept="image/*">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
       <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
@@ -192,13 +186,11 @@
 <div id="Add_Device_modal" class="modal">
   <div class="modal-content">
     <h3>Add Device</h3>
-    <form action="/map" method="GET">
-      <input class="cancel_button" type="submit" value="Cancel">
-    </form>
     <form action="/u/add_device" method="POST" enctype="multipart/form-data">
       Device Name: <input type="text" id="device_name" name="device_name"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
         <input type="file" id="device_image" name="device_image" accept="image/*">
+      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
       <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
