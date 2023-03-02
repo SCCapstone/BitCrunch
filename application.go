@@ -124,6 +124,8 @@ func InitializeRoutes() {
 		// Render the image to map
 		userRoutes.POST("/view_layer", middleware.EnsureLoggedIn(), viewLayer)
 
+		userRoutes.POST("/view_device", middleware.EnsureLoggedIn(), viewDevice)
+
 		// Handle GET requests at /u/register, ensure user is not logged in using middleware
 		//Render the registration page
 		userRoutes.GET("/register", middleware.EnsureNotLoggedIn(), showRegistrationPage)
@@ -355,6 +357,12 @@ func viewLayer(c *gin.Context) {
 		"devices":         deviceNames,
 		"scripts":         scriptNames,
 	}, "index.html")
+}
+
+func viewDevice(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"ViewDeviceModal": "ViewDeviceModal",
+	})
 }
 
 // Runs scripts

@@ -59,7 +59,7 @@
     <div class="grid-item item8">
       <div class="feedbox">
         {{ range .devices }}
-        <form>
+        <form action="/u/view_device" method="POST">
           <button name="device" value="{{ . }}">{{ . }}</button>
           </form>
         {{ end}}
@@ -76,7 +76,7 @@
         <input type="text" id="layer_name" name="layer_name"><br>
         <label for="layer_image">Upload File</label>
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
@@ -96,7 +96,7 @@
         <div class="error">
           {{.ErrorTitle}}: {{.ErrorMessage}}
         </div>
-        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
@@ -108,7 +108,7 @@
   <div class="modal-content">
     <h3>Are you sure you want to logout?</h3>
     <form action="/u/logout" method="GET" enctype="multipart/form-data">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="/map"> 
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()"> 
         <input class="danger_button" type="submit" value="Logout">
     </form>
   </div>
@@ -123,7 +123,7 @@
       <input class="cancel_button" type="submit" value="Cancel">
     </form>
     <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
-      <input class="danger_button" type="submit" value="Continue">
+      <input class="danger_button" type="submit" value="Delete">
     </form>
   </div>
 </div>
@@ -141,7 +141,7 @@
       <input class="cancel_button" type="submit" value="Cancel">
     </form>
     <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
-      <input class="danger_button" type="submit" value="Continue">
+      <input class="danger_button" type="submit" value="Delete">
     </form>
   </div>
 </div>
@@ -162,7 +162,7 @@
         {{.ErrorTitle}}: {{.ErrorMessage}}
       </div>
         <input type="file" id="device_image" name="device_image" accept="image/*">
-      <input class="danger_button" type="submit" value="Continue">
+      <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
 </div>
@@ -181,7 +181,7 @@
           {{.ErrorTitle}}: {{.ErrorMessage}}
         </div>
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
@@ -199,7 +199,7 @@
       Device Name: <input type="text" id="device_name" name="device_name"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
         <input type="file" id="device_image" name="device_image" accept="image/*">
-      <input class="danger_button" type="submit" value="Continue">
+      <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
 </div>
@@ -215,7 +215,7 @@
         <input type="text" id="layer_name" name="layer_name"><br>
         <label for="layer_image">Upload File</label>
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="/map" formmethod="get"> 
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
@@ -227,7 +227,7 @@
   <div class="modal-content">
     <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
     <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="/map">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
         <input type="text" id="delete_confirmation" name="delete_confirmation">
         <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
     </form>
@@ -244,9 +244,25 @@
       {{.ErrorTitle}}: {{.ErrorMessage}}
     </div>
     <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="/map">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
         <input type="text" id="delete_confirmation" name="delete_confirmation">
         <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .ViewDeviceModal }}
+<div id="view_device_modal" class="modal">
+  <div class="modal-content">
+    <h3>Name goes here</h3>
+    <form action="/u/edit_device" method="POST" enctype="multipart/form-data">
+      Device Name: <input type="text" id="device_name" name="device_name"><br>
+      Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
+        <input type="file" id="device_image" name="device_image" accept="image/*">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
+        <input class="style1_button" type="submit" value="Save">
+        <input class="danger_button" type="submit" value="Delete" formaction="/u/delete_device" formmethod="get">
     </form>
   </div>
 </div>
