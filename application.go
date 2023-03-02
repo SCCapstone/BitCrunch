@@ -24,6 +24,7 @@ var router *gin.Engine
 
 var currentFloor = ""
 var currentFile = ""
+var currentDevice = ""
 
 /*
 Configures the router to load HTML templates
@@ -137,6 +138,10 @@ func InitializeRoutes() {
 		userRoutes.GET("/delete_account_modal", middleware.EnsureLoggedIn(), display_delete_account_modal)
 
 		userRoutes.GET("/delete_account", middleware.EnsureLoggedIn(), delete_account)
+
+		userRoutes.GET("/delete_device_modal", middleware.EnsureLoggedIn(), display_delete_device_modal)
+
+		userRoutes.GET("/delete_device", middleware.EnsureLoggedIn(), deleteDevice)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -279,6 +284,12 @@ func display_edit_layer_modal(c *gin.Context) {
 	})
 }
 
+func display_delete_device_modal(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"DeleteDeviceModal": "Delete Device Modal",
+	})
+}
+
 /*
 Generates a random 16 character string as the session token
 */
@@ -360,8 +371,12 @@ func viewLayer(c *gin.Context) {
 }
 
 func viewDevice(c *gin.Context) {
+	name := c.PostForm("device")
+	setCurrentDevice(name)
+
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"ViewDeviceModal": "ViewDeviceModal",
+		"DeviceName": name,
 	})
 }
 
@@ -528,6 +543,13 @@ func AddDevice(c *gin.Context) {
 	showMap(c)
 }
 
+func deleteDevice(c *gin.Context) {
+	name := getCurrentDevice()
+	floor := getCurrentFloor()
+	db.DeleteDevice(name, floor)
+	showMap(c)
+}
+
 /*
 Deletes a layer from the list of floors,
 calls showMap to render the map with updates
@@ -586,4 +608,14 @@ func setCurrentFile(fileName string) {
 
 func getCurrentFile() (fileName string) {
 	return currentFile
+}
+
+func setCurrentDevice(deviceName string) {
+	if len(deviceName) > 0 {
+		currentDevice = deviceName
+	}
+}
+
+func getCurrentDevice() (deviceName string) {
+	return currentDevice
 }

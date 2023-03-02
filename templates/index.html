@@ -247,14 +247,26 @@
 {{ if .ViewDeviceModal }}
 <div id="view_device_modal" class="modal">
   <div class="modal-content">
-    <h3>Name goes here</h3>
+    <h3>Edit {{ .DeviceName }}</h3>
     <form action="/u/edit_device" method="POST" enctype="multipart/form-data">
       Device Name: <input type="text" id="device_name" name="device_name"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
         <input type="file" id="device_image" name="device_image" accept="image/*">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="style1_button" type="submit" value="Save">
-        <input class="danger_button" type="submit" value="Delete" formaction="/u/delete_device" formmethod="get">
+        <input class="danger_button" type="submit" value="Delete" formaction="/u/delete_device_modal" formmethod="get">
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .DeleteDeviceModal }}
+<div id="delete_device_modal" class="modal">
+  <div class="modal-content">
+    <h3>Are you sure you want to remove this device?</h3>
+    <form action="/u/delete_device" method="GET" enctype="multipart/form-data">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
+        <input id="delete_device_button" class="danger_button" type="submit" value="Delete">
     </form>
   </div>
 </div>
