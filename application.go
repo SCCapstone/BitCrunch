@@ -142,6 +142,8 @@ func InitializeRoutes() {
 		userRoutes.GET("/delete_device_modal", middleware.EnsureLoggedIn(), displayModal("DeleteDeviceModal", "Delete Device Modal"))
 
 		userRoutes.GET("/delete_device", middleware.EnsureLoggedIn(), deleteDevice)
+
+		userRoutes.POST("/edit_device", middleware.EnsureLoggedIn(), editDevice)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -271,12 +273,12 @@ func viewLayer(c *gin.Context) {
 		if floorNames[i] == name {
 			fileIO, err := os.OpenFile("devices/"+name+".txt", os.O_RDWR, 0600)
 			if err != nil {
-				panic(err)
+				fmt.Println(err)
 			}
 			defer fileIO.Close()
 			rawBytes, err := ioutil.ReadAll(fileIO)
 			if err != nil {
-				panic(err)
+				fmt.Println(err)
 			}
 			lines := strings.Split(string(rawBytes), "\n")
 			for i, line := range lines {
@@ -500,6 +502,34 @@ func deleteDevice(c *gin.Context) {
 	name := getCurrentDevice()
 	floor := getCurrentFloor()
 	db.DeleteDevice(name, floor)
+	showMap(c)
+}
+
+func editDevice(c *gin.Context) {
+	floor := getCurrentFloor()
+	name := getCurrentDevice()
+	newName := c.PostForm("device_name")	
+	newIP := c.PostForm("device_ip")
+	newImage, err := c.FormFile("device_image")
+	fmt.Println(newIP)
+	fmt.Println(newImage)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if(len(newName) > 0) {
+		//check name is unique for floor
+		err = db.CheckDevice(newName, floor)
+		if err != nil {
+			fmt.Println(err)
+			//TODO render error message
+		} else {
+			db.EditDeviceName(name, newName, floor)
+		}
+	}
+	if(len(newIP) > 0) {
+		//check if IP valid
+		//replace IP in db
+	}
 	showMap(c)
 }
 
