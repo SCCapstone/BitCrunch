@@ -328,7 +328,7 @@ func GetAllIPs() (myDevices []string, err error) {
 	var deviceIPs = []string{}
 	floors, err := GetAllFloors()
 	if err != nil {
-		fmt.Println(err)
+		return deviceIPs, err
 	}
 	for _, floor := range floors {
 		devices, _ := GetAllDevicesForFloor(floor.name)
