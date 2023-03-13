@@ -22,6 +22,13 @@ type device struct {
 }
 
 /*
+Getter used for comparisons between devices in Unit Testing
+*/
+func GetDeviceName(d device) string {
+	return d.name
+}
+
+/*
 Add a device to the database.
 Returns error if things went wrong.
 nil otherwise
@@ -63,7 +70,7 @@ Should only be used in the
 CreateDevice function.
 */
 func writeDevice(d device) (err error) {
-	fil, err := os.OpenFile("devices/" + d.floorName + ".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fil, err := os.OpenFile("devices/"+d.floorName+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -133,7 +140,7 @@ device has the same name in the db.
 Return nil if good, error otherwise.
 // */
 // func CheckDevice(name string) error {
-	// return nil
+// return nil
 // }
 
 /*
@@ -215,19 +222,19 @@ func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
 	// Finding each device with the given floor name
 	firstLine := true
 	for scan.Scan() {
-	if firstLine == true {
-		firstLine = false
-		continue
-	}
+		if firstLine == true {
+			firstLine = false
+			continue
+		}
 		line = strings.Split(scan.Text(), "\t")
-			// Device found, append it to the slice
-			d := device{
-				name:      line[0],
-				ip:        line[1],
-				image:     line[2],
-				floorName: line[3],
-			}
-			devs = append(devs, d)
+		// Device found, append it to the slice
+		d := device{
+			name:      line[0],
+			ip:        line[1],
+			image:     line[2],
+			floorName: line[3],
+		}
+		devs = append(devs, d)
 	}
 
 	return devs, nil

@@ -106,7 +106,7 @@ func TestProperLogin(t *testing.T) { // opens up the domain and attempts to logi
 		return
 	}
 	page, err = currpages.FindByURL("/^http:\\/\\/\\w+(\\.\\w+)*(:[0-9]+)?\\/?(\\/[.\\w]*)*$/")
-	// god i hate regex so much
+	// god i hate regex so much. this checks for http(anything)/(anything) rn. find proper directory soon!
 	if page == nil { // couldn't find the right url
 		t.Errorf("The login was not successfull! There is an issue on typing login!")
 		return
