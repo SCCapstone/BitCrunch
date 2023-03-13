@@ -524,7 +524,10 @@ func editDevice(c *gin.Context) {
 			//TODO render error message "IP format is invalid"
 		} else {
 			//check to see if IP is unique for all floors
-			ips, _ := db.GetAllIPs()
+			ips, err := db.GetAllIPs()
+			if err != nil {
+				fmt.Println(err)
+			}
 			for _, ip := range ips {
 				if(newIP == ip) {
 					foundIP = true
