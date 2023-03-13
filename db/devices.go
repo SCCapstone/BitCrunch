@@ -168,7 +168,7 @@ Return nil if good, error otherwise.
 	return nil
  }
 
- func EditDevice(name, newName, newIP, floorNm string) {
+ func EditDevice(name, newName, newIP, newImage, floorNm string) {
 	fi, err := ioutil.ReadFile("devices/" + floorNm + ".txt")
 	if err != nil {
 			fmt.Println(err)
@@ -192,7 +192,7 @@ Return nil if good, error otherwise.
 				floorName: splitLine[3],
 			}
 			if d.name == name {
-				writeString := fmt.Sprintf("%s\t%s\t%s\t%s", newName, newIP, d.image, d.floorName)
+				writeString := fmt.Sprintf("%s\t%s\t%s\t%s", newName, newIP, newImage, d.floorName)
 				lines[i] = writeString
 			}
 		}
@@ -262,6 +262,22 @@ func GetIP(name string) (string) {
 		for _, device := range devices {
 			if(device.name == name) {
 				return device.ip
+			}
+		}
+	}
+	return ""
+}
+
+func GetImage(name string) (string) {
+	floors, err := GetAllFloors()
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, floor := range floors {
+		devices, _ := GetAllDevicesForFloor(floor.name)
+		for _, device := range devices {
+			if(device.name == name) {
+				return device.image
 			}
 		}
 	}

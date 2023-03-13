@@ -513,9 +513,8 @@ func editDevice(c *gin.Context) {
 	newName := c.PostForm("device_name")	
 	newIP := c.PostForm("device_ip")
 	newImage, err := c.FormFile("device_image")
-	fmt.Println("image", newImage)
-	if err != nil {
-		fmt.Println(err)
+	if(newImage != nil) {
+		err = c.SaveUploadedFile(newImage, "static/assets/"+newImage.Filename)
 	}
 	if((len(newIP) > 0) && (newIP != oldIP)) {
 		foundIP := false
@@ -534,9 +533,14 @@ func editDevice(c *gin.Context) {
 				} 
 			}
 			if foundIP == false {
-				db.EditDevice(name, name, newIP, floor)
+				db.EditDevice(name, name, newIP, db.GetImage(name), floor)
 			}
 		}
+	}
+	if(newImage == nil) {
+		//DO NOTHING
+	} else {
+		db.EditDevice(name, name, db.GetIP(name), "static/assets/"+newImage.Filename, floor)
 	}
 	if((len(newName) > 0) && (newName != name)) {
 		//check name is unique for floor
@@ -545,7 +549,7 @@ func editDevice(c *gin.Context) {
 			fmt.Println(err)
 			//TODO render error message "device name is not unique for floor"
 		} else {
-			db.EditDevice(name, newName, db.GetIP(name), floor)
+			db.EditDevice(name, newName, db.GetIP(name), db.GetImage(name), floor)
 		}
 	}
 	showMap(c)
