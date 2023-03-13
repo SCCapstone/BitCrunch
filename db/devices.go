@@ -168,7 +168,7 @@ Return nil if good, error otherwise.
 	return nil
  }
 
- func EditDeviceName(name, newName, floorNm string) {
+ func EditDevice(name, newName, newIP, floorNm string) {
 	fi, err := ioutil.ReadFile("devices/" + floorNm + ".txt")
 	if err != nil {
 			fmt.Println(err)
@@ -192,7 +192,7 @@ Return nil if good, error otherwise.
 				floorName: splitLine[3],
 			}
 			if d.name == name {
-				writeString := fmt.Sprintf("%s\t%s\t%s\t%s", newName, d.ip, d.image, d.floorName)
+				writeString := fmt.Sprintf("%s\t%s\t%s\t%s", newName, newIP, d.image, d.floorName)
 				lines[i] = writeString
 			}
 		}
@@ -251,18 +251,22 @@ func DeleteDevice(name, floorNm string) error {
 	return nil
 }
 
-/*
-Returns the IP of a device
-given a name.
-Pretty useless function, but here it is.
-*/
-// func GetIP(name string) (string, error) {
-// 	dev, err := ReadDevice(name)
-// 	if err != nil {
-// 		return "", fmt.Errorf("Device not found!")
-// 	}
-// 	return dev.ip, nil
-// }
+
+func GetIP(name string) (string) {
+	floors, err := GetAllFloors()
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, floor := range floors {
+		devices, _ := GetAllDevicesForFloor(floor.name)
+		for _, device := range devices {
+			if(device.name == name) {
+				return device.ip
+			}
+		}
+	}
+	return ""
+}
 
 /*
 This function can be used to get every
@@ -302,4 +306,19 @@ func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
 	}
 
 	return devs, nil
+}
+
+func GetAllIPs() (myDevices []string, err error) {
+	var deviceIPs = []string{}
+	floors, err := GetAllFloors()
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, floor := range floors {
+		devices, _ := GetAllDevicesForFloor(floor.name)
+		for _, device := range devices {
+			deviceIPs = append(deviceIPs, device.ip)
+		}
+	}
+	return deviceIPs, nil
 }

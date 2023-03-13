@@ -332,6 +332,7 @@ func viewDevice(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"ViewDeviceModal": "ViewDeviceModal",
 		"DeviceName": name,
+		"DeviceIP": db.GetIP(name),
 	})
 }
 
@@ -508,27 +509,44 @@ func deleteDevice(c *gin.Context) {
 func editDevice(c *gin.Context) {
 	floor := getCurrentFloor()
 	name := getCurrentDevice()
+	oldIP := db.GetIP(name)
 	newName := c.PostForm("device_name")	
 	newIP := c.PostForm("device_ip")
 	newImage, err := c.FormFile("device_image")
-	fmt.Println(newIP)
-	fmt.Println(newImage)
+	fmt.Println("image", newImage)
 	if err != nil {
 		fmt.Println(err)
 	}
-	if(len(newName) > 0) {
+	if((len(newIP) > 0) && (newIP != oldIP)) {
+		foundIP := false
+		// check if IP is valid format
+		err := db.CheckIP(newIP)
+		if err != nil {
+			fmt.Println(err)
+			//TODO render error message "IP format is invalid"
+		} else {
+			ips, _ := db.GetAllIPs()
+			for _, ip := range ips {
+				if(newIP == ip) {
+					foundIP = true
+					fmt.Println("already in use")
+					//TODO render error message "IP is already in use for a device"
+				} 
+			}
+			if foundIP == false {
+				db.EditDevice(name, name, newIP, floor)
+			}
+		}
+	}
+	if((len(newName) > 0) && (newName != name)) {
 		//check name is unique for floor
 		err = db.CheckDevice(newName, floor)
 		if err != nil {
 			fmt.Println(err)
-			//TODO render error message
+			//TODO render error message "device name is not unique for floor"
 		} else {
-			db.EditDeviceName(name, newName, floor)
+			db.EditDevice(name, newName, db.GetIP(name), floor)
 		}
-	}
-	if(len(newIP) > 0) {
-		//check if IP valid
-		//replace IP in db
 	}
 	showMap(c)
 }
