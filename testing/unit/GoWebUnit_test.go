@@ -52,18 +52,18 @@ func TestDevices(t *testing.T) {
 		t.Error("GetAllDevicesForFloor has returned an error: ", err)
 	}
 	for _, device := range devices {
-		if db.GetDeviceName(device) != db.GetDeviceName(device1) || db.GetDeviceName(device) != db.GetDeviceName(device2) {
+		if db.GetDeviceName(device) != db.GetDeviceName(device1) && db.GetDeviceName(device) != db.GetDeviceName(device2) {
 			// get devices per floor returned a device not a part of the original duo
-			t.Errorf("GetAllDevicesFloor returned a device not originally created.")
+			t.Error("GetAllDevicesFloor returned a device not originally created. : ", device)
 		}
 	}
 	err = db.DeleteDevice("TestDevice1")
 	if err != nil {
-		t.Error("DeleteDevice number1 has returned an error: ", err)
+		t.Error("DeleteDevice (straight string) has returned an error: ", err)
 	}
 	err = db.DeleteDevice((db.GetDeviceName(device2)))
 	if err != nil {
-		t.Error("DeleteDevice has returned an error: ", err)
+		t.Error("DeleteDevice (db.getname) has returned an error: ", err)
 	}
 	devices, err = db.GetAllDevicesForFloor(floorName)
 	if err != nil {
