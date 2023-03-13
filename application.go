@@ -509,14 +509,13 @@ func deleteDevice(c *gin.Context) {
 func editDevice(c *gin.Context) {
 	floor := getCurrentFloor()
 	name := getCurrentDevice()
-	oldIP := db.GetIP(name)
 	newName := c.PostForm("device_name")	
 	newIP := c.PostForm("device_ip")
 	newImage, err := c.FormFile("device_image")
 	if(newImage != nil) {
 		err = c.SaveUploadedFile(newImage, "static/assets/"+newImage.Filename)
 	}
-	if((len(newIP) > 0) && (newIP != oldIP)) {
+	if((len(newIP) > 0) && (newIP != db.GetIP(name))) {
 		foundIP := false
 		// check if IP is valid format
 		err := db.CheckIP(newIP)
@@ -524,6 +523,7 @@ func editDevice(c *gin.Context) {
 			fmt.Println(err)
 			//TODO render error message "IP format is invalid"
 		} else {
+			//check to see if IP is unique for all floors
 			ips, _ := db.GetAllIPs()
 			for _, ip := range ips {
 				if(newIP == ip) {
@@ -537,9 +537,7 @@ func editDevice(c *gin.Context) {
 			}
 		}
 	}
-	if(newImage == nil) {
-		//DO NOTHING
-	} else {
+	if(newImage != nil) {
 		db.EditDevice(name, name, db.GetIP(name), "static/assets/"+newImage.Filename, floor)
 	}
 	if((len(newName) > 0) && (newName != name)) {
