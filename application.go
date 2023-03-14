@@ -245,6 +245,13 @@ func displayModal(modalName string, msg string) gin.HandlerFunc {
     return gin.HandlerFunc(fn)
 }
 
+func renderError(c *gin.Context, modal, modalName, errorTitle, et, errorMessage, emsg string) {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			modal: modalName,
+			errorTitle: et,
+			errorMessage: emsg})
+	}
+
 /*
 Generates a random 16 character string as the session token
 */
@@ -385,26 +392,17 @@ func AddLayer(c *gin.Context) {
 	layer_name := c.PostForm("layer_name")
 	file, err := c.FormFile("layer_image")
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddLayerModalError": "Add Layer Modal",
-			"ErrorTitle":         "Add Layer Failed",
-			"ErrorMessage":       fmt.Sprintf("Image file could not be formed.")})
+		renderError(c, "AddLayerModalError", "Add Layer Modal", "ErrorTitle", "Add Layer Failed", "ErrorMessage", "Image file could not be found.")
 		return
 	}
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddLayerModalError": "Add Layer Modal",
-			"ErrorTitle":         "Failed to Add Layer",
-			"ErrorMessage":       fmt.Sprintf("Image file could not be saved.")})
+		renderError(c, "AddLayerModalError", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", "Image file could not be saved.")
 		return
 	}
 
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddLayerModalError": "Add Layer Modal",
-			"ErrorTitle":         "Failed to Add Layer",
-			"ErrorMessage":       err.Error()})
+		renderError(c, "AddLayerModalError", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", err.Error())
 		return
 	} else {
 		createDeviceFile(layer_name, file.Filename)
@@ -425,42 +423,26 @@ func EditLayer(c *gin.Context) {
 	}
 	file, err := c.FormFile("layer_image")
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"EditLayerModalError": "Edit Layer Modal",
-			"ErrorTitle":          "Failed to Edit Layer",
-			"ErrorMessage":        fmt.Sprintf("Image file could not be found."),
-		})
+		renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be found.")
 		return
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 		fname = file.Filename
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "index.html", gin.H{
-				"EditLayerModalError": "Edit Layer Modal",
-				"ErrorTitle":          "Failed to Edit Layer",
-				"ErrorMessage":        fmt.Sprintf("Image file could not be saved."),
-			})
+			renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be saved.")
 			return
 		}
 	}
 
 	if err := db.DeleteFloor(old_layer_name); err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"EditLayerModalError": "Edit Layer Modal",
-			"ErrorTitle":          "Failed to Edit Layer",
-			"ErrorMessage":        err.Error(),
-		})
+		renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
 		return
 	}
 
 	removeDeviceFile("devices/" + old_layer_name + ".txt")
 
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"EditLayerModalError": "Edit Layer Modal",
-			"ErrorTitle":          "Failed to Edit Layer",
-			"ErrorMessage":        err.Error(),
-		})
+		renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
 		return
 	}
 
@@ -480,18 +462,12 @@ func AddDevice(c *gin.Context) {
 	device_image, err := c.FormFile("device_image")
 
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddDeviceModalError": "Add Device Modal",
-			"ErrorTitle":          "Failed to Add Device",
-			"ErrorMessage":        fmt.Sprintf("Image file could not be found.")})
+		renderError(c, "AddDeviceModalError", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be found.")
 		return
 	}
 	err = c.SaveUploadedFile(device_image, "static/assets/"+device_image.Filename)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddDeviceModalError": "Add Device Modal",
-			"ErrorTitle":          "Failed to Add Device",
-			"ErrorMessage":        fmt.Sprintf("Image file could not be saved.")})
+		renderError(c, "AddDeviceModalError", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be saved.")
 		return
 	}
 
@@ -563,10 +539,7 @@ calls showMap to render the map with updates
 func DeleteLayer(c *gin.Context) {
 	name := getCurrentFloor()
 	if err := db.DeleteFloor(name); err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"DeleteLayerModalError": "Delete Device Modal",
-			"ErrorTitle":            "Failed to Add Device",
-			"ErrorMessage":          err.Error()})
+		renderError(c, "DeleteLayerModalError", "Delete Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", err.Error())
 		return
 	}
 	removeDeviceFile("devices/" + name + ".txt")
