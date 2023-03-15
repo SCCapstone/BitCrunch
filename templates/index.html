@@ -249,8 +249,8 @@
   <div class="modal-content">
     <h3>Edit {{ .DeviceName }}</h3>
     <form action="/u/edit_device" method="POST" enctype="multipart/form-data">
-      Device Name: <input type="text" id="device_name" name="device_name"><br>
-      Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
+      Device Name: <input type="text" id="device_name" name="device_name" value="{{ .DeviceName }}"><br>
+      Device IP Address: <input type="text" id="device_ip" name="device_ip" value="{{ .DeviceIP }}"><br>
         <input type="file" id="device_image" name="device_image" accept="image/*">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="style1_button" type="submit" value="Save">

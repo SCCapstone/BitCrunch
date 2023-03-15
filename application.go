@@ -142,6 +142,8 @@ func InitializeRoutes() {
 		userRoutes.GET("/delete_device_modal", middleware.EnsureLoggedIn(), displayModal("DeleteDeviceModal", "Delete Device Modal"))
 
 		userRoutes.GET("/delete_device", middleware.EnsureLoggedIn(), deleteDevice)
+
+		userRoutes.POST("/edit_device", middleware.EnsureLoggedIn(), editDevice)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -243,6 +245,13 @@ func displayModal(modalName string, msg string) gin.HandlerFunc {
     return gin.HandlerFunc(fn)
 }
 
+func renderError(c *gin.Context, modal, modalName, errorTitle, et, errorMessage, emsg string) {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			modal: modalName,
+			errorTitle: et,
+			errorMessage: emsg})
+	}
+
 /*
 Generates a random 16 character string as the session token
 */
@@ -271,12 +280,12 @@ func viewLayer(c *gin.Context) {
 		if floorNames[i] == name {
 			fileIO, err := os.OpenFile("devices/"+name+".txt", os.O_RDWR, 0600)
 			if err != nil {
-				panic(err)
+				fmt.Println(err)
 			}
 			defer fileIO.Close()
 			rawBytes, err := ioutil.ReadAll(fileIO)
 			if err != nil {
-				panic(err)
+				fmt.Println(err)
 			}
 			lines := strings.Split(string(rawBytes), "\n")
 			for i, line := range lines {
@@ -330,6 +339,7 @@ func viewDevice(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"ViewDeviceModal": "ViewDeviceModal",
 		"DeviceName": name,
+		"DeviceIP": db.GetIP(name),
 	})
 }
 
@@ -382,26 +392,17 @@ func AddLayer(c *gin.Context) {
 	layer_name := c.PostForm("layer_name")
 	file, err := c.FormFile("layer_image")
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddLayerModalError": "Add Layer Modal",
-			"ErrorTitle":         "Add Layer Failed",
-			"ErrorMessage":       fmt.Sprintf("Image file could not be formed.")})
+		renderError(c, "AddLayerModalError", "Add Layer Modal", "ErrorTitle", "Add Layer Failed", "ErrorMessage", "Image file could not be found.")
 		return
 	}
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddLayerModalError": "Add Layer Modal",
-			"ErrorTitle":         "Failed to Add Layer",
-			"ErrorMessage":       fmt.Sprintf("Image file could not be saved.")})
+		renderError(c, "AddLayerModalError", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", "Image file could not be saved.")
 		return
 	}
 
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddLayerModalError": "Add Layer Modal",
-			"ErrorTitle":         "Failed to Add Layer",
-			"ErrorMessage":       err.Error()})
+		renderError(c, "AddLayerModalError", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", err.Error())
 		return
 	} else {
 		createDeviceFile(layer_name, file.Filename)
@@ -422,42 +423,26 @@ func EditLayer(c *gin.Context) {
 	}
 	file, err := c.FormFile("layer_image")
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"EditLayerModalError": "Edit Layer Modal",
-			"ErrorTitle":          "Failed to Edit Layer",
-			"ErrorMessage":        fmt.Sprintf("Image file could not be found."),
-		})
+		renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be found.")
 		return
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 		fname = file.Filename
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "index.html", gin.H{
-				"EditLayerModalError": "Edit Layer Modal",
-				"ErrorTitle":          "Failed to Edit Layer",
-				"ErrorMessage":        fmt.Sprintf("Image file could not be saved."),
-			})
+			renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be saved.")
 			return
 		}
 	}
 
 	if err := db.DeleteFloor(old_layer_name); err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"EditLayerModalError": "Edit Layer Modal",
-			"ErrorTitle":          "Failed to Edit Layer",
-			"ErrorMessage":        err.Error(),
-		})
+		renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
 		return
 	}
 
 	removeDeviceFile("devices/" + old_layer_name + ".txt")
 
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"EditLayerModalError": "Edit Layer Modal",
-			"ErrorTitle":          "Failed to Edit Layer",
-			"ErrorMessage":        err.Error(),
-		})
+		renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
 		return
 	}
 
@@ -477,18 +462,12 @@ func AddDevice(c *gin.Context) {
 	device_image, err := c.FormFile("device_image")
 
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddDeviceModalError": "Add Device Modal",
-			"ErrorTitle":          "Failed to Add Device",
-			"ErrorMessage":        fmt.Sprintf("Image file could not be found.")})
+		renderError(c, "AddDeviceModalError", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be found.")
 		return
 	}
 	err = c.SaveUploadedFile(device_image, "static/assets/"+device_image.Filename)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"AddDeviceModalError": "Add Device Modal",
-			"ErrorTitle":          "Failed to Add Device",
-			"ErrorMessage":        fmt.Sprintf("Image file could not be saved.")})
+		renderError(c, "AddDeviceModalError", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be saved.")
 		return
 	}
 
@@ -503,6 +482,56 @@ func deleteDevice(c *gin.Context) {
 	showMap(c)
 }
 
+func editDevice(c *gin.Context) {
+	floor := getCurrentFloor()
+	name := getCurrentDevice()
+	newName := c.PostForm("device_name")	
+	newIP := c.PostForm("device_ip")
+	newImage, err := c.FormFile("device_image")
+	if(newImage != nil) {
+		err = c.SaveUploadedFile(newImage, "static/assets/"+newImage.Filename)
+	}
+	if((len(newIP) > 0) && (newIP != db.GetIP(name))) {
+		foundIP := false
+		// check if IP is valid format
+		err := db.CheckIP(newIP)
+		if err != nil {
+			fmt.Println(err)
+			//TODO render error message "IP format is invalid"
+		} else {
+			//check to see if IP is unique for all floors
+			ips, err := db.GetAllIPs()
+			if err != nil {
+				fmt.Println(err)
+			}
+			for _, ip := range ips {
+				if(newIP == ip) {
+					foundIP = true
+					fmt.Println("already in use")
+					//TODO render error message "IP is already in use for a device"
+				} 
+			}
+			if foundIP == false {
+				db.EditDevice(name, name, newIP, db.GetImage(name), floor)
+			}
+		}
+	}
+	if(newImage != nil) {
+		db.EditDevice(name, name, db.GetIP(name), "static/assets/"+newImage.Filename, floor)
+	}
+	if((len(newName) > 0) && (newName != name)) {
+		//check name is unique for floor
+		err = db.CheckDevice(newName, floor)
+		if err != nil {
+			fmt.Println(err)
+			//TODO render error message "device name is not unique for floor"
+		} else {
+			db.EditDevice(name, newName, db.GetIP(name), db.GetImage(name), floor)
+		}
+	}
+	showMap(c)
+}
+
 /*
 Deletes a layer from the list of floors,
 calls showMap to render the map with updates
@@ -510,10 +539,7 @@ calls showMap to render the map with updates
 func DeleteLayer(c *gin.Context) {
 	name := getCurrentFloor()
 	if err := db.DeleteFloor(name); err != nil {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			"DeleteLayerModalError": "Delete Device Modal",
-			"ErrorTitle":            "Failed to Add Device",
-			"ErrorMessage":          err.Error()})
+		renderError(c, "DeleteLayerModalError", "Delete Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", err.Error())
 		return
 	}
 	removeDeviceFile("devices/" + name + ".txt")

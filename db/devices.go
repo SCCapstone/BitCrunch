@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"errors"
+	"io/ioutil"
 )
 
 const devices = "devices.db"
@@ -129,14 +131,80 @@ func CheckIP(ip string) error {
 
 /*
 This checks to ensure that no other
-device has the same name in the db.
+device has the same name in the db for a specific floor.
 Return nil if good, error otherwise.
-// */
-// func CheckDevice(name string) error {
-	// return nil
-// }
+*/
 
-/*
+ func CheckDevice(name, floorNm string) error {
+	fi, err := os.Open("devices/" + floorNm + ".txt")
+	if err != nil {
+		return err
+	}
+	defer fi.Close()
+	scan := bufio.NewScanner(fi)
+	var line []string
+	// Finding each device with the given floor name
+	firstLine := true
+	for scan.Scan() {
+	if firstLine == true {
+		firstLine = false
+		continue
+	}
+		line = strings.Split(scan.Text(), "\t")
+			// Device found, append it to the slice
+			if(len(line) > 1) {
+				d := device{
+					name:      line[0],
+					ip:        line[1],
+					image:     line[2],
+					floorName: line[3],
+				}
+				if(name == d.name) {
+					return errors.New("Device name already exists for floor")
+				}
+			}
+	}
+
+	return nil
+ }
+
+ func EditDevice(name, newName, newIP, newImage, floorNm string) {
+	fi, err := ioutil.ReadFile("devices/" + floorNm + ".txt")
+	if err != nil {
+			fmt.Println(err)
+	}
+
+	lines := strings.Split(string(fi), "\n")
+	firstLine := true
+
+	for i, line := range lines {
+		if firstLine == true {
+			firstLine = false
+			continue
+		}
+		splitLine := strings.Split(line, "\t")
+		fmt.Println(splitLine, len(splitLine))
+		if len(splitLine) > 1 {
+			d := device{
+				name:      splitLine[0],
+				ip:        splitLine[1],
+				image:     splitLine[2],
+				floorName: splitLine[3],
+			}
+			if d.name == name {
+				writeString := fmt.Sprintf("%s\t%s\t%s\t%s", newName, newIP, newImage, d.floorName)
+				lines[i] = writeString
+			}
+		}
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile("devices/" + floorNm + ".txt", []byte(output), 0644)
+	if err != nil {
+			fmt.Println(err)
+	}
+ }
+
+ /*
 Remove a device from the database.
 Returns nil if it was sucessful.
 Error otherwise.
@@ -183,18 +251,38 @@ func DeleteDevice(name, floorNm string) error {
 	return nil
 }
 
-/*
-Returns the IP of a device
-given a name.
-Pretty useless function, but here it is.
-*/
-// func GetIP(name string) (string, error) {
-// 	dev, err := ReadDevice(name)
-// 	if err != nil {
-// 		return "", fmt.Errorf("Device not found!")
-// 	}
-// 	return dev.ip, nil
-// }
+
+func GetIP(name string) (string) {
+	floors, err := GetAllFloors()
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, floor := range floors {
+		devices, _ := GetAllDevicesForFloor(floor.name)
+		for _, device := range devices {
+			if(device.name == name) {
+				return device.ip
+			}
+		}
+	}
+	return ""
+}
+
+func GetImage(name string) (string) {
+	floors, err := GetAllFloors()
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, floor := range floors {
+		devices, _ := GetAllDevicesForFloor(floor.name)
+		for _, device := range devices {
+			if(device.name == name) {
+				return device.image
+			}
+		}
+	}
+	return ""
+}
 
 /*
 This function can be used to get every
@@ -222,14 +310,31 @@ func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
 	}
 		line = strings.Split(scan.Text(), "\t")
 			// Device found, append it to the slice
-			d := device{
-				name:      line[0],
-				ip:        line[1],
-				image:     line[2],
-				floorName: line[3],
+			if(len(line) > 1) {
+				d := device{
+					name:      line[0],
+					ip:        line[1],
+					image:     line[2],
+					floorName: line[3],
+				}
+				devs = append(devs, d)
 			}
-			devs = append(devs, d)
 	}
 
 	return devs, nil
+}
+
+func GetAllIPs() (myDevices []string, err error) {
+	var deviceIPs = []string{}
+	floors, err := GetAllFloors()
+	if err != nil {
+		return deviceIPs, err
+	}
+	for _, floor := range floors {
+		devices, _ := GetAllDevicesForFloor(floor.name)
+		for _, device := range devices {
+			deviceIPs = append(deviceIPs, device.ip)
+		}
+	}
+	return deviceIPs, nil
 }
