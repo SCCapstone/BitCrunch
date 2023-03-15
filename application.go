@@ -142,6 +142,10 @@ func InitializeRoutes() {
 		userRoutes.GET("/delete_device_modal", middleware.EnsureLoggedIn(), displayModal("DeleteDeviceModal", "Delete Device Modal"))
 
 		userRoutes.GET("/delete_device", middleware.EnsureLoggedIn(), deleteDevice)
+
+		userRoutes.GET("/run_script", middleware.EnsureLoggedIn(), displayModal("ScriptModal", "Script Modal"))
+
+		userRoutes.GET("/ping_device", middleware.EnsureLoggedIn(), pingDevice)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -518,6 +522,11 @@ func DeleteLayer(c *gin.Context) {
 	}
 	removeDeviceFile("devices/" + name + ".txt")
 	showMap(c)
+}
+
+func pingDevice(c *gin.Context) {
+	fmt.Println("pinging")
+	
 }
 
 func createDeviceFile(name string, filename string) {

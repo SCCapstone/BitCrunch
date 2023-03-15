@@ -81,7 +81,7 @@
     </form>
   </div>
 </div>
-{{end}}
+{{end}}z
 
 <!-- for now, error message like this -->
 {{ if .AddLayerModalError }}
@@ -249,12 +249,15 @@
   <div class="modal-content">
     <h3>Edit {{ .DeviceName }}</h3>
     <form action="/u/edit_device" method="POST" enctype="multipart/form-data">
-      Device Name: <input type="text" id="device_name" name="device_name"><br>
-      Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
+      Device Name: <input type="text" id="device_name" name="device_name" value="{{ .DeviceName }}"><br>
+      Device IP Address: <input type="text" id="device_ip" name="device_ip" value="{{ .DeviceIP }}"><br>
         <input type="file" id="device_image" name="device_image" accept="image/*">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="style1_button" type="submit" value="Save">
         <input class="danger_button" type="submit" value="Delete" formaction="/u/delete_device_modal" formmethod="get">
+    </form>
+    <form action="/u/run_script" method="GET" style="display: inline-block">
+      <button class="style1_button" value="run_script" type="submit">Run Script</button>
     </form>
   </div>
 </div>
@@ -268,6 +271,18 @@
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
         <input id="delete_device_button" class="danger_button" type="submit" value="Delete">
     </form>
+  </div>
+</div>
+{{end}}
+
+{{ if .ScriptModal }}
+<div id="script_modal" class="modal">
+  <div class="modal-content">
+    <h3>Scripts</h3>
+    <form action="ping_device" method="GET" enctype="multipart/form-data">
+      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
+      <input class="style1_button" type="submit" value="Ping">
+  </form>
   </div>
 </div>
 {{end}}
