@@ -146,7 +146,7 @@ func InitializeRoutes() {
 		userRoutes.GET("/run_script", middleware.EnsureLoggedIn(), displayModal("ScriptModal", "Script Modal"))
 
 		userRoutes.GET("/ping_device", middleware.EnsureLoggedIn(), pingDevice)
-		
+
 		userRoutes.POST("/edit_device", middleware.EnsureLoggedIn(), editDevice)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
@@ -551,7 +551,11 @@ func DeleteLayer(c *gin.Context) {
 
 func pingDevice(c *gin.Context) {
 	fmt.Println("pinging")
-	
+	device := getCurrentDevice()
+	ip := db.GetIP(device)
+	fmt.Println(ip)
+	_, output := rd.RunFromScript("pingscript.txt", ip)
+	fmt.Println("this is the output: ", output)
 }
 
 func createDeviceFile(name string, filename string) {
