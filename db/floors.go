@@ -22,6 +22,12 @@ type floor struct {
 var floorList = []floor{}
 
 // var currentFloor = ""
+/*
+Getter used for comparisons between devices in Unit Testing
+*/
+func GetFloorName(d floor) string {
+	return d.name
+}
 
 /*
 Creates a new floor.

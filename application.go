@@ -15,7 +15,7 @@ import (
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
 	db "github.com/SCCapstone/BitCrunch/db"
-	rd "github.com/SCCapstone/BitCrunch/devices"
+	rd "github.com/SCCapstone/BitCrunch/scriptrunner"
 	"github.com/gin-gonic/gin"
 )
 
@@ -235,22 +235,21 @@ func logout(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 
-	
 func displayModal(modalName string, msg string) gin.HandlerFunc {
-    fn := func(c *gin.Context) {
+	fn := func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			modalName: msg,
-		})	
+		})
 	}
-    return gin.HandlerFunc(fn)
+	return gin.HandlerFunc(fn)
 }
 
 func renderError(c *gin.Context, modal, modalName, errorTitle, et, errorMessage, emsg string) {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
-			modal: modalName,
-			errorTitle: et,
-			errorMessage: emsg})
-	}
+	c.HTML(http.StatusBadRequest, "index.html", gin.H{
+		modal:        modalName,
+		errorTitle:   et,
+		errorMessage: emsg})
+}
 
 /*
 Generates a random 16 character string as the session token
@@ -338,8 +337,8 @@ func viewDevice(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"ViewDeviceModal": "ViewDeviceModal",
-		"DeviceName": name,
-		"DeviceIP": db.GetIP(name),
+		"DeviceName":      name,
+		"DeviceIP":        db.GetIP(name),
 	})
 }
 
@@ -485,13 +484,13 @@ func deleteDevice(c *gin.Context) {
 func editDevice(c *gin.Context) {
 	floor := getCurrentFloor()
 	name := getCurrentDevice()
-	newName := c.PostForm("device_name")	
+	newName := c.PostForm("device_name")
 	newIP := c.PostForm("device_ip")
 	newImage, err := c.FormFile("device_image")
-	if(newImage != nil) {
+	if newImage != nil {
 		err = c.SaveUploadedFile(newImage, "static/assets/"+newImage.Filename)
 	}
-	if((len(newIP) > 0) && (newIP != db.GetIP(name))) {
+	if (len(newIP) > 0) && (newIP != db.GetIP(name)) {
 		foundIP := false
 		// check if IP is valid format
 		err := db.CheckIP(newIP)
@@ -505,21 +504,21 @@ func editDevice(c *gin.Context) {
 				fmt.Println(err)
 			}
 			for _, ip := range ips {
-				if(newIP == ip) {
+				if newIP == ip {
 					foundIP = true
 					fmt.Println("already in use")
 					//TODO render error message "IP is already in use for a device"
-				} 
+				}
 			}
 			if foundIP == false {
 				db.EditDevice(name, name, newIP, db.GetImage(name), floor)
 			}
 		}
 	}
-	if(newImage != nil) {
+	if newImage != nil {
 		db.EditDevice(name, name, db.GetIP(name), "static/assets/"+newImage.Filename, floor)
 	}
-	if((len(newName) > 0) && (newName != name)) {
+	if (len(newName) > 0) && (newName != name) {
 		//check name is unique for floor
 		err = db.CheckDevice(newName, floor)
 		if err != nil {
