@@ -1,4 +1,4 @@
-package devices
+package scriptrunner
 
 import (
 	"bufio"
@@ -13,7 +13,8 @@ import (
 func RunFromScript(filename string, targetIP string) (error, string) {
 	IPaddress := "<IPADDRESS>" // for better usage across many files and devices
 	outputAll := ""
-	betterFilename := "/static/assets/" + filename // gotta get the right file!
+	// static\assets\pingscript.txt
+	betterFilename := "static\\assets\\" + filename // gotta get the right file!
 	// the paaram should be the file name, no txt
 	file, err := os.Open(betterFilename)
 	if err != nil {
@@ -27,9 +28,12 @@ func RunFromScript(filename string, targetIP string) (error, string) {
 		line := strings.Fields(fileScanner.Text()) // split by space, tab, newline, etc.
 		IPfound, index := contains(line, IPaddress)
 		if IPfound && index != -1 {
-			line[index] = IPaddress // place the parameter IPaddress properly into the script
+			line[index] = targetIP // place the parameter IPaddress properly into the script
 		}
 		// make sure to test this!
+		if len(line) == 0 {
+			continue
+		}
 		if string(line[0]) == ("#") || line == nil {
 			continue // This line is a comment or empty! don't do anything!
 		}
@@ -38,10 +42,20 @@ func RunFromScript(filename string, targetIP string) (error, string) {
 		//- for arguments in exec.Command
 		if len(line) == 1 {
 			// just solo exec.Command(line)
+
 			cmd = exec.Command(line[0])
+			//fmt.Println("solo", cmd)
 		} else {
 			// split up into exec.Command(line[0], line[1:len(line)-1])
-			cmd = exec.Command(line[0], line[1:len(line)-1]...) // literally magic ...
+			var allArgs string
+			for index, argument := range line {
+				if index == 0 {
+					continue
+				}
+				allArgs = allArgs + argument
+			}
+			cmd = exec.Command(line[0], allArgs)
+			//fmt.Println("duo", cmd)
 		}
 		if cmd == nil {
 			continue
@@ -52,6 +66,7 @@ func RunFromScript(filename string, targetIP string) (error, string) {
 			file.Close()
 			return err, string(output)
 		}
+
 		outputAll += string(output) // move the output into the full output
 	}
 	file.Close()
