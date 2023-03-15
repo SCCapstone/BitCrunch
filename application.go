@@ -24,6 +24,7 @@ var router *gin.Engine
 
 var currentFloor = ""
 var currentFile = ""
+var currentDevice = ""
 
 /*
 Configures the router to load HTML templates
@@ -89,11 +90,11 @@ func InitializeRoutes() {
 
 		// Handle GET requests at /u/logout, ensure user is logged in using middleware
 		// Display the logout modal
-		userRoutes.GET("/logout_modal", middleware.EnsureLoggedIn(), display_logout_modal)
+		userRoutes.GET("/logout_modal", middleware.EnsureLoggedIn(), displayModal("LogoutModal", "Logout Modal"))
 
 		// Handle GET requests at /u/add_layer_modal, ensure user is logged in using middleware
 		// Display the add layer modal
-		userRoutes.GET("/add_layer_modal", middleware.EnsureLoggedIn(), display_add_layer_modal)
+		userRoutes.GET("/add_layer_modal", middleware.EnsureLoggedIn(), displayModal("AddLayerModal", "Add Layer Modal"))
 
 		// Handle POST requests at /u/add_layer, ensure user is logged in using middleware
 		// Add the layer
@@ -101,7 +102,7 @@ func InitializeRoutes() {
 
 		// Handle GET requests at /u/add_device_modal, ensure user is logged in using middleware
 		// Display the add device modal
-		userRoutes.GET("/add_device_modal", middleware.EnsureLoggedIn(), display_add_device_modal)
+		userRoutes.GET("/add_device_modal", middleware.EnsureLoggedIn(), displayModal("AddDeviceModal", "Add Device Modal"))
 
 		// Handle POST requests at /u/add_device, ensure user is logged in using middleware
 		// Add the device
@@ -109,7 +110,7 @@ func InitializeRoutes() {
 
 		// Handle GET requests at /u/delete_layer_modal, ensure user is logged in using middleware
 		// Display the delete layer modal
-		userRoutes.GET("/delete_layer_modal", middleware.EnsureLoggedIn(), display_delete_layer_modal)
+		userRoutes.GET("/delete_layer_modal", middleware.EnsureLoggedIn(), displayModal("DeleteLayerModal", "Delete Layer Modal"))
 
 		// Handle POST requests at /u/delete_layer, ensure user is logged in using middleware
 		// Delete the layer
@@ -117,12 +118,14 @@ func InitializeRoutes() {
 
 		// Handle GET requests at /u/edit_layer_modal, ensure user is logged in using middleware
 		// Display the edit layer modal
-		userRoutes.GET("/edit_layer_modal", middleware.EnsureLoggedIn(), display_edit_layer_modal)
+		userRoutes.GET("/edit_layer_modal", middleware.EnsureLoggedIn(), displayModal("EditLayerModal", "Edit Layer Modal"))
 
 		userRoutes.POST("/edit_layer", middleware.EnsureLoggedIn(), EditLayer)
 		// Handle POST requests at /u/view_layer, ensure user is logged in using middleware
 		// Render the image to map
 		userRoutes.POST("/view_layer", middleware.EnsureLoggedIn(), viewLayer)
+
+		userRoutes.POST("/view_device", middleware.EnsureLoggedIn(), viewDevice)
 
 		// Handle GET requests at /u/register, ensure user is not logged in using middleware
 		//Render the registration page
@@ -132,9 +135,13 @@ func InitializeRoutes() {
 		//Register the user
 		userRoutes.POST("/register", middleware.EnsureNotLoggedIn(), register)
 
-		userRoutes.GET("/delete_account_modal", middleware.EnsureLoggedIn(), display_delete_account_modal)
+		userRoutes.GET("/delete_account_modal", middleware.EnsureLoggedIn(), displayModal("DeleteAccountModal", "Delete Account Modal"))
 
 		userRoutes.GET("/delete_account", middleware.EnsureLoggedIn(), delete_account)
+
+		userRoutes.GET("/delete_device_modal", middleware.EnsureLoggedIn(), displayModal("DeleteDeviceModal", "Delete Device Modal"))
+
+		userRoutes.GET("/delete_device", middleware.EnsureLoggedIn(), deleteDevice)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -226,55 +233,14 @@ func logout(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 
-/*
-Renders the Logout Modal when the user presses the logout button
-*/
-func display_logout_modal(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"LogoutModal": "Logout Modal",
-	})
-}
-
-/*
-Renders the Add Layer Modal when the user presses the add layer button
-*/
-func display_add_layer_modal(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"AddLayerModal": "Add Layer Modal",
-	})
-}
-
-func display_delete_account_modal(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"DeleteAccountModal": "Delete Account Modal",
-	})
-}
-
-/*
-Renders the Delete Layer Modal when the user presses the delete layer button
-*/
-func display_delete_layer_modal(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"DeleteLayerModal": "Delete Layer Modal",
-	})
-}
-
-/*
-Renders the Add Device Modal when the user presses the add device button
-*/
-func display_add_device_modal(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"AddDeviceModal": "Add Device Modal",
-	})
-}
-
-/*
-Renders the Edit Layer Modal when the user presses the on a layer
-*/
-func display_edit_layer_modal(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"EditLayerModal": "Edit Layer Modal",
-	})
+	
+func displayModal(modalName string, msg string) gin.HandlerFunc {
+    fn := func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			modalName: msg,
+		})	
+	}
+    return gin.HandlerFunc(fn)
 }
 
 /*
@@ -355,6 +321,16 @@ func viewLayer(c *gin.Context) {
 		"devices":         deviceNames,
 		"scripts":         scriptNames,
 	}, "index.html")
+}
+
+func viewDevice(c *gin.Context) {
+	name := c.PostForm("device")
+	setCurrentDevice(name)
+
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"ViewDeviceModal": "ViewDeviceModal",
+		"DeviceName": name,
+	})
 }
 
 // Runs scripts
@@ -520,6 +496,13 @@ func AddDevice(c *gin.Context) {
 	showMap(c)
 }
 
+func deleteDevice(c *gin.Context) {
+	name := getCurrentDevice()
+	floor := getCurrentFloor()
+	db.DeleteDevice(name, floor)
+	showMap(c)
+}
+
 /*
 Deletes a layer from the list of floors,
 calls showMap to render the map with updates
@@ -578,4 +561,14 @@ func setCurrentFile(fileName string) {
 
 func getCurrentFile() (fileName string) {
 	return currentFile
+}
+
+func setCurrentDevice(deviceName string) {
+	if len(deviceName) > 0 {
+		currentDevice = deviceName
+	}
+}
+
+func getCurrentDevice() (deviceName string) {
+	return currentDevice
 }
