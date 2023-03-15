@@ -13,7 +13,8 @@ import (
 func RunFromScript(filename string, targetIP string) (error, string) {
 	IPaddress := "<IPADDRESS>" // for better usage across many files and devices
 	outputAll := ""
-	betterFilename := "/static/assets/" + filename // gotta get the right file!
+	// static\assets\pingscript.txt
+	betterFilename := "static\\assets\\" + filename // gotta get the right file!
 	// the paaram should be the file name, no txt
 	file, err := os.Open(betterFilename)
 	if err != nil {
@@ -30,6 +31,9 @@ func RunFromScript(filename string, targetIP string) (error, string) {
 			line[index] = IPaddress // place the parameter IPaddress properly into the script
 		}
 		// make sure to test this!
+		if len(line) == 0 {
+			continue
+		}
 		if string(line[0]) == ("#") || line == nil {
 			continue // This line is a comment or empty! don't do anything!
 		}
