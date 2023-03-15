@@ -57,11 +57,11 @@ func TestDevices(t *testing.T) {
 			t.Error("GetAllDevicesFloor returned a device not originally created. : ", device)
 		}
 	}
-	err = db.DeleteDevice("TestDevice1")
+	err = db.DeleteDevice("TestDevice1", floorName)
 	if err != nil {
 		t.Error("DeleteDevice (straight string) has returned an error: ", err)
 	}
-	err = db.DeleteDevice((db.GetDeviceName(device2)))
+	err = db.DeleteDevice((db.GetDeviceName(device2)), floorName)
 	if err != nil {
 		t.Error("DeleteDevice (db.getname) has returned an error: ", err)
 	}
@@ -113,11 +113,11 @@ func TestFloors(t *testing.T) {
 			t.Errorf("GetAllDevicesFloor returned a device not originally created.")
 		}
 	}
-	err = db.DeleteDevice((db.GetDeviceName(device1)))
+	err = db.DeleteDevice((db.GetDeviceName(device1)), floorNameString)
 	if err != nil {
 		t.Error("DeleteDevice has returned an error: ", err)
 	}
-	err = db.DeleteDevice((db.GetDeviceName(device2)))
+	err = db.DeleteDevice((db.GetDeviceName(device2)), floorNameString)
 	if err != nil {
 		t.Error("DeleteDevice has returned an error: ", err)
 	}
