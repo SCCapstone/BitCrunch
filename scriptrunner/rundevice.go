@@ -47,7 +47,14 @@ func RunFromScript(filename string, targetIP string) (error, string) {
 			//fmt.Println("solo", cmd)
 		} else {
 			// split up into exec.Command(line[0], line[1:len(line)-1])
-			cmd = exec.Command(line[0], line[1:len(line)-1]...) // literally magic ...
+			var allArgs string
+			for index, argument := range line {
+				if index == 0 {
+					continue
+				}
+				allArgs = allArgs + argument
+			}
+			cmd = exec.Command(line[0], allArgs)
 			//fmt.Println("duo", cmd)
 		}
 		if cmd == nil {
