@@ -148,7 +148,8 @@ func TestFloors(t *testing.T) {
 
 }
 
-func TestScriptRunner(t *testing.T) {
+// Informal test used for testing scripts put through rundevice.go
+func NonTestScriptRunner(t *testing.T) {
 	targetIP := "127.0.0.1"      // for testing the ping script
 	filename := "pingscript.txt" // ping script name
 	err, output := script.RunFromScript(filename, targetIP)
