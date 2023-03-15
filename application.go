@@ -15,7 +15,7 @@ import (
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
 	db "github.com/SCCapstone/BitCrunch/db"
-	rd "github.com/SCCapstone/BitCrunch/devices"
+	rd "github.com/SCCapstone/BitCrunch/scriptrunner"
 	"github.com/gin-gonic/gin"
 )
 
@@ -233,14 +233,13 @@ func logout(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 
-	
 func displayModal(modalName string, msg string) gin.HandlerFunc {
-    fn := func(c *gin.Context) {
+	fn := func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			modalName: msg,
-		})	
+		})
 	}
-    return gin.HandlerFunc(fn)
+	return gin.HandlerFunc(fn)
 }
 
 /*
@@ -329,7 +328,7 @@ func viewDevice(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"ViewDeviceModal": "ViewDeviceModal",
-		"DeviceName": name,
+		"DeviceName":      name,
 	})
 }
 
