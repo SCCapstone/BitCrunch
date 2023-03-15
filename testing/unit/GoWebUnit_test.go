@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	db "github.com/SCCapstone/BitCrunch/db"
-	script "github.com/SCCapstone/BitCrunch/scriptrunner"
 )
 
 func TestMain(m *testing.M) {
@@ -145,19 +144,6 @@ func TestFloors(t *testing.T) {
 	if len(devices) <= 0 {
 		t.Errorf("Floor 1 should have 2 devices added to it!")
 	}
-
-}
-
-// Informal test used for testing scripts put through rundevice.go
-func NonTestScriptRunner(t *testing.T) {
-	targetIP := "127.0.0.1"      // for testing the ping script
-	filename := "pingscript.txt" // ping script name
-	err, output := script.RunFromScript(filename, targetIP)
-
-	// non push these
-	// static\assets\pingscript.txt
-	fmt.Println(err)
-	fmt.Println(output)
 
 }
 
