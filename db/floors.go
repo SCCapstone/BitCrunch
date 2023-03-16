@@ -122,7 +122,7 @@ func ReadFloor(fname string) (f floor, err error) {
 	var line []string
 	for scan.Scan() {
 		line = strings.Split(scan.Text(), "\t")
-		fmt.Println(line)
+		//fmt.Println(line) commented out to reduce noise
 		if line[0] == fname {
 			f = floor{
 				name:           line[0],

@@ -175,10 +175,10 @@ func CheckDevice(name, floorNm string) error {
 	return nil
 }
 
-func EditDevice(name, newName, newIP, newImage, floorNm string) {
+func EditDevice(name, newName, newIP, newImage, floorNm string) error {
 	fi, err := ioutil.ReadFile("devices/" + floorNm + ".txt")
 	if err != nil {
-		fmt.Println(err)
+		return (err)
 	}
 
 	lines := strings.Split(string(fi), "\n")
@@ -190,7 +190,7 @@ func EditDevice(name, newName, newIP, newImage, floorNm string) {
 			continue
 		}
 		splitLine := strings.Split(line, "\t")
-		fmt.Println(splitLine, len(splitLine))
+		// fmt.Println(splitLine, len(splitLine)) commented to silence output
 		if len(splitLine) > 1 {
 			d := device{
 				name:      splitLine[0],
@@ -207,8 +207,9 @@ func EditDevice(name, newName, newIP, newImage, floorNm string) {
 	output := strings.Join(lines, "\n")
 	err = ioutil.WriteFile("devices/"+floorNm+".txt", []byte(output), 0644)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+	return nil
 }
 
 /*
