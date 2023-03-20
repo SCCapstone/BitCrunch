@@ -60,7 +60,7 @@
       <div class="feedbox">
         {{ range .devices }}
         <form action="/u/view_device" method="POST">
-          <button name="device" value="{{ . }}">{{ . }}</button>
+          <button name="device" value="{{ . }}"></button>
           </form>
         {{ end}}
       </div>
@@ -76,26 +76,11 @@
         <input type="text" id="layer_name" name="layer_name"><br>
         <label for="layer_image">Upload File</label>
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
-        <input class="danger_button" type="submit" value="Save">
-    </form>
-  </div>
-</div>
-{{end}}
-
-<!-- for now, error message like this -->
-{{ if .AddLayerModalError }}
-<div id="add_layer_modal" class="modal">
-  <div class="modal-content">
-    <h3>Add Layer</h3>
-    <form action="/u/add_layer" method="POST" enctype="multipart/form-data">
-        <lable for="layer_name">Layer Name:</lable>
-        <input type="text" id="layer_name" name="layer_name"><br>
-        <label for="layer_image">Upload File</label>
-        <input type="file" id="layer_image" name="layer_image" accept="image/*">
+        {{ if .ErrorTitle }}
         <div class="error">
           {{.ErrorTitle}}: {{.ErrorMessage}}
         </div>
+        {{ end }}
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
     </form>
@@ -119,64 +104,14 @@
 <div id="Delete_layer_modal" class="modal">
   <div class="modal-content">
     <h3>Are you sure you want to remove this layer?</h3>
-    <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
-      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
-      <input class="danger_button" type="submit" value="Delete">
-    </form>
-  </div>
-</div>
-{{end}}
-
-<!--error message for delete layer-->
-{{ if .DeleteLayerModalError }}
-<div id="Delete_layer_modal_error" class="modal">
-  <div class="modal-content">
-    <h3>Are you sure you want to remove this layer?</h3>
+    {{ if .ErrorTitle}}
     <div class="error">
       {{.ErrorTitle}}: {{.ErrorMessage}}
     </div>
+    {{ end }}
     <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
       <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
       <input class="danger_button" type="submit" value="Delete">
-    </form>
-  </div>
-</div>
-{{end}}
-
-<!-- error message for add device-->
-{{ if .AddDeviceModalError }}
-<div id="Add_Device_modal_error" class="modal">
-  <div class="modal-content">
-    <h3>Add Device</h3>
-    <form action="/u/add_device" method="POST" enctype="multipart/form-data">
-      Device Name: <input type="text" id="device_name" name="device_name"><br>
-      Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
-      <div class="error">
-        {{.ErrorTitle}}: {{.ErrorMessage}}
-      </div>
-        <input type="file" id="device_image" name="device_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
-      <input class="danger_button" type="submit" value="Save">
-    </form>
-  </div>
-</div>
-{{end}}
-
-<!--edit layer error-->
-{{ if .EditLayerModalError }}
-<div id="edit_layer_modal_error" class="modal">
-  <div class="modal-content">
-    <h3>Edit Layer</h3>
-    <form action="/u/edit_layer" method="POST" enctype="multipart/form-data">
-      <label for="layer_name">Layer Name:</label>
-        <input type="text" id="layer_name" name="layer_name"><br>
-        <label for="layer_image">Upload File</label>
-        <div class="error">
-          {{.ErrorTitle}}: {{.ErrorMessage}}
-        </div>
-        <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
-        <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
 </div>
@@ -189,14 +124,18 @@
     <form action="/u/add_device" method="POST" enctype="multipart/form-data">
       Device Name: <input type="text" id="device_name" name="device_name"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
+      {{ if .ErrorTitle }}
+      <div class="error">
+        {{.ErrorTitle}}: {{.ErrorMessage}}
+      </div>
+      {{ end }}
         <input type="file" id="device_image" name="device_image" accept="image/*">
-      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
       <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
 </div>
 {{end}}
-
 
 {{ if .EditLayerModal }}
 <div id="edit_layer_modal" class="modal">
@@ -206,6 +145,11 @@
       <label for="layer_name">Layer Name:</label>
         <input type="text" id="layer_name" name="layer_name"><br>
         <label for="layer_image">Upload File</label>
+        {{ if .ErrorTitle}}
+        <div class="error">
+          {{.ErrorTitle}}: {{.ErrorMessage}}
+        </div>
+        {{ end }}
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="danger_button" type="submit" value="Save">
@@ -218,23 +162,11 @@
 <div id="delete_account_modal" class="modal">
   <div class="modal-content">
     <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
-    <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
-        <input type="text" id="delete_confirmation" name="delete_confirmation">
-        <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
-    </form>
-  </div>
-</div>
-{{end}}
-
-<!-- for now, error message like this-->
-{{ if .DeleteAccountModalError }}
-<div id="delete_account_modal" class="modal">
-  <div class="modal-content">
-    <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
+    {{ if .ErrorTitle}}
     <div class="error">
       {{.ErrorTitle}}: {{.ErrorMessage}}
     </div>
+    {{ end }}
     <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
         <input type="text" id="delete_confirmation" name="delete_confirmation">
@@ -252,6 +184,11 @@
       Device Name: <input type="text" id="device_name" name="device_name" value="{{ .DeviceName }}"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip" value="{{ .DeviceIP }}"><br>
         <input type="file" id="device_image" name="device_image" accept="image/*">
+        {{ if .ErrorTitle}}
+    <div class="error">
+      {{.ErrorTitle}}: {{.ErrorMessage}}
+    </div>
+    {{ end }}
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="style1_button" type="submit" value="Save">
         <input class="danger_button" type="submit" value="Delete" formaction="/u/delete_device_modal" formmethod="get">
@@ -264,6 +201,11 @@
 <div id="delete_device_modal" class="modal">
   <div class="modal-content">
     <h3>Are you sure you want to remove this device?</h3>
+    {{ if .ErrorTitle}}
+    <div class="error">
+      {{.ErrorTitle}}: {{.ErrorMessage}}
+    </div>
+    {{ end }}
     <form action="/u/delete_device" method="GET" enctype="multipart/form-data">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
         <input id="delete_device_button" class="danger_button" type="submit" value="Delete">
