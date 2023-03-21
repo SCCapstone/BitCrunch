@@ -192,3 +192,24 @@
     top: 0;
     left: 0;
   }
+
+  .flex {
+    display: flex;
+  }
+  .flex div {
+    flex-basis: 50%;
+    display: inline-block;
+  }
+  #col1 {
+    background-color: #d5d6e6;
+    height: 20vh;
+    border-radius: 25px;
+    border: 1px solid gold;
+  }
+  #col2 {
+    background-color: darkgrey;
+    height: 20vh;
+    border: 1px solid gold;
+    font-size: 14px;
+    color: white;
+  }
