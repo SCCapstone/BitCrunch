@@ -76,13 +76,13 @@
         <input type="text" id="layer_name" name="layer_name"><br>
         <label for="layer_image">Upload File</label>
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
+        <input class="danger_button" type="submit" value="Save">
         {{ if .ErrorTitle }}
         <div class="error">
           {{.ErrorTitle}}: {{.ErrorMessage}}
         </div>
         {{ end }}
-        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
-        <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
 </div>
@@ -104,14 +104,14 @@
 <div id="Delete_layer_modal" class="modal">
   <div class="modal-content">
     <h3>Are you sure you want to remove this layer?</h3>
-    {{ if .ErrorTitle}}
-    <div class="error">
-      {{.ErrorTitle}}: {{.ErrorMessage}}
-    </div>
-    {{ end }}
     <form action="/u/delete_layer" method="POST" enctype="multipart/form-data">
       <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
       <input class="danger_button" type="submit" value="Delete">
+      {{ if .ErrorTitle }}
+        <div class="error">
+          {{.ErrorTitle}}: {{.ErrorMessage}}
+        </div>
+        {{ end }}
     </form>
   </div>
 </div>
@@ -124,14 +124,14 @@
     <form action="/u/add_device" method="POST" enctype="multipart/form-data">
       Device Name: <input type="text" id="device_name" name="device_name"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
-      {{ if .ErrorTitle }}
-      <div class="error">
-        {{.ErrorTitle}}: {{.ErrorMessage}}
-      </div>
-      {{ end }}
         <input type="file" id="device_image" name="device_image" accept="image/*">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
       <input class="danger_button" type="submit" value="Save">
+      {{ if .ErrorTitle }}
+        <div class="error">
+          {{.ErrorTitle}}: {{.ErrorMessage}}
+        </div>
+        {{ end }}
     </form>
   </div>
 </div>
@@ -145,14 +145,14 @@
       <label for="layer_name">Layer Name:</label>
         <input type="text" id="layer_name" name="layer_name"><br>
         <label for="layer_image">Upload File</label>
-        {{ if .ErrorTitle}}
+        <input type="file" id="layer_image" name="layer_image" accept="image/*">
+        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
+        <input class="danger_button" type="submit" value="Save">
+        {{ if .ErrorTitle }}
         <div class="error">
           {{.ErrorTitle}}: {{.ErrorMessage}}
         </div>
         {{ end }}
-        <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
-        <input class="danger_button" type="submit" value="Save">
     </form>
   </div>
 </div>
@@ -162,15 +162,15 @@
 <div id="delete_account_modal" class="modal">
   <div class="modal-content">
     <h3>Type <b>DELETE</b> to permanently delete your account:</h3>
-    {{ if .ErrorTitle}}
-    <div class="error">
-      {{.ErrorTitle}}: {{.ErrorMessage}}
-    </div>
-    {{ end }}
     <form action="/u/delete_account" method="GET" enctype="multipart/form-data">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
         <input type="text" id="delete_confirmation" name="delete_confirmation">
         <input id="delete_account_button" class="danger_button" type="submit" value="Delete my Account" disabled>
+        {{ if .ErrorTitle }}
+        <div class="error">
+          {{.ErrorTitle}}: {{.ErrorMessage}}
+        </div>
+        {{ end }}
     </form>
   </div>
 </div>
@@ -184,14 +184,14 @@
       Device Name: <input type="text" id="device_name" name="device_name" value="{{ .DeviceName }}"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip" value="{{ .DeviceIP }}"><br>
         <input type="file" id="device_image" name="device_image" accept="image/*">
-        {{ if .ErrorTitle}}
-    <div class="error">
-      {{.ErrorTitle}}: {{.ErrorMessage}}
-    </div>
-    {{ end }}
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
         <input class="style1_button" type="submit" value="Save">
         <input class="danger_button" type="submit" value="Delete" formaction="/u/delete_device_modal" formmethod="get">
+        {{ if .ErrorTitle }}
+        <div class="error">
+          {{.ErrorTitle}}: {{.ErrorMessage}}
+        </div>
+        {{ end }}
     </form>
   </div>
 </div>
@@ -201,14 +201,14 @@
 <div id="delete_device_modal" class="modal">
   <div class="modal-content">
     <h3>Are you sure you want to remove this device?</h3>
-    {{ if .ErrorTitle}}
-    <div class="error">
-      {{.ErrorTitle}}: {{.ErrorMessage}}
-    </div>
-    {{ end }}
     <form action="/u/delete_device" method="GET" enctype="multipart/form-data">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
         <input id="delete_device_button" class="danger_button" type="submit" value="Delete">
+        {{ if .ErrorTitle }}
+        <div class="error">
+          {{.ErrorTitle}}: {{.ErrorMessage}}
+        </div>
+        {{ end }}
     </form>
   </div>
 </div>
