@@ -42,7 +42,7 @@ func CreateDevice(name, ip, image, floorNm string) (dev device, err error) {
 	// }
 	// Check IP formatting
 	if err = CheckIP(ip); err != nil {
-		return
+		return dev, fmt.Errorf("IP format is invalid")
 	}
 	// Making sure the floor can be read or
 	// that it exists
