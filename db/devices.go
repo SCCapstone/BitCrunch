@@ -37,12 +37,12 @@ nil otherwise
 */
 func CreateDevice(name, ip, image, floorNm string) (dev device, err error) {
 	// Check device name
-	// if err = CheckDevice(name); err != nil {
-	// 	return
-	// }
-	// Check IP formatting
+	if err = CheckDevice(name, floorNm); err != nil {
+		return
+	}
+	// Check IP formatting and IP not already in database
 	if err = CheckIP(ip); err != nil {
-		return dev, fmt.Errorf("IP format is invalid")
+		return
 	}
 	// Making sure the floor can be read or
 	// that it exists
@@ -95,41 +95,35 @@ a valid IP format. Returns
 nil if it's good. Error otherwise.
 */
 func CheckIP(ip string) error {
+	// checking if IP already matches another device
+	ips, err := GetAllIPs()
+	for _, i := range ips {
+		if ip == i {
+			return fmt.Errorf("IP is already in use for a device.")
+		}
+	}
+	// checking IP format valid
 	checkIP := strings.Split(ip, ".")
 	if len(checkIP) != 4 {
-		return fmt.Errorf("Incorrect format!")
+		return fmt.Errorf("IP format is invalid.")
 	}
 	// Getting each octet to verify that it is in
 	// a valid IP range of 0-255
 	first, err := strconv.Atoi(checkIP[0])
-	if err != nil {
-		return fmt.Errorf("First octet is bad!")
+	if err != nil || first < 0 || first > 255 {
+		return fmt.Errorf("IP format is invalid.")
 	}
 	second, err := strconv.Atoi(checkIP[1])
-	if err != nil {
-		return fmt.Errorf("Second octet is bad!")
+	if err != nil || second < 0 || second > 255 {
+		return fmt.Errorf("IP format is invalid.")
 	}
 	third, err := strconv.Atoi(checkIP[2])
-	if err != nil {
-		return fmt.Errorf("Third octet is bad!")
+	if err != nil || third < 0 || third > 255 {
+		return fmt.Errorf("IP format is invalid.")
 	}
 	fourth, err := strconv.Atoi(checkIP[3])
-	if err != nil {
-		return fmt.Errorf("Fourth octet is bad!")
-	}
-
-	// Actual checking
-	if first < 0 || first > 255 {
-		return fmt.Errorf("First octet is bad!")
-	}
-	if second < 0 || second > 255 {
-		return fmt.Errorf("Second octet is bad!")
-	}
-	if third < 0 || second > 255 {
-		return fmt.Errorf("Third ocetet is bad!")
-	}
-	if fourth < 0 || second > 255 {
-		return fmt.Errorf("Fourth octet is bad!")
+	if err != nil || fourth < 0 || fourth > 255 {
+		return fmt.Errorf("IP format is invalid.")
 	}
 
 	// All should be good

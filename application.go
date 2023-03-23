@@ -493,38 +493,22 @@ func editDevice(c *gin.Context) {
 	if newImage != nil {
 		err = c.SaveUploadedFile(newImage, "static/assets/"+newImage.Filename)
 	}
+	// checking IP is valid
 	if (len(newIP) > 0) && (newIP != db.GetIP(name)) {
-		foundIP := false
-		// check if IP is valid format
 		if err := db.CheckIP(newIP); err != nil {
-			renderError(c, "ViewDeviceModal", "View Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "IP format is invalid.")
+			renderError(c, "ViewDeviceModal", "View Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", err.Error())
 			return
 		} else {
-			//check to see if IP is unique for all floors
-			ips, err := db.GetAllIPs()
-			if err != nil {
-				fmt.Println(err)
-			}
-			for _, ip := range ips {
-				if newIP == ip {
-					foundIP = true
-					fmt.Println("already in use")
-					renderError(c, "ViewDeviceModal", "View Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "IP is already in use for a device.")
-					return
-				}
-			}
-			if foundIP == false {
-				db.EditDevice(name, name, newIP, db.GetImage(name), floor)
-			}
+			db.EditDevice(name, name, newIP, db.GetImage(name), floor)
 		}
 	}
+	// adding image if present
 	if newImage != nil {
 		db.EditDevice(name, name, db.GetIP(name), "static/assets/"+newImage.Filename, floor)
 	}
+	// checking device name is unique for floor
 	if (len(newName) > 0) && (newName != name) {
-		//check name is unique for floor
-		err = db.CheckDevice(newName, floor)
-		if err != nil {
+		if err = db.CheckDevice(newName, floor); err != nil {
 			fmt.Println(err)
 			renderError(c, "ViewDeviceModal", "View Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Device name is not unique to floor.")
 			return
