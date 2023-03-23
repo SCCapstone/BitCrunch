@@ -161,7 +161,7 @@ func CheckDevice(name, floorNm string) error {
 				floorName: line[3],
 			}
 			if name == d.name {
-				return errors.New("Device name already exists for floor")
+				return errors.New("Device name is not unique to floor.")
 			}
 		}
 	}

@@ -496,7 +496,13 @@ func editDevice(c *gin.Context) {
 	// checking IP is valid
 	if (len(newIP) > 0) && (newIP != db.GetIP(name)) {
 		if err := db.CheckIP(newIP); err != nil {
-			renderError(c, "ViewDeviceModal", "View Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", err.Error())
+			c.HTML(http.StatusBadRequest, "index.html", gin.H{
+				"ViewDeviceModal": "ViewDeviceModal",
+				"DeviceName":      name,
+				"DeviceIP":        db.GetIP(name),
+				"ErrorTitle":      "Failed to Edit Device",
+				"ErrorMessage":    err.Error(),
+			})
 			return
 		} else {
 			db.EditDevice(name, name, newIP, db.GetImage(name), floor)
@@ -509,8 +515,13 @@ func editDevice(c *gin.Context) {
 	// checking device name is unique for floor
 	if (len(newName) > 0) && (newName != name) {
 		if err = db.CheckDevice(newName, floor); err != nil {
-			fmt.Println(err)
-			renderError(c, "ViewDeviceModal", "View Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Device name is not unique to floor.")
+			c.HTML(http.StatusBadRequest, "index.html", gin.H{
+				"ViewDeviceModal": "ViewDeviceModal",
+				"DeviceName":      name,
+				"DeviceIP":        db.GetIP(name),
+				"ErrorTitle":      "Failed to Edit Device",
+				"ErrorMessage":    err.Error(),
+			})
 			return
 		} else {
 			db.EditDevice(name, newName, db.GetIP(name), db.GetImage(name), floor)
