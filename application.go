@@ -470,7 +470,10 @@ func AddDevice(c *gin.Context) {
 		return
 	}
 
-	db.CreateDevice(device_name, device_ip, "static/assets/"+device_image.Filename, getCurrentFloor())
+	if _, err := db.CreateDevice(device_name, device_ip, "static/assets/"+device_image.Filename, getCurrentFloor()); err != nil {
+		renderError(c, "AddDeviceModal", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", err.Error())
+		return
+	}
 	showMap(c)
 }
 
@@ -493,8 +496,7 @@ func editDevice(c *gin.Context) {
 	if (len(newIP) > 0) && (newIP != db.GetIP(name)) {
 		foundIP := false
 		// check if IP is valid format
-		err := db.CheckIP(newIP)
-		if err != nil {
+		if err := db.CheckIP(newIP); err != nil {
 			renderError(c, "ViewDeviceModal", "View Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "IP format is invalid.")
 			return
 		} else {
