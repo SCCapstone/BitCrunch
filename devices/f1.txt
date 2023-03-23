@@ -1,2 +1,0 @@
-a.png
-d1	192.168.123.132	static/assets/device.png	f1
