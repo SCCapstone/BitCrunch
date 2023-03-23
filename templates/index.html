@@ -48,8 +48,10 @@
         <button class="style1_button">Settings</button>
         <div class="dropdown-content">
         <a href="/u/delete_account_modal">Delete My Account</a>
+        <!-- commenting this out for now
         <a href="TODO">Setting2</a>
         <a href="TODO">Setting3</a>
+        -->
         </div>
       </div>
     </div>
@@ -106,6 +108,7 @@
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()"> 
         <input class="danger_button" type="submit" value="Logout">
     </form>
+    <br><br>
   </div>
 </div>
 {{end}}
@@ -121,8 +124,9 @@
         <div class="error">
           {{.ErrorTitle}}: {{.ErrorMessage}}
         </div>
-        {{ end }}
+      {{ end }}
     </form>
+    <br><br>
   </div>
 </div>
 {{end}}
