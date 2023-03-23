@@ -29,8 +29,18 @@
       </form>
     </div>
     <div class="grid-item item5"> 
+      <div id = "welcome">  
+        <p style = "color: black">
+          Welcome to GoMap, an application that will allow you to interact with devices via scripts!
+          <br> <br>
+          Click "Add Layer" to add a map layer then click on the newly added layer to add devices. 
+        </p>
+      </div>
       {{  if .Image }}
       <img src="../{{.Image}}" class="map_image"/>
+      <script>
+        document.getElementById("welcome").hidden = true;
+      </script>
       {{ end }}
     </div>
     <div class="grid-item item6">
@@ -60,7 +70,7 @@
       <div class="feedbox">
         {{ range .devices }}
         <form action="/u/view_device" method="POST">
-          <button name="device" value="{{ . }}"></button>
+          <button name="device" value="{{ . }}">{{ . }}</button>
           </form>
         {{ end}}
       </div>
@@ -224,7 +234,7 @@
     } else {
         button.disabled = true;
     }
-}
+  }
 </script>
 
 <!--Embed the footer.html template at this location-->
