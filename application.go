@@ -553,12 +553,9 @@ func pingDevice(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Pinging": "pinging...",
 	})
-	fmt.Println("pinging")
 	device := getCurrentDevice()
 	ip := db.GetIP(device)
-	fmt.Println(ip)
 	_, output := rd.RunFromScript("pingscript.txt", ip)
-	fmt.Println("this is the output: ", output)
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Output": output,
 	})
