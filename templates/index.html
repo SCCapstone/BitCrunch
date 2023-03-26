@@ -256,6 +256,9 @@
         <input class="style1_button" type="submit" value="Save">
         <input class="danger_button" type="submit" value="Delete" formaction="/u/delete_device_modal" formmethod="get">
     </form>
+    <form action="/u/run_script" method="GET" style="display: inline-block">
+      <button class="style1_button" value="run_script" type="submit">Run Script</button>
+    </form>
   </div>
 </div>
 {{end}}
@@ -272,10 +275,51 @@
 </div>
 {{end}}
 
+{{ if .ScriptModal }}
+<div id="script_modal" class="modal">
+  <div class="modal-content">
+    <form>
+      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
+    </form>
+    <h3>Scripts</h3>
+    <div class="flex">
+      <div id="col1">
+        <form action="ping_device" method="GET" enctype="multipart/form-data">
+          <input class="style1_button" type="submit" value="Ping" onclick=displayPing()>
+      </form>
+      </div>
+      <div id="col2"></div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+{{if .Output }}
+<div id="script_modal" class="modal">
+  <div class="modal-content">
+    <form>
+      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
+    </form>
+    <h3>Scripts</h3>
+    <div class="flex">
+      <div id="col1">
+        <form action="ping_device" method="GET" enctype="multipart/form-data">
+          <input class="style1_button" type="submit" value="Ping">
+      </form>
+      </div>
+      <div id="col2">
+        {{ .Output }}
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+
 <script>
   let delete_input = document.getElementById("delete_confirmation")
   let button = document.getElementById("delete_account_button")
   delete_input.addEventListener("keyup", stateHandle)
+
   function stateHandle() {
     if (delete_input.value === "DELETE") {
         button.disabled = false;
@@ -283,7 +327,22 @@
         button.disabled = true;
     }
 }
+
 </script>
 
+<script>
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+  const displayPing = async () => {
+      while(true) {
+        document.getElementById("col2").innerHTML = "Pinging."
+        await delay(1200);
+        document.getElementById("col2").innerHTML = "Pinging.."
+        await delay(1200);
+        document.getElementById("col2").innerHTML = "Pinging..."
+        await delay(1200);
+      }
+    }
+</script>
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}
