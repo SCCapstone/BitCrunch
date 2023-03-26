@@ -395,17 +395,17 @@ func AddLayer(c *gin.Context) {
 	layer_name := c.PostForm("layer_name")
 	file, err := c.FormFile("layer_image")
 	if err != nil {
-		renderError(c, "AddLayerModalError", "Add Layer Modal", "ErrorTitle", "Add Layer Failed", "ErrorMessage", "Image file could not be found.")
+		renderError(c, "AddLayerModal", "Add Layer Modal", "ErrorTitle", "Add Layer Failed", "ErrorMessage", "Image file could not be found.")
 		return
 	}
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
-		renderError(c, "AddLayerModalError", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", "Image file could not be saved.")
+		renderError(c, "AddLayerModal", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", "Image file could not be saved.")
 		return
 	}
 
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
-		renderError(c, "AddLayerModalError", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", err.Error())
+		renderError(c, "AddLayerModal", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", err.Error())
 		return
 	} else {
 		createDeviceFile(layer_name, file.Filename)
@@ -426,26 +426,26 @@ func EditLayer(c *gin.Context) {
 	}
 	file, err := c.FormFile("layer_image")
 	if err != nil {
-		renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be found.")
+		renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be found.")
 		return
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 		fname = file.Filename
 		if err != nil {
-			renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be saved.")
+			renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be saved.")
 			return
 		}
 	}
 
 	if err := db.DeleteFloor(old_layer_name); err != nil {
-		renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
+		renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
 		return
 	}
 
 	removeDeviceFile("devices/" + old_layer_name + ".txt")
 
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
-		renderError(c, "EditLayerModalError", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
+		renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
 		return
 	}
 
@@ -465,16 +465,19 @@ func AddDevice(c *gin.Context) {
 	device_image, err := c.FormFile("device_image")
 
 	if err != nil {
-		renderError(c, "AddDeviceModalError", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be found.")
+		renderError(c, "AddDeviceModal", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be found.")
 		return
 	}
 	err = c.SaveUploadedFile(device_image, "static/assets/"+device_image.Filename)
 	if err != nil {
-		renderError(c, "AddDeviceModalError", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be saved.")
+		renderError(c, "AddDeviceModal", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be saved.")
 		return
 	}
 
-	db.CreateDevice(device_name, device_ip, "static/assets/"+device_image.Filename, getCurrentFloor())
+	if _, err := db.CreateDevice(device_name, device_ip, "static/assets/"+device_image.Filename, getCurrentFloor()); err != nil {
+		renderError(c, "AddDeviceModal", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", err.Error())
+		return
+	}
 	showMap(c)
 }
 
@@ -494,40 +497,36 @@ func editDevice(c *gin.Context) {
 	if newImage != nil {
 		err = c.SaveUploadedFile(newImage, "static/assets/"+newImage.Filename)
 	}
+	// checking IP is valid
 	if (len(newIP) > 0) && (newIP != db.GetIP(name)) {
-		foundIP := false
-		// check if IP is valid format
-		err := db.CheckIP(newIP)
-		if err != nil {
-			fmt.Println(err)
-			//TODO render error message "IP format is invalid"
+		if err := db.CheckIP(newIP); err != nil {
+			c.HTML(http.StatusBadRequest, "index.html", gin.H{
+				"ViewDeviceModal": "ViewDeviceModal",
+				"DeviceName":      name,
+				"DeviceIP":        db.GetIP(name),
+				"ErrorTitle":      "Failed to Edit Device",
+				"ErrorMessage":    err.Error(),
+			})
+			return
 		} else {
-			//check to see if IP is unique for all floors
-			ips, err := db.GetAllIPs()
-			if err != nil {
-				fmt.Println(err)
-			}
-			for _, ip := range ips {
-				if newIP == ip {
-					foundIP = true
-					fmt.Println("already in use")
-					//TODO render error message "IP is already in use for a device"
-				}
-			}
-			if foundIP == false {
-				db.EditDevice(name, name, newIP, db.GetImage(name), floor)
-			}
+			db.EditDevice(name, name, newIP, db.GetImage(name), floor)
 		}
 	}
+	// adding image if present
 	if newImage != nil {
 		db.EditDevice(name, name, db.GetIP(name), "static/assets/"+newImage.Filename, floor)
 	}
+	// checking device name is unique for floor
 	if (len(newName) > 0) && (newName != name) {
-		//check name is unique for floor
-		err = db.CheckDevice(newName, floor)
-		if err != nil {
-			fmt.Println(err)
-			//TODO render error message "device name is not unique for floor"
+		if err = db.CheckDevice(newName, floor); err != nil {
+			c.HTML(http.StatusBadRequest, "index.html", gin.H{
+				"ViewDeviceModal": "ViewDeviceModal",
+				"DeviceName":      name,
+				"DeviceIP":        db.GetIP(name),
+				"ErrorTitle":      "Failed to Edit Device",
+				"ErrorMessage":    err.Error(),
+			})
+			return
 		} else {
 			db.EditDevice(name, newName, db.GetIP(name), db.GetImage(name), floor)
 		}
@@ -542,7 +541,7 @@ calls showMap to render the map with updates
 func DeleteLayer(c *gin.Context) {
 	name := getCurrentFloor()
 	if err := db.DeleteFloor(name); err != nil {
-		renderError(c, "DeleteLayerModalError", "Delete Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", err.Error())
+		renderError(c, "DeleteLayerModal", "Delete Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", err.Error())
 		return
 	}
 	removeDeviceFile("devices/" + name + ".txt")
