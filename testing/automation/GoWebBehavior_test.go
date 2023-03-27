@@ -66,7 +66,7 @@ func TestMain(m *testing.M) {
 		fmt.Println("An error was raised when cleaning the devices folder, ", err)
 	}
 
-	fmt.Println("All Unit Tests Completed!")
+	fmt.Println("All Behavorial Tests Completed!")
 }
 func TestSignUp(t *testing.T) {
 	/// on signin page
