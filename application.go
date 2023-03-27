@@ -442,15 +442,13 @@ func EditLayer(c *gin.Context) {
 		return
 	}
 
-	// removeDeviceFile("devices/" + old_layer_name + ".txt")
-
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
 		renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
 		return
 	}
 
-	// createDeviceFile(layer_name, fname)
 	renameDeviceFile(old_layer_name, layer_name)
+	saveNewImage(file.Filename, layer_name)
 
 	showMap(c)
 }
@@ -581,6 +579,26 @@ func removeDeviceFile(name string) {
 
 func renameDeviceFile(old, new string) {
 	os.Rename("devices/"+old+".txt", "devices/"+new+".txt")
+}
+
+func saveNewImage(new_image, layer string) {
+	fi, err := ioutil.ReadFile("devices/" + layer + ".txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	lines := strings.Split(string(fi), "\n")
+
+	for i := range lines {
+		if i == 0 {
+			lines[i] = new_image
+		}
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile("devices/"+layer+".txt", []byte(output), 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func delete_account(c *gin.Context) {
