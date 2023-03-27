@@ -54,15 +54,20 @@
       <form action="/u/add_device_modal" method="GET" style="display: inline-block">
         <button class="style1_button" value="add_device" type="submit">Add Device</button>
       </form>
+      {{ range .devices }}
+        <form action="/u/view_device" method="POST">
+          <button name="device" class="style1_button" value="{{ . }} " style="position: absolute;" id="{{ . }}" z-index="1" draggable="true">{{ . }}</button>
+        </form>
+        {{ end }}
       {{ end }}
     </div>
     <div class="grid-item item8">
       <div class="feedbox">
         {{ range .devices }}
         <form action="/u/view_device" method="POST">
-          <button name="device" value="{{ . }}">{{ . }}</button>
-          </form>
-        {{ end}}
+          <button name="device" value="{{ . }} ">{{ . }}</button>
+        </form>
+        {{ end }}
       </div>
     </div>
     </div>
@@ -272,6 +277,20 @@
 </div>
 {{end}}
 
+
+
+{{ if .ScriptModal }}
+<div id="script_modal" class="modal">
+  <div class="modal-content">
+    <h3>Scripts</h3>
+    <form action="ping_device" method="GET" enctype="multipart/form-data">
+      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
+      <input class="style1_button" type="submit" value="Ping">
+  </form>
+  </div>
+</div>
+{{end}}
+
 <script>
   let delete_input = document.getElementById("delete_confirmation")
   let button = document.getElementById("delete_account_button")
@@ -283,6 +302,61 @@
         button.disabled = true;
     }
 }
+</script>
+
+<script id="draggable">
+  // Make the element draggable
+  {{ range .devices }}
+  const draggable = document.getElementById('{{ . }}');
+  {{ end }}
+  // const draggable = document.getElementById('add_device');
+  
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  // Add event listeners for drag functionality
+  draggable.addEventListener('mousedown', dragStart);
+  draggable.addEventListener('mouseup', dragEnd);
+  draggable.addEventListener('mousemove', drag);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+
+    if (e.target === draggable) {
+      isDragging = true;
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+
+    isDragging = false;
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+
+      xOffset = currentX;
+      yOffset = currentY;
+
+      setTranslate(currentX, currentY, draggable);
+    }
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+  }
 </script>
 
 <!--Embed the footer.html template at this location-->

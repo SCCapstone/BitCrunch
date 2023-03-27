@@ -1,0 +1,2 @@
+images.png
+Device 1	192.158.38.1	static/assets/design4everyone_recordersplat2006_2.jpg	Floor 1
