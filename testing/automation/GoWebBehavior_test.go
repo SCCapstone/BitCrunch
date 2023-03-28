@@ -10,6 +10,7 @@ import (
 	"github.com/go-rod/rod"
 )
 
+var TestSignupCheck = false // for making a correct sign-in
 // https://github.com/go-rod/rod/blob/master/examples_test.go
 
 func TestMain(m *testing.M) {
@@ -99,6 +100,18 @@ func TestSignUp(t *testing.T) {
 	// click sign up
 	page.MustElement("form").MustElement("div").MustClick() // this clicks on the first form/div element. it happens to be the submit bttn
 	// check URL for failure
+	currpages, err := browser.Pages()
+	if err != nil { // check to see if the page was rendered at all
+		t.Errorf("There was an issue rendering the map/floors page!")
+		return
+	}
+	page, err = currpages.FindByURL("/^http://localhost:5000/map$/")
+	// I could also check the db file that's populated for anything that pops up
+	if page == nil { // couldn't find the right url
+		t.Errorf("The signup wasn't successfull!")
+		return
+	}
+	TestSignupCheck = true //signal globally that Signup has been completed
 }
 func TestImproperSignup(t *testing.T) {
 	// on signin page
@@ -131,6 +144,17 @@ func TestImproperSignup(t *testing.T) {
 	// click sign up
 	page.MustElement("form").MustElement("div").MustClick() // this clicks on the first form/div element. it happens to be the submit bttn
 	// check URL for failure
+	currpages, err := browser.Pages()
+	if err != nil { // check to see if the page was rendered at all
+		t.Errorf("There was an issue rendering the map/floors page!")
+		return
+	}
+	page, err = currpages.FindByURL("/^http://localhost:5000/map$/")
+	// no regex. only fixed fit >:(
+	if page != nil { // couldn't find the right url
+		t.Errorf("The signup was successfull! It really shouldn't be!")
+		return
+	}
 
 }
 
@@ -143,12 +167,14 @@ func TestPageRunning(t *testing.T) { // used for making sure the webapp loads co
 		}
 		browser.MustClose() // On panic (and end), close the browser
 	}() // technically a lambda function btw
-	browser.MustPage("http://localhost:80/") // creates a page from browser, connects to localhost
+	browser.MustPage("http://localhost:5000/") // creates a page from browser, connects to localhost
 }
 
 func TestProperLogin(t *testing.T) { // opens up the domain and attempts to login using user1 and pass1
 	// open up localhost as above
-	TestSignUp(t) // used for making sure there's good sign in credentials
+	if !TestSignupCheck {
+		TestSignUp(t) // used for making sure there's good sign in credentials
+	}
 	browser := rod.New().MustConnect()
 	defer func() {
 		_, err := browser.Pages()
@@ -178,8 +204,8 @@ func TestProperLogin(t *testing.T) { // opens up the domain and attempts to logi
 		t.Errorf("There was an issue rendering the map/floors page!")
 		return
 	}
-	page, err = currpages.FindByURL("/^http:\\/\\/\\w+(\\.\\w+)*(:[0-9]+)?\\/?(\\/[.\\w]*)*$/")
-	// god i hate regex so much. this checks for http(anything)/(anything) rn. find proper directory soon!
+	page, err = currpages.FindByURL("/^http://localhost:5000/map$/")
+	// got rid of the regex. hardcoded URL now
 	if page == nil { // couldn't find the right url
 		t.Errorf("The login was not successfull! There is an issue on typing login!")
 		return
@@ -217,8 +243,8 @@ func TestImproperLogin(t *testing.T) { // opens up the domain and attempts to lo
 		t.Errorf("There was an issue rendering the map/floors page!")
 		return
 	}
-	page, err = currpages.FindByURL("/^http:\\/\\/\\w+(\\.\\w+)*(:[0-9]+)?\\/?(\\/[.\\w]*)*$/")
-	// god i hate regex so much
+	page, err = currpages.FindByURL("/^http://localhost:5000/u/login$/")
+	// god i hate regex so much. no more regex
 	if page != nil { // couldn't find the right url
 		t.Errorf("The login was successfull! However, it should'nt be, as these credentials are not correct")
 		return
@@ -246,18 +272,18 @@ func TestLogout(t testing.T) {
 	// find login button, click it
 	page.MustElement("form").MustElement("div").MustClick()
 	// now logged in, in the main welcome page
-	//page.MustElement(). stuff (find this through inspect)
-	currpages, err := browser.Pages()
-	if err != nil { // check to see if the page was rendered at all
-		t.Errorf("There was an issue rendering the main screen (from logging out)!")
+
+	page.MustElement("div.parent").MustElement("div.grid-item.item3").MustElement("button.style1_button").MustClick()
+	// logout has been clicked, now on logout_modal
+	page.MustElement("div#logout_modal").MustElement("form").MustElement("input.danger_button").MustClick() // click yes
+	currpages, _ := browser.Pages()
+	page, _ = currpages.FindByURL("/^http://localhost:5000/$/")
+	// no regex. only fixed fit >:( regex is dumb >:(
+	if page != nil { // couldn't find the right url
+		t.Errorf("The signup was successfull! It really shouldn't be!")
 		return
 	}
-	page, err = currpages.FindByURL("/^http:\\/\\/\\w+(\\.\\w+)*(:[0-9]+)?\\/?(\\/[.\\w]*)*$/")
-	// god i hate regex so much. this checks for http(anything)/(anything) rn. find proper directory soon!
-	if page == nil { // couldn't find the right url
-		t.Errorf("The logout was not successfull! There is an issue on clicking the logout button!")
-		return
-	}
+
 }
 
 // helper function used to clean a directory
