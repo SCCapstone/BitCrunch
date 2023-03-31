@@ -66,6 +66,13 @@
       <form action="/u/add_device_modal" method="GET" style="display: inline-block">
         <button class="style1_button" value="add_device" type="submit">Add Device</button>
       </form>
+      {{ range .devices }}
+      <form action="/u/view_device" method="POST">
+        <button name="device" style="position: absolute;" id="{{ . }}" z-index="1" draggable="true"> 
+          <img src ="/static/assets/default_image.png" width="5%" height="5%">
+        </button>
+      </form>
+      {{ end }}
       {{ end }}
     </div>
     <div class="grid-item item8">
@@ -298,6 +305,35 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
         await delay(1200);
       }
     }
+</script>
+
+<script>
+  function drag_start(event) {
+    console.log("dragging")
+    var style = window.getComputedStyle(event.target, null);
+    event.dataTransfer.setData("text/plain",
+    (parseInt(style.getPropertyValue("left"),10) - event.clientX) + ',' + (parseInt(style.getPropertyValue("top"),10) - event.clientY));
+  } 
+
+  function drop(event) {
+      console.log("dropping")
+      var offset = event.dataTransfer.getData("text/plain").split(',');
+      var dm = document.getElementById('d1');
+      dm.style.left = (event.clientX + parseInt(offset[0],10)) + 'px';
+      dm.style.top = (event.clientY + parseInt(offset[1],10)) + 'px';
+      event.preventDefault();
+      return false;
+  }
+
+  function drag_over(event) {
+    event.preventDefault();
+    return false;
+  } 
+
+  var dm = document.getElementById('d1');
+  dm.addEventListener('dragstart',drag_start,false);
+  document.body.addEventListener('dragover',drag_over,false);
+  document.body.addEventListener('drop',drop,false); 
 </script>
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}
