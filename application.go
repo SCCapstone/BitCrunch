@@ -343,7 +343,6 @@ func viewDevice(c *gin.Context) {
 		"ViewDeviceModal": "ViewDeviceModal",
 		"DeviceName":      name,
 		"DeviceIP":        db.GetIP(name),
-		// "DeviceImage":		"static/assets/" + db.GetImage(name),
 	})
 }
 
