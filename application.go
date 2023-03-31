@@ -272,6 +272,7 @@ func viewLayer(c *gin.Context) {
 	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
 	deviceNames := []string{}
+	deviceImages := []string{}
 	scriptNames := []string{}
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
@@ -325,12 +326,19 @@ func viewLayer(c *gin.Context) {
 		}
 	}
 
+	for i := 0; i < len(deviceNames); i++ {
+		deviceImages = append(deviceImages, db.GetImage(deviceNames[i]))
+	}
+
+	
+
 	Render(c, gin.H{
 		"title":           "Map",
 		"payload":         floorNames,
 		"Image":           "static/assets/" + imageName,
 		"EditLayerButton": "EditLayerButton",
 		"devices":         deviceNames,
+		"deviceImages":	   deviceImages,
 		"scripts":         scriptNames,
 	}, "index.html")
 }

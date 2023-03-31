@@ -69,7 +69,7 @@
       {{ range .devices }}
       <form action="/u/view_device" method="POST">
         <button name="device" style="position: absolute;" id="{{ . }}" value="{{ . }}" z-index="1" draggable="true" class="draggable_button"> 
-          <img src ="/static/assets/default_image.png" width="10px" height="10px">
+          <img src ="/static/assets/default_image.png" width="10px" height="10px" style="pointer-events: none;">
         </button>
       </form>
       {{ end }}
