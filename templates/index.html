@@ -68,8 +68,8 @@
       </form>
       {{ range .devices }}
       <form action="/u/view_device" method="POST">
-        <button name="device" style="position: absolute;" id="{{ . }}" z-index="1" draggable="true"> 
-          <img src ="/static/assets/default_image.png" width="5%" height="5%">
+        <button name="device" style="position: absolute;" id="{{ . }}" value="{{ . }}" z-index="1" draggable="true" class="draggable_button"> 
+          <img src ="/static/assets/default_image.png" width="10px" height="10px">
         </button>
       </form>
       {{ end }}
@@ -308,8 +308,23 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 </script>
 
 <script>
+
+  var originalTop = 0
+  var originalLeft = 0
+
   function drag_start(event) {
     console.log("dragging")
+    
+    var body = document.body.getBoundingClientRect(),
+      elemRect = dm.getBoundingClientRect(),
+      TopOffset   = elemRect.top - body.top
+      LeftOffset = elemRect.left - body.left
+      BottomOffset   = elemRect.bottom - body.bottom
+      RightOffset = elemRect.right - body.right;
+
+      originalTop = TopOffset
+      originalLeft = LeftOffset
+
     var style = window.getComputedStyle(event.target, null);
     event.dataTransfer.setData("text/plain",
     (parseInt(style.getPropertyValue("left"),10) - event.clientX) + ',' + (parseInt(style.getPropertyValue("top"),10) - event.clientY));
@@ -321,6 +336,27 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
       var dm = document.getElementById('d1');
       dm.style.left = (event.clientX + parseInt(offset[0],10)) + 'px';
       dm.style.top = (event.clientY + parseInt(offset[1],10)) + 'px';
+
+      var elements = document.getElementsByClassName('map_image');
+      var mapImage = elements[0];
+
+      var bodyRect = mapImage.getBoundingClientRect(),
+      elemRect = dm.getBoundingClientRect(),
+      TopOffset   = elemRect.top - bodyRect.top
+      LeftOffset = elemRect.left - bodyRect.left
+      BottomOffset   = elemRect.bottom - bodyRect.bottom
+      RightOffset = elemRect.right - bodyRect.right;
+
+    console.log("Element is " + TopOffset + " vertical pixels from image")
+    console.log("Element is " + LeftOffset + " horizontal pixels from image")
+    console.log("Element is " + BottomOffset + " vertical (bottom) pixels from image")
+    console.log("Element is " + RightOffset + " horizontal (right) pixels from image")
+
+    if((TopOffset < 0) || (LeftOffset < 0) || (BottomOffset > 0) || (RightOffset > 0)) {
+      dm.style.left = originalLeft + 'px'
+      dm.style.top = originalTop + 'px'
+    }
+
       event.preventDefault();
       return false;
   }

@@ -214,3 +214,7 @@
     font-size: 14px;
     color: white;
   }
+  .draggable_button {
+    width: 28px;
+    height: 20px;
+  }
