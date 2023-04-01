@@ -195,7 +195,7 @@ func EditDevice(name, newName, newIP, newImage, floorNm string) {
 				floorName: splitLine[3],
 			}
 			if d.name == name {
-				writeString := fmt.Sprintf("%s\t%s\t%s\t%s", newName, newIP, newImage, d.floorName)
+				writeString := fmt.Sprintf("%s\t%s\t%s\t%s", newName, newIP, newImage, d.floorName, d.positionT, d.positionL)
 				lines[i] = writeString
 			}
 		}

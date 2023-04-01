@@ -1,4 +1,0 @@
-blueprint.jpg
-%!(EXTRA float32=0, float32=0)
-d1	192.168.123.132	static/assets/device.png	floor1
-%!(EXTRA float32=0, float32=0)
