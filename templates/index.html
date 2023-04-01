@@ -66,13 +66,6 @@
       <form action="/u/add_device_modal" method="GET" style="display: inline-block">
         <button class="style1_button" value="add_device" type="submit">Add Device</button>
       </form>
-      {{ range .devices }}
-      <form action="/u/view_device" method="POST">
-        <button name="device" style="position: absolute;" id="{{ . }}" value="{{ . }}" z-index="1" draggable="true" class="draggable_button"> 
-          <img src ="/static/assets/default_image.png" width="10px" height="10px" style="pointer-events: none;">
-        </button>
-      </form>
-      {{ end }}
       {{ end }}
     </div>
     <div class="grid-item item8">
@@ -83,6 +76,15 @@
           </form>
         {{ end}}
       </div>
+    </div>
+    <div class="grid-item item9">
+      {{ range .deviceImages }}
+        <form action="/u/view_device" method="POST">
+          <button name="device" id="{{ . }}" value="{{ . }}" z-index="1" draggable="true" class="draggable_button"> 
+            <img src ="../{{ . }}" width="10px" height="10px" style="pointer-events: none;">
+          </button>
+        </form>
+      {{ end }}
     </div>
     </div>
 
@@ -313,6 +315,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
   var originalLeft = 0
 
   function drag_start(event) {
+
     console.log("dragging")
     
     var body = document.body.getBoundingClientRect(),

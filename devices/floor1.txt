@@ -1,2 +1,6 @@
 blueprint.jpg
 d1	192.168.123.132	static/assets/device.png	floor1
+d2	192.168.123.133	static/assets/device.png	floor1
+d3	192.168.123.134	static/assets/device.png	floor1
+d4	192.168.123.140	static/assets/device.png	floor1
+d5	192.168.123.200	static/assets/school.jpg	floor1
