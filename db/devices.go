@@ -21,6 +21,8 @@ type device struct {
 	// This is the name of the floor that the device
 	// should be attached to
 	floorName string
+	positionT float32
+	positionL float32
 }
 
 /*
@@ -80,7 +82,7 @@ func writeDevice(d device) (err error) {
 
 	// Creating the string from the device details
 	// will append to the file
-	writeString := fmt.Sprintf("%s\t%s\t%s\t%s\n", d.name, d.ip, d.image, d.floorName)
+	writeString := fmt.Sprintf("%s\t%s\t%s\t%s\n", d.name, d.ip, d.image, d.floorName, d.positionT, d.positionL)
 	_, err = fil.WriteString(writeString)
 	if err != nil {
 		return err
@@ -282,6 +284,38 @@ func GetImage(name string) string {
 		}
 	}
 	return ""
+}
+
+func GetPositionsT(name string) (float32) {
+	floors, err := GetAllFloors()
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, floor := range floors {
+		devices, _ := GetAllDevicesForFloor(floor.name)
+		for _, device := range devices {
+			if device.name == name {
+				return device.positionT
+			}
+		}
+	}
+	return 0
+}
+
+func GetPositionsL(name string) (float32) {
+	floors, err := GetAllFloors()
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, floor := range floors {
+		devices, _ := GetAllDevicesForFloor(floor.name)
+		for _, device := range devices {
+			if device.name == name {
+				return device.positionL
+			}
+		}
+	}
+	return 0
 }
 
 /*

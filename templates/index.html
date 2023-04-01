@@ -310,12 +310,24 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 </script>
 
 <script>
+
   let drags = document.getElementsByName("dragbutton")
   for (let i = 0; i < drags.length; i++) {
     drags[i].addEventListener('dragstart', drag_start, false);
     var cord = drags[i].getBoundingClientRect();
-    drags[i].style.left = cord.left + 'px';
-    drags[i].style.top = cord.top + 'px';
+    let posT = "{{ .devicePositionsT }}"
+    let posL = "{{ .devicePositionsL }}"
+
+    var arrT = JSON.parse(posT);
+    var arrL = JSON.parse(posL)
+
+    if((arrT[i] == 0) && (arrL[i] == 0)) {
+      drags[i].style.left = cord.left + 'px';
+      drags[i].style.top = cord.top + 'px';
+    } else {
+      drags[i].style.left = arrL[i] + 'px';
+      drags[i].style.top = arrT[i] + 'px';
+    }
   }
 
   window.onload = makeAbs()
@@ -390,6 +402,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
     return false;
   } 
 </script>
+
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

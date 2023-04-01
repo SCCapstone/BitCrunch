@@ -273,6 +273,8 @@ func viewLayer(c *gin.Context) {
 	floorNames := []string{}
 	deviceNames := []string{}
 	deviceImages := []string{}
+	devicePositionsT := []float32{}
+	devicePositionsL := []float32{}
 	scriptNames := []string{}
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
@@ -330,6 +332,17 @@ func viewLayer(c *gin.Context) {
 		deviceImages = append(deviceImages, db.GetImage(deviceNames[i]))
 	}
 
+	for i := 0; i < len(deviceNames); i++ {
+		devicePositionsT = append(devicePositionsT, db.GetPositionsT(deviceNames[i]))
+	}
+
+	for i := 0; i < len(deviceNames); i++ {
+		devicePositionsL = append(devicePositionsL, db.GetPositionsL(deviceNames[i]))
+	}
+
+	fmt.Println(devicePositionsT)
+	fmt.Println(devicePositionsL)
+
 	
 
 	Render(c, gin.H{
@@ -339,6 +352,8 @@ func viewLayer(c *gin.Context) {
 		"EditLayerButton": "EditLayerButton",
 		"devices":         deviceNames,
 		"deviceImages":	   deviceImages,
+		"devicePositionsT": devicePositionsT,
+		"devicePositionsL": devicePositionsL,
 		"scripts":         scriptNames,
 	}, "index.html")
 }
