@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"encoding/json"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
@@ -148,6 +149,8 @@ func InitializeRoutes() {
 		userRoutes.GET("/ping_device", middleware.EnsureLoggedIn(), pingDevice)
 
 		userRoutes.POST("/edit_device", middleware.EnsureLoggedIn(), editDevice)
+
+		userRoutes.POST("/postCoordinates", middleware.EnsureLoggedIn(), changeDeviceCoordinates)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -555,6 +558,33 @@ func editDevice(c *gin.Context) {
 		}
 	}
 	showMap(c)
+}
+
+func changeDeviceCoordinates(c *gin.Context) {
+	fmt.Println("changing coordinates...")
+	bodyBytes, err := ioutil.ReadAll(c.Request.Body)
+		if err != nil {
+			fmt.Println(err)
+		}
+		// Convert the byte array to a string
+		bodyString := string(bodyBytes)
+		// Print the JSON request to the terminal
+		fmt.Printf("JSON Request: %s\n", bodyString)
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+
+		var data map[string]json.RawMessage
+		err = json.Unmarshal(bodyBytes, &data)
+		if err != nil {
+			log.Fatal(err)
+		}
+		topBytes := data["Top"]
+		leftBytes := data["Left"]
+		top := string(topBytes)
+		left := string(leftBytes)
+		fmt.Println("top", top)
+		fmt.Println("left", left)
+		//send "top" and "left" to DB, after converting them to float32
+
 }
 
 /*
