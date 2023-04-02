@@ -418,9 +418,9 @@ Edit the name, image, or both of the current layer
 */
 func EditLayer(c *gin.Context) {
 	old_layer_name := getCurrentFloor()
-	old_file_name := getCurrentFile()
+	// old_file_name := getCurrentFile()
 	layer_name := c.PostForm("layer_name")
-	fname := old_file_name
+	// fname := old_file_name
 	if len(layer_name) == 0 {
 		layer_name = old_layer_name
 	}
@@ -430,7 +430,7 @@ func EditLayer(c *gin.Context) {
 		return
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
-		fname = file.Filename
+		// fname = file.Filename
 		if err != nil {
 			renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be saved.")
 			return
@@ -442,14 +442,13 @@ func EditLayer(c *gin.Context) {
 		return
 	}
 
-	removeDeviceFile("devices/" + old_layer_name + ".txt")
-
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
 		renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
 		return
 	}
 
-	createDeviceFile(layer_name, fname)
+	renameDeviceFile(old_layer_name, layer_name)
+	saveNewImage(file.Filename, layer_name)
 
 	showMap(c)
 }
@@ -575,6 +574,30 @@ func removeDeviceFile(name string) {
 	err := os.Remove(name)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func renameDeviceFile(old, new string) {
+	os.Rename("devices/"+old+".txt", "devices/"+new+".txt")
+}
+
+func saveNewImage(new_image, layer string) {
+	fi, err := ioutil.ReadFile("devices/" + layer + ".txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	lines := strings.Split(string(fi), "\n")
+
+	for i := range lines {
+		if i == 0 {
+			lines[i] = new_image
+		}
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile("devices/"+layer+".txt", []byte(output), 0644)
+	if err != nil {
+		fmt.Println(err)
 	}
 }
 
