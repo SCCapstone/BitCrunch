@@ -78,13 +78,15 @@
       </div>
     </div>
     <div class="grid-item item9">
-      {{ range .deviceImages }}
         <form action="/u/view_device" method="POST">
+          {{ range .devices }}
           <button name="dragbutton" id="{{ . }}" value="{{ . }}" z-index="1" draggable="true" class="draggable_button"> 
+            {{ end }}
+            {{ range .deviceImages }}
             <img src ="../{{ . }}" width="10px" height="10px" style="pointer-events: none;">
+            {{ end }}
           </button>
         </form>
-      {{ end }}
     </div>
     </div>
 
@@ -395,10 +397,11 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
       dm.style.left = originalLeft + 'px'
       dm.style.top = originalTop + 'px'
     }
-
+    
     let coordinates = {
       Top: dm.style.top.slice(0, -2),
       Left: dm.style.left.slice(0, -2),
+      ID: dm.id
     };
 
     fetch('/u/postCoordinates', {

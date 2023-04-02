@@ -3,6 +3,5 @@ package main
 // import db "github.com/SCCapstone/BitCrunch/db"
 // func main() {
 //     fmt.Println("hello world")
-// 	fmt.Println(db.GetAllDevicesForFloor("floor1"))
-// 	fmt.Println(db.GetPositions("d1"))
+// 	db.EditDeviceCoordinates("d1", "floor1", "500", "200")
 // }

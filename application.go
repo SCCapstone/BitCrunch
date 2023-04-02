@@ -276,8 +276,8 @@ func viewLayer(c *gin.Context) {
 	floorNames := []string{}
 	deviceNames := []string{}
 	deviceImages := []string{}
-	devicePositionsT := []float32{}
-	devicePositionsL := []float32{}
+	devicePositionsT := []string{}
+	devicePositionsL := []string{}
 	scriptNames := []string{}
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
@@ -579,11 +579,15 @@ func changeDeviceCoordinates(c *gin.Context) {
 		}
 		topBytes := data["Top"]
 		leftBytes := data["Left"]
+		idBytes := data["ID"]
 		top := string(topBytes)
 		left := string(leftBytes)
+		id := string(idBytes)
 		fmt.Println("top", top)
 		fmt.Println("left", left)
-		//send "top" and "left" to DB, after converting them to float32
+		fmt.Println("id", id)
+		fmt.Println("floor", getCurrentFloor())
+		db.EditDeviceCoordinates(id, getCurrentFloor(), top, left)
 
 }
 
