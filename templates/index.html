@@ -308,7 +308,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 <script>
   //Make the DIV element draggagle:
   {{ range .devices}}
-  dragElement(document.getElementById("{{ . }}"));
+    dragElement(document.getElementById("{{ . }}"));
   {{ end }}
 
   function dragElement(elmnt) {
@@ -351,6 +351,27 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
       document.onmousemove = null;
     }
   }
+  </script>
+
+  <script>
+    {{ range .devices}}
+    window.addEventListener('beforeunload', function() {
+      var element = document.getElementById('{{ . }}');
+      var position = element.getBoundingClientRect();
+      localStorage.setItem('my-element-position', JSON.stringify(position));
+    });
+
+    window.addEventListener('load', function() {
+      var element = document.getElementById('{{ . }}');
+      var position = localStorage.getItem('my-element-position');
+      if (position) {
+        position = JSON.parse(position);
+        element.style.position = 'fixed';
+        element.style.top = position.top + 'px';
+        element.style.left = position.left + 'px';
+      }
+    });
+    {{ end }}
   </script>
 
 <!--Embed the footer.html template at this location-->
