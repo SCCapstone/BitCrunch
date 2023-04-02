@@ -258,67 +258,43 @@ func DeleteDevice(name, floorNm string) error {
 	return nil
 }
 
-func GetIP(name string) string {
-	floors, err := GetAllFloors()
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, floor := range floors {
-		devices, _ := GetAllDevicesForFloor(floor.name)
+func GetIP(name, floorName string) string {
+		devices, _ := GetAllDevicesForFloor(floorName)
 		for _, device := range devices {
 			if device.name == name {
 				return device.ip
 			}
 		}
-	}
 	return ""
 }
 
-func GetImage(name string) string {
-	floors, err := GetAllFloors()
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, floor := range floors {
-		devices, _ := GetAllDevicesForFloor(floor.name)
+func GetImage(name, floorName string) string {
+		devices, _ := GetAllDevicesForFloor(floorName)
 		for _, device := range devices {
 			if device.name == name {
 				return device.image
 			}
 		}
-	}
 	return ""
 }
 
-func GetPositionsT(name string) (string) {
-	floors, err := GetAllFloors()
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, floor := range floors {
-		devices, _ := GetAllDevicesForFloor(floor.name)
+func GetPositionsT(name, floorName string) (string) {
+		devices, _ := GetAllDevicesForFloor(floorName)
 		for _, device := range devices {
 			if device.name == name {
 				return device.positionT
 			}
 		}
-	}
 	return "0"
 }
 
-func GetPositionsL(name string) (string) {
-	floors, err := GetAllFloors()
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, floor := range floors {
-		devices, _ := GetAllDevicesForFloor(floor.name)
+func GetPositionsL(name, floorName string) (string) {
+		devices, _ := GetAllDevicesForFloor(floorName)
 		for _, device := range devices {
 			if device.name == name {
 				return device.positionL
 			}
 		}
-	}
 	return "0"
 }
 

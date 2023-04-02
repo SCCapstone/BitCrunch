@@ -332,15 +332,15 @@ func viewLayer(c *gin.Context) {
 	}
 
 	for i := 0; i < len(deviceNames); i++ {
-		deviceImages = append(deviceImages, db.GetImage(deviceNames[i]))
+		deviceImages = append(deviceImages, db.GetImage(deviceNames[i], getCurrentFloor()))
 	}
 
 	for i := 0; i < len(deviceNames); i++ {
-		devicePositionsT = append(devicePositionsT, db.GetPositionsT(deviceNames[i]))
+		devicePositionsT = append(devicePositionsT, db.GetPositionsT(deviceNames[i], getCurrentFloor()))
 	}
 
 	for i := 0; i < len(deviceNames); i++ {
-		devicePositionsL = append(devicePositionsL, db.GetPositionsL(deviceNames[i]))
+		devicePositionsL = append(devicePositionsL, db.GetPositionsL(deviceNames[i], getCurrentFloor()))
 	}
 
 	fmt.Println(devicePositionsT)
@@ -368,7 +368,7 @@ func viewDevice(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"ViewDeviceModal": "ViewDeviceModal",
 		"DeviceName":      name,
-		"DeviceIP":        db.GetIP(name),
+		"DeviceIP":        db.GetIP(name, getCurrentFloor()),
 	})
 }
 
@@ -524,23 +524,23 @@ func editDevice(c *gin.Context) {
 		err = c.SaveUploadedFile(newImage, "static/assets/"+newImage.Filename)
 	}
 	// checking IP is valid
-	if (len(newIP) > 0) && (newIP != db.GetIP(name)) {
+	if (len(newIP) > 0) && (newIP != db.GetIP(name, getCurrentFloor())) {
 		if err := db.CheckIP(newIP); err != nil {
 			c.HTML(http.StatusBadRequest, "index.html", gin.H{
 				"ViewDeviceModal": "ViewDeviceModal",
 				"DeviceName":      name,
-				"DeviceIP":        db.GetIP(name),
+				"DeviceIP":        db.GetIP(name, getCurrentFloor()),
 				"ErrorTitle":      "Failed to Edit Device",
 				"ErrorMessage":    err.Error(),
 			})
 			return
 		} else {
-			db.EditDevice(name, name, newIP, db.GetImage(name), floor)
+			db.EditDevice(name, name, newIP, db.GetImage(name, getCurrentFloor()), floor)
 		}
 	}
 	// adding image if present
 	if newImage != nil {
-		db.EditDevice(name, name, db.GetIP(name), "static/assets/"+newImage.Filename, floor)
+		db.EditDevice(name, name, db.GetIP(name, getCurrentFloor()), "static/assets/"+newImage.Filename, floor)
 	}
 	// checking device name is unique for floor
 	if (len(newName) > 0) && (newName != name) {
@@ -548,13 +548,13 @@ func editDevice(c *gin.Context) {
 			c.HTML(http.StatusBadRequest, "index.html", gin.H{
 				"ViewDeviceModal": "ViewDeviceModal",
 				"DeviceName":      name,
-				"DeviceIP":        db.GetIP(name),
+				"DeviceIP":        db.GetIP(name, getCurrentFloor()),
 				"ErrorTitle":      "Failed to Edit Device",
 				"ErrorMessage":    err.Error(),
 			})
 			return
 		} else {
-			db.EditDevice(name, newName, db.GetIP(name), db.GetImage(name), floor)
+			db.EditDevice(name, newName, db.GetIP(name, getCurrentFloor()), db.GetImage(name, getCurrentFloor()), floor)
 		}
 	}
 	showMap(c)
@@ -610,7 +610,7 @@ func pingDevice(c *gin.Context) {
 		"Pinging": "pinging...",
 	})
 	device := getCurrentDevice()
-	ip := db.GetIP(device)
+	ip := db.GetIP(device, getCurrentFloor())
 	_, output := rd.RunFromScript("pingscript.txt", ip)
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Output": output,
