@@ -548,9 +548,6 @@ func DeleteLayer(c *gin.Context) {
 }
 
 func pingDevice(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"Pinging": "pinging...",
-	})
 	device := getCurrentDevice()
 	ip := db.GetIP(device)
 	_, output := rd.RunFromScript("pingscript.txt", ip)
