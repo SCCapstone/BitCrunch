@@ -194,6 +194,7 @@ func performLogin(c *gin.Context) {
 			"title": "Successful Login"}, "login-successful.html")
 	} else {
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{
+			"Username":     username,
 			"ErrorTitle":   "Login Failed",
 			"ErrorMessage": "Invalid credentials provided"})
 	}
@@ -554,7 +555,7 @@ func pingDevice(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Output": output,
 	})
-	
+
 }
 
 func createDeviceFile(name string, filename string) {
