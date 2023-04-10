@@ -36,7 +36,7 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 		// Return specific error
 		return u, err
 	}
-	if err := checkEmail(email); err != nil {
+	if err := CheckEmail(email); err != nil {
 		// Return specific error
 		return u, err
 	}
@@ -257,7 +257,7 @@ to see that an email is valid
 based on regex.
 Returns nil if it is good to use.
 */
-func checkEmail(e string) error {
+func CheckEmail(e string) error {
 	// Checking for valid email
 	reg := regexp.MustCompile("(\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,6})")
 	if !reg.Match([]byte(e)) {

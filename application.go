@@ -148,6 +148,10 @@ func InitializeRoutes() {
 		userRoutes.GET("/ping_device", middleware.EnsureLoggedIn(), pingDevice)
 
 		userRoutes.POST("/edit_device", middleware.EnsureLoggedIn(), editDevice)
+
+		userRoutes.GET("/forgot-password", middleware.EnsureNotLoggedIn(), showForgotPassword)
+
+		userRoutes.POST("/forgot-password", middleware.EnsureNotLoggedIn(), performForgotPassword)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -170,6 +174,36 @@ Renders the registration page
 func showRegistrationPage(c *gin.Context) {
 	Render(c, gin.H{
 		"title": "Register"}, "register.html")
+}
+
+/*
+Renders forgot password page
+*/
+func showForgotPassword(c *gin.Context) {
+	Render(c, gin.H{
+		"title": "Forgot Password"}, "forgot-password.html")
+}
+
+/*
+Checks if inputted email is in database
+If yes, returned to login page
+If no, renders error
+--> need to check if this is what we want
+for now, making base
+*/
+func performForgotPassword(c *gin.Context) {
+	email := c.PostForm("email")
+	// right now, set up so it will return error if not valid email
+	// address and if email address in database; will need to fix
+	// if this is how we decide we want to do this
+	if err := db.CheckEmail(email); err == nil {
+		showLoginPage(c)
+	} else {
+		Render(c, gin.H{
+			"title":        "Forgot Password",
+			"ErrorTitle":   "Can't Find Account",
+			"ErrorMessage": err.Error()}, "forgot-password.html")
+	}
 }
 
 /*
