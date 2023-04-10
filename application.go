@@ -465,17 +465,35 @@ func AddDevice(c *gin.Context) {
 	device_image, err := c.FormFile("device_image")
 
 	if err != nil {
-		renderError(c, "AddDeviceModal", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be found.")
+		Render(c, gin.H{
+			"AddDeviceModal":  "Add Device Modal",
+			"DeviceName":      device_name,
+			"DeviceIP":        device_ip,
+			"ErrorTitle":      "Failed to Add Device",
+			"ErrorMessage":    "Image file could not be found",
+			"EditLayerButton": "EditLayerButton"}, "index.html")
 		return
 	}
 	err = c.SaveUploadedFile(device_image, "static/assets/"+device_image.Filename)
 	if err != nil {
-		renderError(c, "AddDeviceModal", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", "Image file could not be saved.")
+		Render(c, gin.H{
+			"AddDeviceModal":  "Add Device Modal",
+			"DeviceName":      device_name,
+			"DeviceIP":        device_ip,
+			"ErrorTitle":      "Failed to Add Device",
+			"ErrorMessage":    "Image file could not be saved",
+			"EditLayerButton": "EditLayerButton"}, "index.html")
 		return
 	}
 
 	if _, err := db.CreateDevice(device_name, device_ip, "static/assets/"+device_image.Filename, getCurrentFloor()); err != nil {
-		renderError(c, "AddDeviceModal", "Add Device Modal", "ErrorTitle", "Failed to Add Device", "ErrorMessage", err.Error())
+		Render(c, gin.H{
+			"AddDeviceModal":  "Add Device Modal",
+			"DeviceName":      device_name,
+			"DeviceIP":        device_ip,
+			"ErrorTitle":      "Failed to Add Device",
+			"ErrorMessage":    err.Error(),
+			"EditLayerButton": "EditLayerButton"}, "index.html")
 		return
 	}
 	showMap(c)

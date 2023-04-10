@@ -136,16 +136,16 @@
   <div class="modal-content">
     <h3>Add Device</h3>
     <form action="/u/add_device" method="POST" enctype="multipart/form-data">
-      Device Name: <input type="text" id="device_name" name="device_name"><br>
-      Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
+      Device Name: <input type="text" id="device_name" name="device_name" value = "{{ .DeviceName}}"><br>
+      Device IP Address: <input type="text" id="device_ip" name="device_ip" value = "{{ .DeviceIP}}"><br>
         <input type="file" id="device_image" name="device_image" accept="image/*">
         <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
-      <input class="danger_button" type="submit" value="Save">
+      <input id = "add_device_submit_btn" class="danger_button" type="submit" value="Save">
       {{ if .ErrorTitle }}
         <div class="error">
           {{.ErrorTitle}}: {{.ErrorMessage}}
         </div>
-        {{ end }}
+      {{ end }}
     </form>
   </div>
 </div>
