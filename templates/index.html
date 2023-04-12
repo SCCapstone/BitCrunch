@@ -12,7 +12,7 @@
       <div class="feedbox">
         {{ range .payload }}
         <form action="/u/view_layer" method="POST">
-          <button name="layer" type="submit" value="{{ . }}">{{ . }}</button>
+          <button name="layer" title="{{ . }}" type="submit" value="{{ . }}">{{ . }}</button>
         </form>
       {{ end }}
       </div>
@@ -72,7 +72,7 @@
       <div class="feedbox">
         {{ range .devices }}
         <form action="/u/view_device" method="POST">
-          <button name="device" value="{{ . }}">{{ . }}</button>
+          <button name="device" title="{{ . }}"value="{{ . }}">{{ . }}</button>
           </form>
         {{ end}}
       </div>

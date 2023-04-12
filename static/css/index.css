@@ -59,11 +59,14 @@
   color: teal;
   padding-left: 10px;
   cursor: pointer;
-  width: fit-content;
+  width: 100%;
   display: block;
   text-align: left;
   height: 8vh;
   font-size: 3vh;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .feedbox button:not(:last-child) {
