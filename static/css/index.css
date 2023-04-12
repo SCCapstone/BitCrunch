@@ -59,7 +59,7 @@
   color: teal;
   padding-left: 10px;
   cursor: pointer;
-  width: 100%;
+  width: fit-content;
   display: block;
   text-align: left;
   height: 8vh;
