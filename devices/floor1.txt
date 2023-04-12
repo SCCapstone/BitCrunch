@@ -1,3 +1,0 @@
-blueprint.jpg
-d1	192.168.123.132	static/assets/device.png	floor1
-d2	192.168.123.134	static/assets/device.png	floor1
