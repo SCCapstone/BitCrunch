@@ -268,6 +268,14 @@ Renders the proper floor image onto the map
 */
 func viewLayer(c *gin.Context) {
 	name := c.PostForm("layer")
+	if(!(len(name) > 0)) {
+		if(!(len(getCurrentFloor()) > 0)) {
+			showMap(c)
+			return
+		} else {
+			name = getCurrentFloor()
+		}
+	}
 	imageName := ""
 	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
