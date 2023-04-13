@@ -64,6 +64,9 @@
   text-align: left;
   height: 8vh;
   font-size: 3vh;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .feedbox button:not(:last-child) {
