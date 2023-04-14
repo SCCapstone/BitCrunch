@@ -85,15 +85,24 @@ This checks that the string fits
 a valid IP format. Returns
 nil if it's good. Error otherwise.
 */
-func CheckIP(ip string) error {
+func CheckIP(ip string) (net.IP, error) {
 	// This function converts to a go IP type.
 	// will be nil if parsing failed.
 	check := net.ParseIP(ip)
 	if check == nil {
-		return fmt.Errorf("Failed to parse IP address.")
+		// Could be a hostname.
+		// Getting the IP from net function
+		hostIP, err := net.LookupHost(ip)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to parse IP address or host.")
+		}
+		// Just taking the first IP in the slice
+		// Could potentially cause problems but
+		// should work in most cases
+		check = net.ParseIP(hostIP[0])
 	}
 	// IP is not nil so everything is good
-	return nil
+	return check, nil
 }
 
 /*
