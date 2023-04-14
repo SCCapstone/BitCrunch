@@ -25,9 +25,6 @@ var router *gin.Engine
 var currentFloor = ""
 var currentFile = ""
 var currentDevice = ""
-var prevPayload []string
-var prevImage = ""
-var prevDevices []string
 
 /*
 Configures the router to load HTML templates
@@ -244,13 +241,7 @@ func logout(c *gin.Context) {
 
 func displayModal(modalName string, msg string) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		prevfloors, previmage, prevdevices := getPreviousRender()
 		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title":		"Map",
-			"payload": prevfloors,
-			"Image": previmage,
-			"EditLayerButton": "EditLayerButton",
-			"devices": prevdevices,
 			modalName: msg,
 		})
 	}
@@ -277,18 +268,11 @@ Renders the proper floor image onto the map
 */
 func viewLayer(c *gin.Context) {
 	name := c.PostForm("layer")
-	if(!(len(name) > 0)) {
-		if(!(len(getCurrentFloor()) > 0)) {
-			showMap(c)
-			return
-		} else {
-			name = getCurrentFloor()
-		}
-	}
 	imageName := ""
 	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
 	deviceNames := []string{}
+	scriptNames := []string{}
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
@@ -327,39 +311,35 @@ func viewLayer(c *gin.Context) {
 		deviceNames = append(deviceNames, substr)
 	}
 
-	setPreviousRender(floorNames, "static/assets/" + imageName, deviceNames)
-	
+	files, err := ioutil.ReadDir("/static/assets")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, files := range files {
+		temp := files.Name()
+		if strings.Contains(temp, "script.txt") {
+			delete := strings.Index(temp, "script.txt")
+			scriptName := temp[0 : delete-1]
+			scriptNames = append(scriptNames, scriptName)
+		}
+	}
+
 	Render(c, gin.H{
 		"title":           "Map",
 		"payload":         floorNames,
 		"Image":           "static/assets/" + imageName,
 		"EditLayerButton": "EditLayerButton",
 		"devices":         deviceNames,
+		"scripts":         scriptNames,
 	}, "index.html")
-}
-
-func setPreviousRender(payload []string, image string, devices []string) {
-	prevPayload = payload
-	prevImage = image
-	prevDevices = devices
-}
-
-func getPreviousRender() ([]string, string, []string) {
-	return prevPayload, prevImage, prevDevices
 }
 
 func viewDevice(c *gin.Context) {
 	name := c.PostForm("device")
 	setCurrentDevice(name)
 
-	prevfloors, previmage, prevdevices := getPreviousRender()
-
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title":		"Map",
-		"payload": prevfloors,
-		"Image": previmage,
-		"EditLayerButton": "EditLayerButton",
-		"devices": prevdevices,
 		"ViewDeviceModal": "ViewDeviceModal",
 		"DeviceName":      name,
 		"DeviceIP":        db.GetIP(name),
@@ -438,22 +418,21 @@ Edit the name, image, or both of the current layer
 */
 func EditLayer(c *gin.Context) {
 	old_layer_name := getCurrentFloor()
-	// old_file_name := getCurrentFile()
+	old_file_name := getCurrentFile()
 	layer_name := c.PostForm("layer_name")
-	// fname := old_file_name
-	if len(layer_name) == 0 {
+	fname := old_file_name
+	if (len(layer_name) == 0) {
 		layer_name = old_layer_name
 	}
 	file, err := c.FormFile("layer_image")
-	if err != nil {
-		renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be found.")
-		return
+	if (err != nil) {
+		fmt.Println(err)
+		
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
-		// fname = file.Filename
+		fname = file.Filename
 		if err != nil {
-			renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be saved.")
-			return
+			fmt.Println(err)
 		}
 	}
 
@@ -468,7 +447,7 @@ func EditLayer(c *gin.Context) {
 	}
 
 	renameDeviceFile(old_layer_name, layer_name)
-	saveNewImage(file.Filename, layer_name)
+	saveNewImage(fname, layer_name)
 
 	showMap(c)
 }
