@@ -1,5 +1,0 @@
-# This is a comment! 
-# This txt file serves as the method of serving the script to the server! 
-# All it does is ping an address (right now, its a 3D printer), and print the results!
-
-ping <IPADDRESS>
