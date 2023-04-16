@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
@@ -550,11 +551,24 @@ func DeleteLayer(c *gin.Context) {
 func pingDevice(c *gin.Context) {
 	device := getCurrentDevice()
 	ip := db.GetIP(device)
-	_, output := rd.RunFromScript("pingscript.txt", ip)
+
+	var waitgroup sync.WaitGroup
+	waitgroup.Add(1) // used for waiting on all waits to finish (but we only use one)
+	var output string
+	go func() {
+		_, output = rd.RunFromScript("pingscript.txt", ip) // actually run the script
+		waitgroup.Done()                                   // once GetIP is finished, reduce the waitgroup counter by one
+	}()
+	waitgroup.Wait() // blocks until all wait groups are at 0 (so once)
+
+	// displayModal("ScriptModal", "Script Modal")
+
+	// HERE: This call is the issue in the AWS website.
+	// ask for explanation on how this works during improptu meeting 4/16/23 (see edit device)
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Output": output,
 	})
-	
+
 }
 
 func createDeviceFile(name string, filename string) {
