@@ -418,6 +418,10 @@ func AddLayer(c *gin.Context) {
 		renderError(c, "AddLayerModal", "Add Layer Modal", "ErrorTitle", "Add Layer Failed", "ErrorMessage", "Image file could not be found.")
 		return
 	}
+	if len(layer_name) == 0 {
+		renderError(c, "AddLayerModal", "Add Layer Modal", "ErrorTitle", "Add Layer Failed", "ErrorMessage", "Layer name could not be found.")
+		return
+	}
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
 		renderError(c, "AddLayerModal", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", "Image file could not be saved.")
