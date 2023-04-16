@@ -44,16 +44,9 @@
       {{ end }}
     </div>
     <div class="grid-item item6">
-      <div class="dropdown">
-        <button class="style1_button">Settings</button>
-        <div class="dropdown-content">
-        <a href="/u/delete_account_modal">Delete My Account</a>
-        <!-- commenting this out for now
-        <a href="TODO">Setting2</a>
-        <a href="TODO">Setting3</a>
-        -->
-        </div>
-      </div>
+      <form action="/u/delete_account_modal" method="GET">
+        <button class="style1_button">Delete My Account</button> 
+      </form>
     </div>
     <div class="grid-item item7">
       {{ if .EditLayerButton }}

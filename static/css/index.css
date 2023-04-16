@@ -161,32 +161,6 @@
     background-color: grey;
     color: white;
   }
- 
-  .dropdown {
-    display: inline-block;
-    position: relative;
-  }
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    width: 100%;
-    overflow: auto;
-    box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.4);
-  }
-  .dropdown:hover .dropdown-content {
-    display: block;
-  }
-  .dropdown-content a {
-    display: block;
-    color: #000000;
-    padding: 5px;
-    font-size: 14px;
-  }
-  .dropdown-content a:hover {
-    color: #FFFFFF;
-    background-color: #00A4BD;
-  }
-
   .map_image {
     min-width: 100%;
     min-height: 100%;
