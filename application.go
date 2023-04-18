@@ -26,6 +26,9 @@ var router *gin.Engine
 var currentFloor = ""
 var currentFile = ""
 var currentDevice = ""
+var prevPayload []string
+var prevImage = ""
+var prevDevices []string
 
 /*
 Configures the router to load HTML templates
@@ -244,7 +247,13 @@ func logout(c *gin.Context) {
 
 func displayModal(modalName string, msg string) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
+		prevfloors, previmage, prevdevices := getPreviousRender()
 		c.HTML(http.StatusOK, "index.html", gin.H{
+			"title":		"Map",
+			"payload": prevfloors,
+			"Image": previmage,
+			"EditLayerButton": "EditLayerButton",
+			"devices": prevdevices,
 			modalName: msg,
 		})
 	}
@@ -271,6 +280,14 @@ Renders the proper floor image onto the map
 */
 func viewLayer(c *gin.Context) {
 	name := c.PostForm("layer")
+	if(!(len(name) > 0)) {
+		if(!(len(getCurrentFloor()) > 0)) {
+			showMap(c)
+			return
+		} else {
+			name = getCurrentFloor()
+		}
+	}
 	imageName := ""
 	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
@@ -316,20 +333,8 @@ func viewLayer(c *gin.Context) {
 		substr := str[16 : comma-1]
 		deviceNames = append(deviceNames, substr)
 	}
-
-	files, err := ioutil.ReadDir("/static/assets")
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	for _, files := range files {
-		temp := files.Name()
-		if strings.Contains(temp, "script.txt") {
-			delete := strings.Index(temp, "script.txt")
-			scriptName := temp[0 : delete-1]
-			scriptNames = append(scriptNames, scriptName)
-		}
-	}
+	
+	setPreviousRender(floorNames, "static/assets/" + imageName, deviceNames)
 
 	for i := 0; i < len(deviceNames); i++ {
 		deviceImages = append(deviceImages, db.GetImage(deviceNames[i], getCurrentFloor()))
@@ -361,11 +366,28 @@ func viewLayer(c *gin.Context) {
 	}, "index.html")
 }
 
+func setPreviousRender(payload []string, image string, devices []string) {
+	prevPayload = payload
+	prevImage = image
+	prevDevices = devices
+}
+
+func getPreviousRender() ([]string, string, []string) {
+	return prevPayload, prevImage, prevDevices
+}
+
 func viewDevice(c *gin.Context) {
 	name := c.PostForm("device")
 	setCurrentDevice(name)
 
+	prevfloors, previmage, prevdevices := getPreviousRender()
+
 	c.HTML(http.StatusOK, "index.html", gin.H{
+		"title":		"Map",
+		"payload": prevfloors,
+		"Image": previmage,
+		"EditLayerButton": "EditLayerButton",
+		"devices": prevdevices,
 		"ViewDeviceModal": "ViewDeviceModal",
 		"DeviceName":      name,
 		"DeviceIP":        db.GetIP(name, getCurrentFloor()),
@@ -424,6 +446,10 @@ func AddLayer(c *gin.Context) {
 		renderError(c, "AddLayerModal", "Add Layer Modal", "ErrorTitle", "Add Layer Failed", "ErrorMessage", "Image file could not be found.")
 		return
 	}
+	if len(layer_name) == 0 {
+		renderError(c, "AddLayerModal", "Add Layer Modal", "ErrorTitle", "Add Layer Failed", "ErrorMessage", "Layer name could not be found.")
+		return
+	}
 	err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 	if err != nil {
 		renderError(c, "AddLayerModal", "Add Layer Modal", "ErrorTitle", "Failed to Add Layer", "ErrorMessage", "Image file could not be saved.")
@@ -447,19 +473,18 @@ func EditLayer(c *gin.Context) {
 	old_file_name := getCurrentFile()
 	layer_name := c.PostForm("layer_name")
 	fname := old_file_name
-	if len(layer_name) == 0 {
+	if (len(layer_name) == 0) {
 		layer_name = old_layer_name
 	}
 	file, err := c.FormFile("layer_image")
-	if err != nil {
-		renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be found.")
-		return
+	if (err != nil) {
+		fmt.Println(err)
+		
 	} else {
 		err = c.SaveUploadedFile(file, "static/assets/"+file.Filename)
 		fname = file.Filename
 		if err != nil {
-			renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", "Image file could not be saved.")
-			return
+			fmt.Println(err)
 		}
 	}
 
@@ -468,14 +493,13 @@ func EditLayer(c *gin.Context) {
 		return
 	}
 
-	removeDeviceFile("devices/" + old_layer_name + ".txt")
-
 	if _, err := db.CreateFloor(layer_name, layer_name+".txt"); err != nil {
 		renderError(c, "EditLayerModal", "Edit Layer Modal", "ErrorTitle", "Failed to Edit Layer", "ErrorMessage", err.Error())
 		return
 	}
 
-	createDeviceFile(layer_name, fname)
+	renameDeviceFile(old_layer_name, layer_name)
+	saveNewImage(fname, layer_name)
 
 	showMap(c)
 }
@@ -606,9 +630,6 @@ func DeleteLayer(c *gin.Context) {
 }
 
 func pingDevice(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"Pinging": "pinging...",
-	})
 	device := getCurrentDevice()
 	ip := db.GetIP(device, getCurrentFloor())
 	_, output := rd.RunFromScript("pingscript.txt", ip)
@@ -632,6 +653,30 @@ func removeDeviceFile(name string) {
 	err := os.Remove(name)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func renameDeviceFile(old, new string) {
+	os.Rename("devices/"+old+".txt", "devices/"+new+".txt")
+}
+
+func saveNewImage(new_image, layer string) {
+	fi, err := ioutil.ReadFile("devices/" + layer + ".txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	lines := strings.Split(string(fi), "\n")
+
+	for i := range lines {
+		if i == 0 {
+			lines[i] = new_image
+		}
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile("devices/"+layer+".txt", []byte(output), 0644)
+	if err != nil {
+		fmt.Println(err)
 	}
 }
 

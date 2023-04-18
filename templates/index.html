@@ -12,7 +12,7 @@
       <div class="feedbox">
         {{ range .payload }}
         <form action="/u/view_layer" method="POST">
-          <button name="layer" type="submit" value="{{ . }}">{{ . }}</button>
+          <button name="layer" title="{{ . }}" type="submit" value="{{ . }}">{{ . }}</button>
         </form>
       {{ end }}
       </div>
@@ -44,16 +44,9 @@
       {{ end }}
     </div>
     <div class="grid-item item6">
-      <div class="dropdown">
-        <button class="style1_button">Settings</button>
-        <div class="dropdown-content">
-        <a href="/u/delete_account_modal">Delete My Account</a>
-        <!-- commenting this out for now
-        <a href="TODO">Setting2</a>
-        <a href="TODO">Setting3</a>
-        -->
-        </div>
-      </div>
+      <form action="/u/delete_account_modal" method="GET">
+        <button class="style1_button">Delete My Account</button> 
+      </form>
     </div>
     <div class="grid-item item7">
       {{ if .EditLayerButton }}
@@ -72,7 +65,7 @@
       <div class="feedbox">
         {{ range .devices }}
         <form action="/u/view_device" method="POST">
-          <button name="device" value="{{ . }}">{{ . }}</button>
+          <button name="device" title="{{ . }}"value="{{ . }}">{{ . }}</button>
           </form>
         {{ end}}
       </div>
@@ -99,7 +92,7 @@
         <input type="text" id="layer_name" name="layer_name"><br>
         <label for="layer_image">Upload File</label>
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/u/view_layer" formmethod="post"> 
         <input class="danger_button" type="submit" value="Save">
         {{ if .ErrorTitle }}
         <div class="error">
@@ -150,7 +143,7 @@
       Device Name: <input type="text" id="device_name" name="device_name"><br>
       Device IP Address: <input type="text" id="device_ip" name="device_ip"><br>
         <input type="file" id="device_image" name="device_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/u/view_layer" formmethod="post"> 
       <input class="danger_button" type="submit" value="Save">
       {{ if .ErrorTitle }}
         <div class="error">
@@ -171,7 +164,7 @@
         <input type="text" id="layer_name" name="layer_name"><br>
         <label for="layer_image">Upload File</label>
         <input type="file" id="layer_image" name="layer_image" accept="image/*">
-        <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()" formmethod="get"> 
+        <input class="cancel_button" type="submit" value="Cancel" formaction="/u/view_layer" formmethod="post"> 
         <input class="danger_button" type="submit" value="Save">
         {{ if .ErrorTitle }}
         <div class="error">
@@ -265,7 +258,7 @@
 <div id="script_modal" class="modal">
   <div class="modal-content">
     <form>
-      <input class="cancel_button" type="submit" value="Cancel" formaction="javascript:history.back()">
+      <input class="cancel_button" type="submit" value="Back" formaction="javascript:history.go(-2)">
     </form>
     <h3>Scripts</h3>
     <div class="flex">
@@ -283,21 +276,7 @@
 {{end}}
 
 <script>
-  let delete_input = document.getElementById("delete_confirmation")
-  let button = document.getElementById("delete_account_button")
-  delete_input.addEventListener("keyup", stateHandle)
-
-  function stateHandle() {
-    if (delete_input.value === "DELETE") {
-        button.disabled = false;
-    } else {
-        button.disabled = true;
-    }
-}
-</script>
-
-<script>
-const delay = ms => new Promise(res => setTimeout(res, ms));
+  const delay = ms => new Promise(res => setTimeout(res, ms));
 
   const displayPing = async () => {
       while(true) {
@@ -309,6 +288,18 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
         await delay(1200);
       }
     }
+  let delete_input = document.getElementById("delete_confirmation")
+  let button = document.getElementById("delete_account_button")
+  if (delete_input!= null && button != null) {
+    delete_input.addEventListener("keyup", stateHandle)
+  }
+  function stateHandle() {
+    if (delete_input.value === "DELETE") {
+        button.disabled = false;
+    } else {
+        button.disabled = true;
+    }
+}
 </script>
 
 <script>
