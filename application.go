@@ -348,9 +348,6 @@ func viewLayer(c *gin.Context) {
 		devicePositionsL = append(devicePositionsL, db.GetPositionsL((deviceNames[i]), getCurrentFloor()))
 	}
 
-	fmt.Println("T", devicePositionsT)
-	fmt.Println("L", devicePositionsL)
-
 	
 
 	Render(c, gin.H{
@@ -591,7 +588,6 @@ func editDevice(c *gin.Context) {
 }
 
 func changeDeviceCoordinates(c *gin.Context) {
-	fmt.Println("changing coordinates...")
 	bodyBytes, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
 			fmt.Println(err)
@@ -614,10 +610,6 @@ func changeDeviceCoordinates(c *gin.Context) {
 		left := string(leftBytes)
 		id := string(idBytes)
 		id = removeQuotes(id)
-		fmt.Println("top", top)
-		fmt.Println("left", left)
-		fmt.Println("id", id)
-		fmt.Println("floor", getCurrentFloor())
 		db.EditDeviceCoordinates(id, getCurrentFloor(), top, left)
 
 }

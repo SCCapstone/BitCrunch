@@ -190,7 +190,6 @@ func EditDevice(name, newName, newIP, newImage, floorNm string) {
 			continue
 		}
 		splitLine := strings.Split(line, "\t")
-		fmt.Println(splitLine, len(splitLine))
 		if len(splitLine) > 1 {
 			d := device{
 				name:      splitLine[0],
@@ -283,13 +282,7 @@ func GetImage(name, floorName string) string {
 func GetPositionsT(name, floorName string) (string) {
 		devices, _ := GetAllDevicesForFloor(floorName)
 		for _, device := range devices {
-
-			fmt.Println("d.name", device.name)
-			fmt.Println("argname", name)
-
 			if device.name == name {
-				fmt.Println("true")
-				fmt.Println(device.positionT)
 				return device.positionT
 			}
 		}
@@ -364,7 +357,6 @@ func GetAllIPs() (myDevices []string, err error) {
 }
 
 func EditDeviceCoordinates(name, floorNm, top, left string) {
-	fmt.Println("editing")
 	fi, err := ioutil.ReadFile("devices/" + floorNm + ".txt")
 	if err != nil {
 		fmt.Println(err)
@@ -379,7 +371,6 @@ func EditDeviceCoordinates(name, floorNm, top, left string) {
 			continue
 		}
 		splitLine := strings.Split(line, "\t")
-		fmt.Println(splitLine, len(splitLine))
 		if len(splitLine) > 1 {
 			d := device{
 				name:      splitLine[0],

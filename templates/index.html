@@ -307,7 +307,6 @@
 </script>
 
 <script>
-  console.log("scripthere")
   let drags = document.getElementsByName("dragbutton")
 
   for (let i = 0; i < drags.length; i++) {
@@ -319,16 +318,8 @@
     var Tcomma = posT.replace(/" "/g, '", "');
     var Lcomma = posL.replace(/" "/g, '", "');
 
-
-    console.log("T", posT)
-    console.log("L", posL)
-
-
     var arrT = JSON.parse(`[${Tcomma}]`);
     var arrL = JSON.parse(`[${Lcomma}]`);
-
-    console.log("type", typeof arrT)
-    console.log("typeof", typeof arrT[i])
 
     arrT = Object.values(arrT);
     arrL = Object.values(arrL)
@@ -362,7 +353,6 @@
 
   function drag_start(event) {
     dm = event.target
-    console.log("dragging")
     
     var body = document.body.getBoundingClientRect(),
       elemRect = dm.getBoundingClientRect(),
@@ -380,7 +370,6 @@
   } 
 
   function drop(event) {
-      console.log("dropping")
       var offset = event.dataTransfer.getData("text/plain").split(',');
 
       dm.style.left = (event.clientX + parseInt(offset[0],10)) + 'px';
@@ -399,11 +388,6 @@
       LeftOffset = elemRect.left - bodyRect.left
       BottomOffset   = elemRect.bottom - bodyRect.bottom
       RightOffset = elemRect.right - bodyRect.right;
-
-    console.log("Element is " + TopOffset + " vertical pixels from image")
-    console.log("Element is " + LeftOffset + " horizontal pixels from image")
-    console.log("Element is " + BottomOffset + " vertical (bottom) pixels from image")
-    console.log("Element is " + RightOffset + " horizontal (right) pixels from image")
 
     if((TopOffset < 0) || (LeftOffset < 0) || (BottomOffset > 0) || (RightOffset > 0)) {
       dm.style.left = originalLeft + 'px'
@@ -432,7 +416,6 @@
   }
 
   function drag_over(event) {
-    console.log("over")
     event.preventDefault();
     return false;
   } 
