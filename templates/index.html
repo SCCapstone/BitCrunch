@@ -71,14 +71,18 @@
       </div>
     </div>
     <div class="grid-item item9">
+      {{ $foos := .devices }}
+      {{ $bars := .deviceImages }}
         <form action="/u/view_device" method="POST">
-          {{ range .devices }}
+          {{range $index, $dev := $foos}}
           <button name="dragbutton" id="{{ . }}" value="{{ . }}" z-index="1" draggable="true" class="draggable_button"> 
+            {{range $jindex, $imgs := $bars }}
+            {{ if eq $index $jindex}}
+            <img class="device_icon_image" src ="../{{ . }}" width="10px" height="10px" style="pointer-events: none;">
             {{ end }}
-            {{ range .deviceImages }}
-            <img src ="../{{ . }}" width="10px" height="10px" style="pointer-events: none;">
             {{ end }}
           </button>
+          {{ end }}
         </form>
     </div>
     </div>
@@ -303,23 +307,40 @@
 </script>
 
 <script>
-
+  console.log("scripthere")
   let drags = document.getElementsByName("dragbutton")
+
   for (let i = 0; i < drags.length; i++) {
     drags[i].addEventListener('dragstart', drag_start, false);
     var cord = drags[i].getBoundingClientRect();
     let posT = "{{ .devicePositionsT }}"
     let posL = "{{ .devicePositionsL }}"
 
-    var arrT = JSON.parse(posT);
-    var arrL = JSON.parse(posL)
+    var Tcomma = posT.replace(/" "/g, '", "');
+    var Lcomma = posL.replace(/" "/g, '", "');
 
-    if((arrT[i] == 0) && (arrL[i] == 0)) {
+
+    console.log("T", posT)
+    console.log("L", posL)
+
+
+    var arrT = JSON.parse(`[${Tcomma}]`);
+    var arrL = JSON.parse(`[${Lcomma}]`);
+
+    console.log("type", typeof arrT)
+    console.log("typeof", typeof arrT[i])
+
+    arrT = Object.values(arrT);
+    arrL = Object.values(arrL)
+    
+
+
+    if((arrT[0][i] == 0) && (arrL[0][i] == 0)) {
       drags[i].style.left = cord.left + 'px';
       drags[i].style.top = cord.top + 'px';
     } else {
-      drags[i].style.left = arrL[i] + 'px';
-      drags[i].style.top = arrT[i] + 'px';
+      drags[i].style.left = arrL[0][i] + 'px';
+      drags[i].style.top = arrT[0][i] + 'px';
     }
   }
 

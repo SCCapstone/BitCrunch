@@ -341,15 +341,15 @@ func viewLayer(c *gin.Context) {
 	}
 
 	for i := 0; i < len(deviceNames); i++ {
-		devicePositionsT = append(devicePositionsT, db.GetPositionsT(deviceNames[i], getCurrentFloor()))
+		devicePositionsT = append(devicePositionsT, db.GetPositionsT((deviceNames[i]), getCurrentFloor()))
 	}
 
 	for i := 0; i < len(deviceNames); i++ {
-		devicePositionsL = append(devicePositionsL, db.GetPositionsL(deviceNames[i], getCurrentFloor()))
+		devicePositionsL = append(devicePositionsL, db.GetPositionsL((deviceNames[i]), getCurrentFloor()))
 	}
 
-	fmt.Println(devicePositionsT)
-	fmt.Println(devicePositionsL)
+	fmt.Println("T", devicePositionsT)
+	fmt.Println("L", devicePositionsL)
 
 	
 
@@ -378,7 +378,13 @@ func getPreviousRender() ([]string, string, []string) {
 
 func viewDevice(c *gin.Context) {
 	name := c.PostForm("device")
-	setCurrentDevice(name)
+	if(len(name) > 0) {
+		setCurrentDevice(name)
+	}
+	dragname := c.PostForm("dragbutton")
+	if(len(dragname) > 0) {
+		setCurrentDevice(dragname)
+	}
 
 	prevfloors, previmage, prevdevices := getPreviousRender()
 
@@ -389,7 +395,7 @@ func viewDevice(c *gin.Context) {
 		"EditLayerButton": "EditLayerButton",
 		"devices": prevdevices,
 		"ViewDeviceModal": "ViewDeviceModal",
-		"DeviceName":      name,
+		"DeviceName":      getCurrentDevice(),
 		"DeviceIP":        db.GetIP(name, getCurrentFloor()),
 	})
 }
@@ -607,12 +613,23 @@ func changeDeviceCoordinates(c *gin.Context) {
 		top := string(topBytes)
 		left := string(leftBytes)
 		id := string(idBytes)
+		id = removeQuotes(id)
 		fmt.Println("top", top)
 		fmt.Println("left", left)
 		fmt.Println("id", id)
 		fmt.Println("floor", getCurrentFloor())
 		db.EditDeviceCoordinates(id, getCurrentFloor(), top, left)
 
+}
+
+func removeQuotes(s string) (string){
+	if len(s) > 0 && s[0] == '"' {
+		s = s[1:]
+	}
+	if len(s) > 0 && s[len(s)-1] == '"' {
+		s = s[:len(s)-1]
+	}
+	return s
 }
 
 /*

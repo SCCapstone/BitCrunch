@@ -163,6 +163,8 @@ func CheckDevice(name, floorNm string) error {
 				ip:        line[1],
 				image:     line[2],
 				floorName: line[3],
+				positionT: line[4],
+				positionL: line[5],
 			}
 			if name == d.name {
 				return errors.New("Device name is not unique to floor.")
@@ -281,7 +283,13 @@ func GetImage(name, floorName string) string {
 func GetPositionsT(name, floorName string) (string) {
 		devices, _ := GetAllDevicesForFloor(floorName)
 		for _, device := range devices {
+
+			fmt.Println("d.name", device.name)
+			fmt.Println("argname", name)
+
 			if device.name == name {
+				fmt.Println("true")
+				fmt.Println(device.positionT)
 				return device.positionT
 			}
 		}
@@ -330,6 +338,8 @@ func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
 				ip:        line[1],
 				image:     line[2],
 				floorName: line[3],
+				positionT: line[4],
+				positionL: line[5],
 			}
 			devs = append(devs, d)
 		}
@@ -383,12 +393,10 @@ func EditDeviceCoordinates(name, floorNm, top, left string) {
 				writeString := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s", d.name, d.ip, d.image, d.floorName, top, left)
 				lines[i] = writeString
 			}
-			fmt.Println("made it here")
 		}
 	}
 	output := strings.Join(lines, "\n")
 	err = ioutil.WriteFile("devices/"+floorNm+".txt", []byte(output), 0644)
-	fmt.Println("wrote")
 	if err != nil {
 		fmt.Println(err)
 	}
