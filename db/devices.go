@@ -57,8 +57,8 @@ func CreateDevice(name, ip, image, floorNm string) (dev device, err error) {
 	dev.ip = ip
 	dev.image = image
 	dev.floorName = floorNm
-	dev.positionT = "0"
-	dev.positionL = "0"
+	dev.positionT = "\"0\""
+	dev.positionL = "\"0\""
 
 	// writing to db, might have errors
 	if err = writeDevice(dev); err != nil {
