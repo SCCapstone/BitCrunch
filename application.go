@@ -400,7 +400,7 @@ func viewDevice(c *gin.Context) {
 		"devices": prevdevices,
 		"ViewDeviceModal": "ViewDeviceModal",
 		"DeviceName":      getCurrentDevice(),
-		"DeviceIP":        db.GetIP(name, getCurrentFloor()),
+		"DeviceIP":        db.GetIP(getCurrentDevice(), getCurrentFloor()),
 		"deviceImages":	   prevdevimages,
 		"devicePositionsT": prevposT,
 		"devicePositionsL": prevposL,
