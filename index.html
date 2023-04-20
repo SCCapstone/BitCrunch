@@ -18,8 +18,8 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 
 <!-- Navbar -->
 <div class="w3-top">
-<div class="w3-bar w3-red w3-card w3-left-align w3-large">
-    <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-red" href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
+<div class="w3-bar w3-cyan w3-card w3-left-align w3-large">
+    <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-cyan" href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
     <a href="#" class="w3-bar-item w3-button w3-padding-large w3-white">Home</a>
     <a href="https://github.com/SCCapstone/BitCrunch" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">GitHub</a>
     <a href='http://goweb.us-east-1.elasticbeanstalk.com/' class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Test Site</a>
@@ -40,7 +40,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 </div>
 
 <!-- Header -->
-<header class="w3-container w3-red w3-center" style="padding:128px 16px">
+<header class="w3-container w3-cyan w3-center" style="padding:128px 16px">
 <h1 class="w3-margin w3-jumbo">GoMap</h1>
 <p class="w3-xlarge">A BitCrunch Product</p>
 <p class="w3-xlarge">Made for UofSC's Computer Science Capstone Project</p>
@@ -53,13 +53,15 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 <div class="w3-row-padding w3-padding-64 w3-container">
 <div class="w3-content">
     <div class="w3-twothird">
-    <h1>About GoWeb</h1>
+    <h1>About GoMap</h1>
     <h5 class="w3-padding-32">Brief Overview</h5>
-    <p class="w3-text-grey">placeholder!!</p>
-    <p class="w3-text-grey">placeholder!!!!</p>
+    <p class="w3-text-grey">GoMap is the Capstone project BitCrunch has worked on from the Fall ‘22 to Spring ’23 semesters. Our main goal is to help IT technicians in the field to detect and diagnose the causes of various issues with their assigned devices, without the use of messy and long console commands. At the click of a button, users are able to run a specific script to a chosen device, just like how they would through the console. This greatly lowers the skill floor for IT technicians, and allows easier repair (or non-repair) of their machines.  </p>
+    <h5 class="w3-padding-32">Technical Overview </h5>
+    <p class = "w3-text-grey">GoMap is built on Golang, using primarily its provided libraries as well as <a href="https://gin-gonic.com/">gin</a>, a http helper. Design of the application is done through CSS and JavaScript. Unit testing is done through Golang’s testing library, and behavioral testing is done using <a href="https://go-rod.github.io/#/">go-rod</a>. We use Amazon AWS for our webhosting, GitHub for our team collaboration, and Discord for our communication.  Our schedule of releases was determined by the Capstone Class’s deadlines, which can be seen <a href="https://capstone.cse.sc.edu/">here</a>. </p>
+    <p class="w3-text-grey">GoMap is designed to be run on an intranet, local to the area of which a group of IT technicians perform their duties. As for this demonstration, with the application being uploaded to the internet, we have removed the ability to run any scripts outside of the basic “ping”, to be sure that nothing nefarious happens on behalf of our users. </p>
 </div>
     <div class="w3-third w3-center">
-    <i class="fa fa-anchor w3-padding-64 w3-text-red"></i>
+        <img src ="exampleUseImage01.png" width="500" height="350"> 
     </div>
     <!-- Make sure to put it in the directory-->
 </div>
@@ -69,11 +71,11 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 <div class="w3-row-padding w3-light-grey w3-padding-64 w3-container">
 <div class="w3-content">
     <div class="w3-third w3-center">
-    <i class="fa fa-coffee w3-padding-64 w3-text-red w3-margin-right"></i>
+        <img src="exampleUseImage02.png" width="250" height="275">
     </div>
 
     <div class="w3-twothird">
-    <h1>Using GoWeb</h1>
+    <h1>Using GoMap</h1>
     <h5 class="w3-padding-32">Title!</h5>
     <!--put this into multi paragraphs-->
     <p class="w3-text-grey">para </p> 
@@ -103,7 +105,7 @@ a
     </div>
 <!--Black line at bottom-->
 <div class="w3-container w3-black w3-center w3-opacity w3-padding-64">
-    <h1 class="w3-margin w3-xlarge">UofSC Computer Science Captone Project: 2022-2023</h1>
+    <h1 class="w3-margin w3-xlarge">UofSC Computer Science Capstone Project: 2022-2023</h1>
 </div>
 
 <!-- Footer -->
