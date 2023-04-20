@@ -29,6 +29,9 @@ var currentDevice = ""
 var prevPayload []string
 var prevImage = ""
 var prevDevices []string
+var prevDeviceImages []string
+var prevPositionsT []string
+var prevPositionsL []string
 
 /*
 Configures the router to load HTML templates
@@ -247,13 +250,16 @@ func logout(c *gin.Context) {
 
 func displayModal(modalName string, msg string) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		prevfloors, previmage, prevdevices := getPreviousRender()
+		prevfloors, previmage, prevdevices, prevdevimages, prevposT, prevposL := getPreviousRender()
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title":		"Map",
 			"payload": prevfloors,
 			"Image": previmage,
 			"EditLayerButton": "EditLayerButton",
 			"devices": prevdevices,
+			"deviceImages":	   prevdevimages,
+			"devicePositionsT": prevposT,
+			"devicePositionsL": prevposL,
 			modalName: msg,
 		})
 	}
@@ -333,8 +339,6 @@ func viewLayer(c *gin.Context) {
 		substr := str[16 : comma-1]
 		deviceNames = append(deviceNames, substr)
 	}
-	
-	setPreviousRender(floorNames, "static/assets/" + imageName, deviceNames)
 
 	for i := 0; i < len(deviceNames); i++ {
 		deviceImages = append(deviceImages, db.GetImage(deviceNames[i], getCurrentFloor()))
@@ -348,7 +352,7 @@ func viewLayer(c *gin.Context) {
 		devicePositionsL = append(devicePositionsL, db.GetPositionsL((deviceNames[i]), getCurrentFloor()))
 	}
 
-	
+	setPreviousRender(floorNames, "static/assets/" + imageName, deviceNames, deviceImages, devicePositionsT, devicePositionsL)
 
 	Render(c, gin.H{
 		"title":           "Map",
@@ -363,14 +367,17 @@ func viewLayer(c *gin.Context) {
 	}, "index.html")
 }
 
-func setPreviousRender(payload []string, image string, devices []string) {
+func setPreviousRender(payload []string, image string, devices []string, deviceImages []string, positionsT []string, positionsL []string) {
 	prevPayload = payload
 	prevImage = image
 	prevDevices = devices
+	prevDeviceImages = deviceImages
+	prevPositionsT = positionsT
+	prevPositionsL = positionsL
 }
 
-func getPreviousRender() ([]string, string, []string) {
-	return prevPayload, prevImage, prevDevices
+func getPreviousRender() ([]string, string, []string, []string, []string, []string) {
+	return prevPayload, prevImage, prevDevices, prevDeviceImages, prevPositionsT, prevPositionsL
 }
 
 func viewDevice(c *gin.Context) {
@@ -383,7 +390,7 @@ func viewDevice(c *gin.Context) {
 		setCurrentDevice(dragname)
 	}
 
-	prevfloors, previmage, prevdevices := getPreviousRender()
+	prevfloors, previmage, prevdevices, prevdevimages, prevposT, prevposL := getPreviousRender()
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"title":		"Map",
@@ -394,6 +401,9 @@ func viewDevice(c *gin.Context) {
 		"ViewDeviceModal": "ViewDeviceModal",
 		"DeviceName":      getCurrentDevice(),
 		"DeviceIP":        db.GetIP(name, getCurrentFloor()),
+		"deviceImages":	   prevdevimages,
+		"devicePositionsT": prevposT,
+		"devicePositionsL": prevposL,
 	})
 }
 
