@@ -34,10 +34,15 @@
     grid-area: 1 / 8 / 3 / 9; 
   }
   .item7 { 
-    grid-area: 1 / 2 / 2 / 8; 
+    grid-area: 1 / 2 / 2 / 6; 
   }
   .item8 { 
     grid-area: 3 / 8 / 8 / 9; 
+  }
+  .item9 {
+    grid-area: 1 / 6 / 2 / 8;
+    display: flex;
+    flex-wrap: wrap;
   }
 
 .feedbox {
@@ -169,6 +174,7 @@
     max-height: 100%;
     top: 0;
     left: 0;
+    z-index: 0;
   }
 
   .flex {
@@ -190,4 +196,9 @@
     border: 1px solid gold;
     font-size: 14px;
     color: white;
+  }
+  .draggable_button {
+    width: 28px;
+    height: 20px;
+    display: inline-block;
   }

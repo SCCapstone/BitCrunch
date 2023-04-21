@@ -21,6 +21,8 @@ type device struct {
 	// This is the name of the floor that the device
 	// should be attached to
 	floorName string
+	positionT string
+	positionL string
 }
 
 /*
@@ -55,6 +57,8 @@ func CreateDevice(name, ip, image, floorNm string) (dev device, err error) {
 	dev.ip = ip
 	dev.image = image
 	dev.floorName = floorNm
+	dev.positionT = "\"0\""
+	dev.positionL = "\"0\""
 
 	// writing to db, might have errors
 	if err = writeDevice(dev); err != nil {
@@ -80,7 +84,7 @@ func writeDevice(d device) (err error) {
 
 	// Creating the string from the device details
 	// will append to the file
-	writeString := fmt.Sprintf("%s\t%s\t%s\t%s\n", d.name, d.ip, d.image, d.floorName)
+	writeString := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\n", d.name, d.ip, d.image, d.floorName, d.positionT, d.positionL)
 	_, err = fil.WriteString(writeString)
 	if err != nil {
 		return err
@@ -159,6 +163,8 @@ func CheckDevice(name, floorNm string) error {
 				ip:        line[1],
 				image:     line[2],
 				floorName: line[3],
+				positionT: line[4],
+				positionL: line[5],
 			}
 			if name == d.name {
 				return errors.New("Device name is not unique to floor.")
@@ -184,16 +190,17 @@ func EditDevice(name, newName, newIP, newImage, floorNm string) {
 			continue
 		}
 		splitLine := strings.Split(line, "\t")
-		fmt.Println(splitLine, len(splitLine))
 		if len(splitLine) > 1 {
 			d := device{
 				name:      splitLine[0],
 				ip:        splitLine[1],
 				image:     splitLine[2],
 				floorName: splitLine[3],
+				positionT: splitLine[4],
+				positionL: splitLine[5],
 			}
 			if d.name == name {
-				writeString := fmt.Sprintf("%s\t%s\t%s\t%s", newName, newIP, newImage, d.floorName)
+				writeString := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s", newName, newIP, newImage, d.floorName, d.positionT, d.positionL)
 				lines[i] = writeString
 			}
 		}
@@ -252,36 +259,44 @@ func DeleteDevice(name, floorNm string) error {
 	return nil
 }
 
-func GetIP(name string) string {
-	floors, err := GetAllFloors()
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, floor := range floors {
-		devices, _ := GetAllDevicesForFloor(floor.name)
+func GetIP(name, floorName string) string {
+		devices, _ := GetAllDevicesForFloor(floorName)
 		for _, device := range devices {
 			if device.name == name {
 				return device.ip
 			}
 		}
-	}
 	return ""
 }
 
-func GetImage(name string) string {
-	floors, err := GetAllFloors()
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, floor := range floors {
-		devices, _ := GetAllDevicesForFloor(floor.name)
+func GetImage(name, floorName string) string {
+		devices, _ := GetAllDevicesForFloor(floorName)
 		for _, device := range devices {
 			if device.name == name {
 				return device.image
 			}
 		}
-	}
 	return ""
+}
+
+func GetPositionsT(name, floorName string) (string) {
+		devices, _ := GetAllDevicesForFloor(floorName)
+		for _, device := range devices {
+			if device.name == name {
+				return device.positionT
+			}
+		}
+	return "0"
+}
+
+func GetPositionsL(name, floorName string) (string) {
+		devices, _ := GetAllDevicesForFloor(floorName)
+		for _, device := range devices {
+			if device.name == name {
+				return device.positionL
+			}
+		}
+	return "0"
 }
 
 /*
@@ -316,6 +331,8 @@ func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
 				ip:        line[1],
 				image:     line[2],
 				floorName: line[3],
+				positionT: line[4],
+				positionL: line[5],
 			}
 			devs = append(devs, d)
 		}
@@ -337,4 +354,41 @@ func GetAllIPs() (myDevices []string, err error) {
 		}
 	}
 	return deviceIPs, nil
+}
+
+func EditDeviceCoordinates(name, floorNm, top, left string) {
+	fi, err := ioutil.ReadFile("devices/" + floorNm + ".txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	lines := strings.Split(string(fi), "\n")
+	firstLine := true
+
+	for i, line := range lines {
+		if firstLine == true {
+			firstLine = false
+			continue
+		}
+		splitLine := strings.Split(line, "\t")
+		if len(splitLine) > 1 {
+			d := device{
+				name:      splitLine[0],
+				ip:        splitLine[1],
+				image:     splitLine[2],
+				floorName: splitLine[3],
+				positionT: splitLine[4],	
+				positionL: splitLine[5],
+			}
+			if d.name == name {
+				writeString := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s", d.name, d.ip, d.image, d.floorName, top, left)
+				lines[i] = writeString
+			}
+		}
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile("devices/"+floorNm+".txt", []byte(output), 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

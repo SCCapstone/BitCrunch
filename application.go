@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"encoding/json"
 
 	middleware "github.com/SCCapstone/BitCrunch/middleware"
 	// models "github.com/SCCapstone/BitCrunch/models"
@@ -28,6 +29,9 @@ var currentDevice = ""
 var prevPayload []string
 var prevImage = ""
 var prevDevices []string
+var prevDeviceImages []string
+var prevPositionsT []string
+var prevPositionsL []string
 
 /*
 Configures the router to load HTML templates
@@ -151,6 +155,8 @@ func InitializeRoutes() {
 		userRoutes.GET("/ping_device", middleware.EnsureLoggedIn(), pingDevice)
 
 		userRoutes.POST("/edit_device", middleware.EnsureLoggedIn(), editDevice)
+
+		userRoutes.POST("/postCoordinates", middleware.EnsureLoggedIn(), changeDeviceCoordinates)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -244,13 +250,16 @@ func logout(c *gin.Context) {
 
 func displayModal(modalName string, msg string) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		prevfloors, previmage, prevdevices := getPreviousRender()
+		prevfloors, previmage, prevdevices, prevdevimages, prevposT, prevposL := getPreviousRender()
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title":		"Map",
 			"payload": prevfloors,
 			"Image": previmage,
 			"EditLayerButton": "EditLayerButton",
 			"devices": prevdevices,
+			"deviceImages":	   prevdevimages,
+			"devicePositionsT": prevposT,
+			"devicePositionsL": prevposL,
 			modalName: msg,
 		})
 	}
@@ -289,6 +298,10 @@ func viewLayer(c *gin.Context) {
 	floors, _ := db.GetAllFloors()
 	floorNames := []string{}
 	deviceNames := []string{}
+	deviceImages := []string{}
+	devicePositionsT := []string{}
+	devicePositionsL := []string{}
+	scriptNames := []string{}
 	for i := 0; i < len(floors); i++ {
 		str := fmt.Sprintf("%#v", floors[i])
 		comma := strings.Index(str, ",")
@@ -326,8 +339,20 @@ func viewLayer(c *gin.Context) {
 		substr := str[16 : comma-1]
 		deviceNames = append(deviceNames, substr)
 	}
-	
-	setPreviousRender(floorNames, "static/assets/" + imageName, deviceNames)
+
+	for i := 0; i < len(deviceNames); i++ {
+		deviceImages = append(deviceImages, db.GetImage(deviceNames[i], getCurrentFloor()))
+	}
+
+	for i := 0; i < len(deviceNames); i++ {
+		devicePositionsT = append(devicePositionsT, db.GetPositionsT((deviceNames[i]), getCurrentFloor()))
+	}
+
+	for i := 0; i < len(deviceNames); i++ {
+		devicePositionsL = append(devicePositionsL, db.GetPositionsL((deviceNames[i]), getCurrentFloor()))
+	}
+
+	setPreviousRender(floorNames, "static/assets/" + imageName, deviceNames, deviceImages, devicePositionsT, devicePositionsL)
 
 	Render(c, gin.H{
 		"title":           "Map",
@@ -335,24 +360,37 @@ func viewLayer(c *gin.Context) {
 		"Image":           "static/assets/" + imageName,
 		"EditLayerButton": "EditLayerButton",
 		"devices":         deviceNames,
+		"deviceImages":	   deviceImages,
+		"devicePositionsT": devicePositionsT,
+		"devicePositionsL": devicePositionsL,
+		"scripts":         scriptNames,
 	}, "index.html")
 }
 
-func setPreviousRender(payload []string, image string, devices []string) {
+func setPreviousRender(payload []string, image string, devices []string, deviceImages []string, positionsT []string, positionsL []string) {
 	prevPayload = payload
 	prevImage = image
 	prevDevices = devices
+	prevDeviceImages = deviceImages
+	prevPositionsT = positionsT
+	prevPositionsL = positionsL
 }
 
-func getPreviousRender() ([]string, string, []string) {
-	return prevPayload, prevImage, prevDevices
+func getPreviousRender() ([]string, string, []string, []string, []string, []string) {
+	return prevPayload, prevImage, prevDevices, prevDeviceImages, prevPositionsT, prevPositionsL
 }
 
 func viewDevice(c *gin.Context) {
 	name := c.PostForm("device")
-	setCurrentDevice(name)
+	if(len(name) > 0) {
+		setCurrentDevice(name)
+	}
+	dragname := c.PostForm("dragbutton")
+	if(len(dragname) > 0) {
+		setCurrentDevice(dragname)
+	}
 
-	prevfloors, previmage, prevdevices := getPreviousRender()
+	prevfloors, previmage, prevdevices, prevdevimages, prevposT, prevposL := getPreviousRender()
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"title":		"Map",
@@ -361,8 +399,11 @@ func viewDevice(c *gin.Context) {
 		"EditLayerButton": "EditLayerButton",
 		"devices": prevdevices,
 		"ViewDeviceModal": "ViewDeviceModal",
-		"DeviceName":      name,
-		"DeviceIP":        db.GetIP(name),
+		"DeviceName":      getCurrentDevice(),
+		"DeviceIP":        db.GetIP(getCurrentDevice(), getCurrentFloor()),
+		"deviceImages":	   prevdevimages,
+		"devicePositionsT": prevposT,
+		"devicePositionsL": prevposL,
 	})
 }
 
@@ -520,23 +561,23 @@ func editDevice(c *gin.Context) {
 		err = c.SaveUploadedFile(newImage, "static/assets/"+newImage.Filename)
 	}
 	// checking IP is valid
-	if (len(newIP) > 0) && (newIP != db.GetIP(name)) {
+	if (len(newIP) > 0) && (newIP != db.GetIP(name, getCurrentFloor())) {
 		if err := db.CheckIP(newIP); err != nil {
 			c.HTML(http.StatusBadRequest, "index.html", gin.H{
 				"ViewDeviceModal": "ViewDeviceModal",
 				"DeviceName":      name,
-				"DeviceIP":        db.GetIP(name),
+				"DeviceIP":        db.GetIP(name, getCurrentFloor()),
 				"ErrorTitle":      "Failed to Edit Device",
 				"ErrorMessage":    err.Error(),
 			})
 			return
 		} else {
-			db.EditDevice(name, name, newIP, db.GetImage(name), floor)
+			db.EditDevice(name, name, newIP, db.GetImage(name, getCurrentFloor()), floor)
 		}
 	}
 	// adding image if present
 	if newImage != nil {
-		db.EditDevice(name, name, db.GetIP(name), "static/assets/"+newImage.Filename, floor)
+		db.EditDevice(name, name, db.GetIP(name, getCurrentFloor()), "static/assets/"+newImage.Filename, floor)
 	}
 	// checking device name is unique for floor
 	if (len(newName) > 0) && (newName != name) {
@@ -544,16 +585,53 @@ func editDevice(c *gin.Context) {
 			c.HTML(http.StatusBadRequest, "index.html", gin.H{
 				"ViewDeviceModal": "ViewDeviceModal",
 				"DeviceName":      name,
-				"DeviceIP":        db.GetIP(name),
+				"DeviceIP":        db.GetIP(name, getCurrentFloor()),
 				"ErrorTitle":      "Failed to Edit Device",
 				"ErrorMessage":    err.Error(),
 			})
 			return
 		} else {
-			db.EditDevice(name, newName, db.GetIP(name), db.GetImage(name), floor)
+			db.EditDevice(name, newName, db.GetIP(name, getCurrentFloor()), db.GetImage(name, getCurrentFloor()), floor)
 		}
 	}
 	showMap(c)
+}
+
+func changeDeviceCoordinates(c *gin.Context) {
+	bodyBytes, err := ioutil.ReadAll(c.Request.Body)
+		if err != nil {
+			fmt.Println(err)
+		}
+		// Convert the byte array to a string
+		bodyString := string(bodyBytes)
+		// Print the JSON request to the terminal
+		fmt.Printf("JSON Request: %s\n", bodyString)
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+
+		var data map[string]json.RawMessage
+		err = json.Unmarshal(bodyBytes, &data)
+		if err != nil {
+			log.Fatal(err)
+		}
+		topBytes := data["Top"]
+		leftBytes := data["Left"]
+		idBytes := data["ID"]
+		top := string(topBytes)
+		left := string(leftBytes)
+		id := string(idBytes)
+		id = removeQuotes(id)
+		db.EditDeviceCoordinates(id, getCurrentFloor(), top, left)
+
+}
+
+func removeQuotes(s string) (string){
+	if len(s) > 0 && s[0] == '"' {
+		s = s[1:]
+	}
+	if len(s) > 0 && s[len(s)-1] == '"' {
+		s = s[:len(s)-1]
+	}
+	return s
 }
 
 /*
@@ -572,7 +650,7 @@ func DeleteLayer(c *gin.Context) {
 
 func pingDevice(c *gin.Context) {
 	device := getCurrentDevice()
-	ip := db.GetIP(device)
+	ip := db.GetIP(device, getCurrentFloor())
 	_, output := rd.RunFromScript("pingscript.txt", ip)
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Output": output,
