@@ -13,7 +13,7 @@
 
     <form action="/u/login" method="POST">
         <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username"><br>
+        <input type="text" id="username" name="username" value = "{{ .Username}}"><br>
         <label for="password">Password:</label><br>
         <input type="password" id="password" name="password"><br><br>
         {{ if .ErrorTitle}}
@@ -26,8 +26,11 @@
         </div>
       </form> 
 
+      <form action="/u/forgot-password" method="GET">
+        <p style = "margin-bottom: 1px"><input class="signup moveup" type="submit" value="Forgot Password?"></p>
+      </form>
       <form action="/u/register" method="GET">
-        <p>Don't have an account? <input class="signup moveup" type="submit" value="Sign-up"></p>
+        <p style = "margin-top: 1px">Don't have an account? <input class="signup moveup" type="submit" value="Sign-up"></p>
       </form>
 </article>
 
