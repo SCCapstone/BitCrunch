@@ -295,28 +295,3 @@ func CheckEmail(e string) error {
 func hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), hashCost)
 }
-
-func ResetPassword(username string, password string) error {
-	u, err := ReadUser(username)
-	if err != nil {
-		return err
-	}
-	// User found, checking password
-	if err := CheckPassword(password); err != nil {
-		return err
-	} else {
-		// Password is valid, changing password
-		hashed, err := hash(password)
-		if err != nil {
-			return err
-		}
-		u.password = hashed
-		if err := DeleteUser(username); err != nil {
-			return err
-		}
-		if err := writeUser(u); err != nil {
-			return err
-		}
-	}
-	return nil
-}
