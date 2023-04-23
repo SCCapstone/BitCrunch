@@ -177,6 +177,16 @@
     z-index: 0;
   }
 
+  .logo_image {
+    min-width: 60%;
+    min-height: 140%;
+    max-width: 140%;
+    max-height: 60%;
+    bottom: 15%;
+    left: 15%;
+    z-index: 0;
+  }
+
   .flex {
     display: flex;
   }
