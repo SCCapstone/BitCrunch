@@ -3,9 +3,11 @@ package db
 import (
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,18 +18,20 @@ const (
 )
 
 type user struct {
-	username string
-	password []byte
-	email    string
-	admin    int
+	username   string
+	password   []byte
+	email      string
+	reset_code string
+	admin      int
 }
 
 func CreateUser(username, password, email string, admin int) (user, error) {
 	u := user{
-		username: "",
-		password: []byte(""),
-		email:    "",
-		admin:    0,
+		username:   "",
+		password:   []byte(""),
+		email:      "",
+		reset_code: "",
+		admin:      0,
 	}
 	if CheckUsername(username) != nil {
 		return u, fmt.Errorf("Username \"%s\" is already in use.", username)
@@ -71,7 +75,7 @@ func writeUser(u user) error {
 	defer fil.Close()
 	// Creating the string from the user details
 	// to append to the file
-	writeString := fmt.Sprintf("%s\t%s\t%s\t%d\n", u.username, u.password, u.email, u.admin)
+	writeString := fmt.Sprintf("%s\t%s\t%s\t%s\t%d\n", u.username, u.password, u.email, u.reset_code, u.admin)
 	_, err = fil.WriteString(writeString)
 	if err != nil {
 		return err
@@ -101,10 +105,11 @@ func ReadUser(uname string) (u user, err error) {
 		if line[0] == uname {
 			// User found, creating it to return
 			u = user{
-				username: line[0],
-				password: []byte(line[1]),
-				email:    line[2],
-				admin:    0,
+				username:   line[0],
+				password:   []byte(line[1]),
+				email:      line[2],
+				reset_code: line[3],
+				admin:      0,
 			}
 			return u, nil
 		}
@@ -319,4 +324,37 @@ func ResetPassword(username string, password string) error {
 		}
 	}
 	return nil
+}
+
+func GenerateResetCode(username string) string {
+	u, err := ReadUser(username)
+	if err != nil {
+		return ""
+	}
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+	b := make([]byte, 5)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	u.reset_code = string(b)
+	if err := DeleteUser(username); err != nil {
+		return ""
+	}
+	if err := writeUser(u); err != nil {
+		return ""
+	}
+	return string(b)
+}
+
+func CheckResetCode(code string, username string) error {
+	u, err := ReadUser(username)
+	if err != nil {
+		return err
+	}
+	if u.reset_code != code {
+		return fmt.Errorf("Reset code does not match.")
+	} else {
+		return nil
+	}
 }
