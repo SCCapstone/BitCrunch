@@ -176,6 +176,17 @@ body {
     width: 60%;
   }
 
+  .logo_image {
+    border: 1px solid black;
+    position: relative;
+    left: 20%;
+    bottom: 65%;
+    background-color: white;
+    z-index: 0;
+    height: 650px;
+    width: 60%;
+  }
+
   .load_button {
     position: inline-block;
     height: 100px;
