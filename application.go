@@ -9,7 +9,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"net/smtp"
 	"os"
 	"strconv"
 	"strings"
@@ -158,10 +157,6 @@ func InitializeRoutes() {
 		userRoutes.POST("/edit_device", middleware.EnsureLoggedIn(), editDevice)
 
 		userRoutes.POST("/postCoordinates", middleware.EnsureLoggedIn(), changeDeviceCoordinates)
-
-		userRoutes.GET("/forgot-password", middleware.EnsureNotLoggedIn(), showForgotPassword)
-
-		userRoutes.POST("/forgot-password", middleware.EnsureNotLoggedIn(), performForgotPassword)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
