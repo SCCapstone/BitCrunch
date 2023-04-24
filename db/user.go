@@ -36,8 +36,11 @@ func CreateUser(username, password, email string, admin int) (user, error) {
 		// Return specific error
 		return u, err
 	}
-	if err := checkEmail(email); err != nil {
+	if err := CheckEmail(email); err != nil {
 		// Return specific error
+		return u, err
+	}
+	if err := CheckEmailValid(email); err != nil {
 		return u, err
 	}
 
@@ -252,17 +255,25 @@ func CheckPassword(password string) error {
 }
 
 /*
-This function will check
-to see that an email is valid
-based on regex.
+This function will check if email
+is valid based on regex.
 Returns nil if it is good to use.
 */
-func checkEmail(e string) error {
+func CheckEmailValid(e string) error {
 	// Checking for valid email
 	reg := regexp.MustCompile("(\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,6})")
 	if !reg.Match([]byte(e)) {
 		return fmt.Errorf("Please enter a valid email address.")
 	}
+	return nil
+}
+
+/*
+This function will check if email is
+already in database.
+Returns nil if not in database.
+*/
+func CheckEmail(e string) error {
 	// Checking if email address already in use
 	fi, err := open(users)
 	if err != nil {
