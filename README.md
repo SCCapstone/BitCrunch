@@ -7,7 +7,6 @@ GoMap is an IT assistance app which allows users to interact with devices using 
 In order to build this project you first have to install:
 
 * [Go Programming Language] (https://go.dev/dl/)
-* [Gin Web Framework] (go get -u github.com/gin-gonic/gin)
 
 ## Setup
 
