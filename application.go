@@ -772,8 +772,6 @@ func setCurrentDevice(deviceName string) {
 func getCurrentDevice() (deviceName string) {
 	return currentDevice
 }
-<<<<<<< HEAD
-=======
 
 /*
 Renders forgot password page
@@ -866,4 +864,3 @@ func performResetPassword(c *gin.Context) {
 		showLoginPage(c)
 	}
 }
->>>>>>> 4c43a5d1ff9789411ab1b52877e0a4b8c397b830
