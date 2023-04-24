@@ -3,6 +3,7 @@ package db
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"os"
 	"strings"
@@ -19,6 +20,8 @@ type device struct {
 	// This is the name of the floor that the device
 	// should be attached to
 	floorName string
+	positionT string
+	positionL string
 }
 
 /*
@@ -32,7 +35,7 @@ func CreateDevice(name, ip, image, floorNm string) (dev device, err error) {
 	// 	return
 	// }
 	// Check IP formatting
-	if err = CheckIP(ip); err != nil {
+	if _, err = CheckIP(ip); err != nil {
 		return
 	}
 	// Making sure the floor can be read or
@@ -119,14 +122,55 @@ Remove a device from the database.
 Returns nil if it was sucessful.
 Error otherwise.
 */
-func DeleteDevice(name string) error {
+// func DeleteDevice(name string) error {
+// 	// making temp file
+// 	delMe, err := os.Create(fmt.Sprintf("temp%s.tmp", name))
+// 	if err != nil {
+// 		return err
+// 	}
+// 	// Opening db file
+// 	fi, err := os.Open(devices)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	// Reading file to find the device to be removed
+// 	scan := bufio.NewScanner(fi)
+// 	var line string
+// 	for scan.Scan() {
+// 		line = scan.Text()
+// 		if strings.Split(line, "\t")[0] != name {
+// 			delMe.WriteString(line)
+// 		}
+// 	}
+
+// 	// Finished coping the device data to new file
+// 	// Cleaning up
+// 	fi.Close()
+// 	err = os.Remove(devices)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	// Renaming the new file withouth the
+// 	// deleted device to the devices.db name
+// 	err = os.Rename(delMe.Name(), devices)
+// 	if err != nil {
+// 		return err
+// 	}
+
+//		// All good, clean up
+//		delMe.Close()
+//		return nil
+//	}
+func DeleteDevice(name, floorNm string) error {
 	// making temp file
 	delMe, err := os.Create(fmt.Sprintf("temp%s.tmp", name))
+	newName := "devices/" + floorNm + ".txt"
 	if err != nil {
 		return err
 	}
 	// Opening db file
-	fi, err := os.Open(devices)
+	fi, err := os.Open("devices/" + floorNm + ".txt")
 	if err != nil {
 		return err
 	}
@@ -136,27 +180,27 @@ func DeleteDevice(name string) error {
 	for scan.Scan() {
 		line = scan.Text()
 		if strings.Split(line, "\t")[0] != name {
-			delMe.WriteString(line)
+			delMe.WriteString(line + "\n")
 		}
 	}
 
 	// Finished coping the device data to new file
 	// Cleaning up
 	fi.Close()
-	err = os.Remove(devices)
+	err = os.Remove("devices/" + floorNm + ".txt")
 	if err != nil {
 		return err
 	}
 
 	// Renaming the new file withouth the
 	// deleted device to the devices.db name
-	err = os.Rename(delMe.Name(), devices)
+	delMe.Close()
+	err = os.Rename(delMe.Name(), newName)
 	if err != nil {
 		return err
 	}
 
 	// All good, clean up
-	delMe.Close()
 	return nil
 }
 
@@ -209,4 +253,96 @@ func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
 	}
 
 	return devs, nil
+}
+
+func GetAllIPs() (myDevices []string, err error) {
+	var deviceIPs = []string{}
+	floors, err := GetAllFloors()
+	if err != nil {
+		return deviceIPs, err
+	}
+	for _, floor := range floors {
+		devices, _ := GetAllDevicesForFloor(floor.name)
+		for _, device := range devices {
+			deviceIPs = append(deviceIPs, device.ip.String())
+		}
+	}
+	return deviceIPs, nil
+}
+
+func EditDeviceCoordinates(name, floorNm, top, left string) {
+	fi, err := ioutil.ReadFile("devices/" + floorNm + ".txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	lines := strings.Split(string(fi), "\n")
+	firstLine := true
+
+	for i, line := range lines {
+		if firstLine == true {
+			firstLine = false
+			continue
+		}
+		splitLine := strings.Split(line, "\t")
+		if len(splitLine) > 1 {
+			d := device{
+				name:      splitLine[0],
+				ip:        net.ParseIP(splitLine[1]),
+				image:     splitLine[2],
+				floorName: splitLine[3],
+				positionT: splitLine[4],
+				positionL: splitLine[5],
+			}
+			if d.name == name {
+				writeString := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s", d.name, d.ip, d.image, d.floorName, top, left)
+				lines[i] = writeString
+			}
+		}
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile("devices/"+floorNm+".txt", []byte(output), 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func GetIP(name, floorName string) string {
+	devices, _ := GetAllDevicesForFloor(floorName)
+	for _, device := range devices {
+		if device.name == name {
+			return device.ip.String()
+		}
+	}
+	return ""
+}
+
+func GetImage(name, floorName string) string {
+	devices, _ := GetAllDevicesForFloor(floorName)
+	for _, device := range devices {
+		if device.name == name {
+			return device.image
+		}
+	}
+	return ""
+}
+
+func GetPositionsT(name, floorName string) string {
+	devices, _ := GetAllDevicesForFloor(floorName)
+	for _, device := range devices {
+		if device.name == name {
+			return device.positionT
+		}
+	}
+	return "0"
+}
+
+func GetPositionsL(name, floorName string) string {
+	devices, _ := GetAllDevicesForFloor(floorName)
+	for _, device := range devices {
+		if device.name == name {
+			return device.positionL
+		}
+	}
+	return "0"
 }
