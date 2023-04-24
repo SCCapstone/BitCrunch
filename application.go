@@ -591,7 +591,7 @@ func editDevice(c *gin.Context) {
 	}
 	// checking IP is valid
 	if (len(newIP) > 0) && (newIP != db.GetIP(name, getCurrentFloor())) {
-		if err := db.CheckIP(newIP); err != nil {
+		if _, err := db.CheckIP(newIP); err != nil {
 			c.HTML(http.StatusBadRequest, "index.html", gin.H{
 				"ViewDeviceModal": "ViewDeviceModal",
 				"DeviceName":      name,
@@ -763,4 +763,3 @@ func setCurrentDevice(deviceName string) {
 func getCurrentDevice() (deviceName string) {
 	return currentDevice
 }
-
