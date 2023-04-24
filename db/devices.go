@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -14,7 +14,8 @@ const devices = "devices.db"
 
 type device struct {
 	name string
-	ip   string // static IP of the device
+	//ip   string // static IP of the device
+	ip net.IP
 	// This is the NAME of the image file
 	// NOT the actual image in memory
 	image string
@@ -43,7 +44,7 @@ func CreateDevice(name, ip, image, floorNm string) (dev device, err error) {
 		return
 	}
 	// Check IP formatting and IP not already in database
-	if err = CheckIP(ip); err != nil {
+	if _, err = CheckIP(ip); err != nil {
 		return
 	}
 	// Making sure the floor can be read or
@@ -54,7 +55,7 @@ func CreateDevice(name, ip, image, floorNm string) (dev device, err error) {
 	// All checks are good, creating the
 	// floor and writing to db
 	dev.name = name
-	dev.ip = ip
+	dev.ip = net.ParseIP(ip)
 	dev.image = image
 	dev.floorName = floorNm
 	dev.positionT = "\"0\""
@@ -95,43 +96,30 @@ func writeDevice(d device) (err error) {
 
 /*
 This checks that the string fits
-a valid IP format. Returns
-nil if it's good. Error otherwise.
-*/
-func CheckIP(ip string) error {
-	// checking if IP already matches another device
-	ips, err := GetAllIPs()
-	for _, i := range ips {
-		if ip == i {
-			return fmt.Errorf("IP is already in use for a device.")
-		}
-	}
-	// checking IP format valid
-	checkIP := strings.Split(ip, ".")
-	if len(checkIP) != 4 {
-		return fmt.Errorf("IP format is invalid.")
-	}
-	// Getting each octet to verify that it is in
-	// a valid IP range of 0-255
-	first, err := strconv.Atoi(checkIP[0])
-	if err != nil || first < 0 || first > 255 {
-		return fmt.Errorf("IP format is invalid.")
-	}
-	second, err := strconv.Atoi(checkIP[1])
-	if err != nil || second < 0 || second > 255 {
-		return fmt.Errorf("IP format is invalid.")
-	}
-	third, err := strconv.Atoi(checkIP[2])
-	if err != nil || third < 0 || third > 255 {
-		return fmt.Errorf("IP format is invalid.")
-	}
-	fourth, err := strconv.Atoi(checkIP[3])
-	if err != nil || fourth < 0 || fourth > 255 {
-		return fmt.Errorf("IP format is invalid.")
-	}
+a valid IP/hostname format. Returns
+nil error if no problems are found.
 
-	// All should be good
-	return nil
+Note: This will convert hostnames
+to IP addresses.
+*/
+func CheckIP(ip string) (net.IP, error) {
+	// This function converts to a go IP type.
+	// will be nil if parsing failed.
+	check := net.ParseIP(ip)
+	if check == nil {
+		// Could be a hostname.
+		// Getting the IP from net function
+		hostIP, err := net.LookupHost(ip)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to parse IP address or host.")
+		}
+		// Just taking the first IP in the slice
+		// Could potentially cause problems but
+		// should work in most cases
+		check = net.ParseIP(hostIP[0])
+	}
+	// IP is not nil so everything is good
+	return check, nil
 }
 
 /*
@@ -160,7 +148,7 @@ func CheckDevice(name, floorNm string) error {
 		if len(line) > 1 {
 			d := device{
 				name:      line[0],
-				ip:        line[1],
+				ip:        net.ParseIP(line[1]),
 				image:     line[2],
 				floorName: line[3],
 				positionT: line[4],
@@ -193,7 +181,7 @@ func EditDevice(name, newName, newIP, newImage, floorNm string) {
 		if len(splitLine) > 1 {
 			d := device{
 				name:      splitLine[0],
-				ip:        splitLine[1],
+				ip:        net.ParseIP(splitLine[1]),
 				image:     splitLine[2],
 				floorName: splitLine[3],
 				positionT: splitLine[4],
@@ -260,42 +248,42 @@ func DeleteDevice(name, floorNm string) error {
 }
 
 func GetIP(name, floorName string) string {
-		devices, _ := GetAllDevicesForFloor(floorName)
-		for _, device := range devices {
-			if device.name == name {
-				return device.ip
-			}
+	devices, _ := GetAllDevicesForFloor(floorName)
+	for _, device := range devices {
+		if device.name == name {
+			return device.ip.String()
 		}
+	}
 	return ""
 }
 
 func GetImage(name, floorName string) string {
-		devices, _ := GetAllDevicesForFloor(floorName)
-		for _, device := range devices {
-			if device.name == name {
-				return device.image
-			}
+	devices, _ := GetAllDevicesForFloor(floorName)
+	for _, device := range devices {
+		if device.name == name {
+			return device.image
 		}
+	}
 	return ""
 }
 
-func GetPositionsT(name, floorName string) (string) {
-		devices, _ := GetAllDevicesForFloor(floorName)
-		for _, device := range devices {
-			if device.name == name {
-				return device.positionT
-			}
+func GetPositionsT(name, floorName string) string {
+	devices, _ := GetAllDevicesForFloor(floorName)
+	for _, device := range devices {
+		if device.name == name {
+			return device.positionT
 		}
+	}
 	return "0"
 }
 
-func GetPositionsL(name, floorName string) (string) {
-		devices, _ := GetAllDevicesForFloor(floorName)
-		for _, device := range devices {
-			if device.name == name {
-				return device.positionL
-			}
+func GetPositionsL(name, floorName string) string {
+	devices, _ := GetAllDevicesForFloor(floorName)
+	for _, device := range devices {
+		if device.name == name {
+			return device.positionL
 		}
+	}
 	return "0"
 }
 
@@ -328,7 +316,7 @@ func GetAllDevicesForFloor(floorNm string) (devs []device, err error) {
 		if len(line) > 1 {
 			d := device{
 				name:      line[0],
-				ip:        line[1],
+				ip:        net.ParseIP(line[1]),
 				image:     line[2],
 				floorName: line[3],
 				positionT: line[4],
@@ -350,7 +338,7 @@ func GetAllIPs() (myDevices []string, err error) {
 	for _, floor := range floors {
 		devices, _ := GetAllDevicesForFloor(floor.name)
 		for _, device := range devices {
-			deviceIPs = append(deviceIPs, device.ip)
+			deviceIPs = append(deviceIPs, device.ip.String())
 		}
 	}
 	return deviceIPs, nil
@@ -374,10 +362,10 @@ func EditDeviceCoordinates(name, floorNm, top, left string) {
 		if len(splitLine) > 1 {
 			d := device{
 				name:      splitLine[0],
-				ip:        splitLine[1],
+				ip:        net.ParseIP(splitLine[1]),
 				image:     splitLine[2],
 				floorName: splitLine[3],
-				positionT: splitLine[4],	
+				positionT: splitLine[4],
 				positionL: splitLine[5],
 			}
 			if d.name == name {
