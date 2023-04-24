@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/smtp"
 	"os"
 	"strconv"
 	"strings"
@@ -157,6 +158,14 @@ func InitializeRoutes() {
 		userRoutes.POST("/edit_device", middleware.EnsureLoggedIn(), editDevice)
 
 		userRoutes.POST("/postCoordinates", middleware.EnsureLoggedIn(), changeDeviceCoordinates)
+
+		userRoutes.GET("/forgot-password", middleware.EnsureNotLoggedIn(), showForgotPassword)
+
+		userRoutes.POST("/forgot-password", middleware.EnsureNotLoggedIn(), performForgotPassword)
+
+		userRoutes.GET("/reset-password", middleware.EnsureNotLoggedIn(), showResetPassword)
+
+		userRoutes.POST("/reset-password", middleware.EnsureNotLoggedIn(), performResetPassword)
 	}
 	// Handle GET requests at /map, ensure user is logged in using middleware
 	// Render the index page
@@ -764,3 +773,94 @@ func getCurrentDevice() (deviceName string) {
 	return currentDevice
 }
 
+/*
+Renders forgot password page
+*/
+func showForgotPassword(c *gin.Context) {
+	Render(c, gin.H{
+		"title": "Forgot Password"}, "forgot-password.html")
+}
+
+/*
+Renders reset password page
+*/
+func showResetPassword(c *gin.Context) {
+	Render(c, gin.H{
+		"title": "Reset Password"}, "reset-password.html")
+}
+
+/*
+Checks if inputted email is in database
+If yes, returned to login page
+If no, renders error
+*/
+func performForgotPassword(c *gin.Context) {
+	username := c.PostForm("username")
+	email := c.PostForm("email")
+	if err := db.CheckUsername(username); err == nil {
+		c.HTML(http.StatusBadRequest, "forgot-password.html", gin.H{
+			"title":        "Forgot Password",
+			"Email":        email,
+			"ErrorTitle":   "Invalid Username",
+			"ErrorMessage": "Username not connected to user."})
+	} else if err := db.CheckEmailValid(email); err != nil {
+		c.HTML(http.StatusBadRequest, "forgot-password.html", gin.H{
+			"title":        "Forgot Password",
+			"Username":     username,
+			"ErrorTitle":   "Invalid Email Address",
+			"ErrorMessage": "Please type a valid email address."})
+	} else if err := db.CheckEmail(email); err != nil {
+		from := "bitcrunch2k23@gmail.com"
+		password := "gydhmmllmtsfjxal"
+		to := []string{email}
+		smtpHost := "smtp.gmail.com"
+		smtpPort := "587"
+		resetCode := db.GenerateResetCode(username)
+		message := []byte("Subject: Reset Code\n\nHere is your reset password code: " + resetCode)
+		auth := smtp.PlainAuth("", from, password, smtpHost)
+		err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, message)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "forgot-password.html", gin.H{
+				"title":        "Forgot Password",
+				"Username":     username,
+				"Email":        email,
+				"ErrorTitle":   "Failed to Send Email",
+				"ErrorMessage": err.Error()})
+		} else {
+			showResetPassword(c)
+		}
+	} else {
+		c.HTML(http.StatusBadRequest, "forgot-password.html", gin.H{
+			"title":        "Forgot Password",
+			"ErrorTitle":   "Invalid Email Address",
+			"ErrorMessage": "Email not connected to a user."})
+	}
+}
+
+/*
+Checks if password is valid
+If yes, updates password
+If not, renders error
+*/
+func performResetPassword(c *gin.Context) {
+	reset_code := c.PostForm("reset-code")
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+	confirm_password := c.PostForm("confirm_password")
+
+	if err := db.CheckResetCode(reset_code, username); err != nil {
+		c.HTML(http.StatusBadRequest, "reset-password.html", gin.H{
+			"ErrorTitle":   "Reset Password Failed",
+			"ErrorMessage": err.Error()})
+	} else if password != confirm_password {
+		c.HTML(http.StatusBadRequest, "reset-password.html", gin.H{
+			"ErrorTitle":   "Reset Password Failed",
+			"ErrorMessage": fmt.Sprintf("Passwords \"%s\" and \"%s\" do not match.", password, confirm_password)})
+	} else if err := db.ResetPassword(username, password); err != nil {
+		c.HTML(http.StatusBadRequest, "reset-password.html", gin.H{
+			"ErrorTitle":   "Reset Password Failed",
+			"ErrorMessage": err.Error()})
+	} else {
+		showLoginPage(c)
+	}
+}
